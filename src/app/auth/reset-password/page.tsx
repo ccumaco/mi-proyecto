@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClientBrowser } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 function ResetPasswordForm() {
@@ -11,6 +11,7 @@ function ResetPasswordForm() {
   const [success, setSuccess] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const supabase = createClientBrowser()
 
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

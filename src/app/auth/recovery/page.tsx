@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClientBrowser } from '@/lib/supabase'
 
 export default function Recovery() {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const supabase = createClientBrowser()
 
   const handleRecovery = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

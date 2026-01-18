@@ -1,46 +1,47 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
-import type { User } from '@supabase/supabase-js'
+import { useState, useEffect } from 'react';
+import { createClientBrowser } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
 
 export default function Admin() {
-  const [user, setUser] = useState<User | null>(null)
-  const [role, setRole] = useState<string | null>(null)
-  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClientBrowser();
 
   useEffect(() => {
     const fetchUser = async () => {
       const {
         data: { user },
-      } = await supabase.auth.getUser()
-      setUser(user)
+      } = await supabase.auth.getUser();
+      setUser(user);
       if (user) {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single()
+          .single();
         if (error) {
-          console.error('Error fetching profile:', error)
+          console.error('Error fetching profile:', error);
         } else {
-          setRole(profile.role)
+          setRole(profile.role);
           if (profile.role !== 'admin' && profile.role !== 'superAdmin') {
-            router.push('/')
+            router.push('/');
           }
         }
       } else {
-        router.push('/auth/login')
+        router.push('/auth/login');
       }
-    }
-    fetchUser()
-  }, [router])
+    };
+    fetchUser();
+  }, [router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center text-gray-900">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-md">
+        <h1 className="text-center text-2xl font-bold text-gray-900">
           Admin Page
         </h1>
         {user && role && (role === 'admin' || role === 'superAdmin') && (
@@ -50,5 +51,5 @@ export default function Admin() {
         )}
       </div>
     </div>
-  )
+  );
 }

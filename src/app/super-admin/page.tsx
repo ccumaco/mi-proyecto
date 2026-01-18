@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClientBrowser } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 
@@ -9,6 +9,7 @@ export default function SuperAdmin() {
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<string | null>(null)
   const router = useRouter()
+  const supabase = createClientBrowser()
 
   useEffect(() => {
     const fetchUser = async () => {
