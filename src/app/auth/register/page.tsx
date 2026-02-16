@@ -3,6 +3,17 @@
 import { useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBuilding,
+  faCircleCheck,
+  faCircleInfo,
+  faEye,
+  faArrowRight,
+  faLock,
+  faShieldHalved,
+  faUserShield,
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -42,14 +53,8 @@ export default function Register() {
       {/* Top Navigation */}
       <header className="dark:bg-background-dark sticky top-0 z-50 flex items-center justify-between border-b border-solid border-[#dbe0e6] bg-white px-6 py-3 whitespace-nowrap md:px-20 dark:border-[#2d394a]">
         <div className="flex items-center gap-4">
-          <div className="text-primary size-8">
-            <svg
-              fill="currentColor"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"></path>
-            </svg>
+          <div className="text-primary size-8 flex items-center justify-center">
+            <FontAwesomeIcon icon={faBuilding} className="h-7 w-7" />
           </div>
           <h2 className="text-lg leading-tight font-bold tracking-[-0.015em]">
             PropManage
@@ -141,9 +146,10 @@ export default function Register() {
                       required
                       type="text"
                     />
-                    <span className="material-symbols-outlined absolute top-1/2 right-3 -translate-y-1/2 text-xl text-green-500">
-                      check_circle
-                    </span>
+<FontAwesomeIcon
+                      icon={faCircleCheck}
+                      className="absolute top-1/2 right-3 -translate-y-1/2 text-xl text-green-500"
+                    />
                   </div>
                 </label>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -179,17 +185,17 @@ export default function Register() {
                   <span className="group-focus-within:text-primary text-sm font-semibold transition-colors">
                     Nombre de la Propiedad
                   </span>
-                  <span
-                    className="material-symbols-outlined cursor-help text-base text-[#617589]"
+<FontAwesomeIcon
+                    icon={faCircleInfo}
+                    className="cursor-help text-base text-[#617589]"
                     title="Busca el nombre de tu edificio o condominio"
-                  >
-                    info
-                  </span>
+                  />
                 </div>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-[#617589]">
-                    apartment
-                  </span>
+<FontAwesomeIcon
+                    icon={faBuilding}
+                    className="absolute top-1/2 left-3 -translate-y-1/2 text-[#617589]"
+                  />
                   <input
                     className="focus:border-primary focus:ring-primary/20 h-12 w-full rounded-lg border-[#dbe0e6] bg-white pr-4 pl-11 transition-all placeholder:text-[#617589]/50 focus:ring-2 dark:border-[#2d394a] dark:bg-[#1a2632]"
                     placeholder="Buscar edificio..."
@@ -213,10 +219,10 @@ export default function Register() {
                       onChange={e => setPassword(e.target.value)}
                     />
                     <button
-                      className="material-symbols-outlined hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 text-[#617589]"
+                      className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 text-[#617589]"
                       type="button"
                     >
-                      visibility
+                      <FontAwesomeIcon icon={faEye} className="h-5 w-5" />
                     </button>
                   </div>
                 </label>
@@ -241,9 +247,7 @@ export default function Register() {
                 type="submit"
               >
                 <span>Continuar</span>
-                <span className="material-symbols-outlined text-xl">
-                  arrow_forward
-                </span>
+<FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
               </button>
               <div className="text-center">
                 <p className="text-sm text-[#617589]">
@@ -261,7 +265,7 @@ export default function Register() {
           {/* Footer Info */}
           <div className="flex items-center justify-center gap-4 border-t border-[#dbe0e6] bg-[#f8f9fa] px-8 py-4 text-[11px] text-[#617589] dark:border-[#2d394a] dark:bg-[#101922]">
             <span className="flex items-center gap-1">
-              <span className="material-symbols-outlined">lock</span> Datos
+              <FontAwesomeIcon icon={faLock} className="h-4 w-4" /> Datos
               encriptados
             </span>
             <span className="h-1 w-1 rounded-full bg-[#617589]"></span>
@@ -273,13 +277,13 @@ export default function Register() {
         {/* Trust Badges */}
         <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-50 grayscale transition-all duration-500 hover:grayscale-0">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined">verified_user</span>
+            <FontAwesomeIcon icon={faUserShield} className="h-5 w-5" />
             <span className="text-sm font-bold tracking-widest uppercase">
               ISO 27001 Certified
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined">security</span>
+            <FontAwesomeIcon icon={faShieldHalved} className="h-5 w-5" />
             <span className="text-sm font-bold tracking-widest uppercase">
               GDPR Compliant
             </span>

@@ -1,3 +1,10 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faShieldHalved,
+  faEye,
+  faRocket,
+} from '@fortawesome/free-solid-svg-icons';
+
 export default function AboutSection() {
   return (
     <section
@@ -19,9 +26,7 @@ export default function AboutSection() {
             <div className="mt-4 grid gap-6 sm:grid-cols-3">
               <div className="flex flex-col gap-3">
                 <div className="text-primary">
-                  <span className="material-symbols-outlined text-4xl">
-                    verified_user
-                  </span>
+                  <FontAwesomeIcon icon={faShieldHalved} className="h-9 w-9" />
                 </div>
                 <h3 className="text-navy text-lg font-bold dark:text-white">
                   Experiencia
@@ -32,9 +37,7 @@ export default function AboutSection() {
               </div>
               <div className="flex flex-col gap-3">
                 <div className="text-emerald-green">
-                  <span className="material-symbols-outlined text-4xl">
-                    visibility
-                  </span>
+                  <FontAwesomeIcon icon={faEye} className="h-9 w-9" />
                 </div>
                 <h3 className="text-navy text-lg font-bold dark:text-white">
                   Transparencia
@@ -45,9 +48,7 @@ export default function AboutSection() {
               </div>
               <div className="flex flex-col gap-3">
                 <div className="text-primary">
-                  <span className="material-symbols-outlined text-4xl">
-                    rocket_launch
-                  </span>
+                  <FontAwesomeIcon icon={faRocket} className="h-9 w-9" />
                 </div>
                 <h3 className="text-navy text-lg font-bold dark:text-white">
                   Innovación

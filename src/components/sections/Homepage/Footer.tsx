@@ -1,3 +1,14 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBuilding,
+  faShareNodes,
+  faAt,
+  faGlobe,
+  faLocationDot,
+  faPhone,
+  faEnvelope,
+} from '@fortawesome/free-solid-svg-icons';
+
 export default function Footer() {
   return (
     <footer className="dark:bg-background-dark border-t border-slate-200 bg-white px-4 pt-16 pb-8 sm:px-6 lg:px-8 dark:border-slate-800">
@@ -6,9 +17,7 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <div className="bg-primary rounded-lg p-1.5">
-                <span className="material-symbols-outlined text-xl text-white">
-                  domain
-                </span>
+<FontAwesomeIcon icon={faBuilding} className="text-xl text-white" />
               </div>
               <h2 className="text-navy text-lg font-bold dark:text-white">
                 PropManagement
@@ -23,25 +32,19 @@ export default function Footer() {
                 className="text-slate-gray hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition-all hover:text-white dark:bg-slate-800"
                 href="#"
               >
-                <span className="material-symbols-outlined text-base">
-                  share
-                </span>
+<FontAwesomeIcon icon={faShareNodes} className="text-base" />
               </a>
               <a
                 className="text-slate-gray hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition-all hover:text-white dark:bg-slate-800"
                 href="#"
               >
-                <span className="material-symbols-outlined text-base">
-                  alternate_email
-                </span>
+<FontAwesomeIcon icon={faAt} className="text-base" />
               </a>
               <a
                 className="text-slate-gray hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition-all hover:text-white dark:bg-slate-800"
                 href="#"
               >
-                <span className="material-symbols-outlined text-base">
-                  public
-                </span>
+<FontAwesomeIcon icon={faGlobe} className="text-base" />
               </a>
             </div>
           </div>
@@ -123,21 +126,15 @@ export default function Footer() {
             <h4 className="text-navy font-bold dark:text-white">Contacto</h4>
             <ul className="flex flex-col gap-4">
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
-                <span className="material-symbols-outlined text-primary text-xl">
-                  location_on
-                </span>
+<FontAwesomeIcon icon={faLocationDot} className="text-primary text-xl" />
                 <span>Calle 100 #15-32, Bogotá, Colombia</span>
               </li>
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
-                <span className="material-symbols-outlined text-primary text-xl">
-                  call
-                </span>
+<FontAwesomeIcon icon={faPhone} className="text-primary text-xl" />
                 <span>+57 (601) 456-7890</span>
               </li>
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
-                <span className="material-symbols-outlined text-primary text-xl">
-                  mail
-                </span>
+<FontAwesomeIcon icon={faEnvelope} className="text-primary text-xl" />
                 <span>contacto@propmanagement.com</span>
               </li>
             </ul>

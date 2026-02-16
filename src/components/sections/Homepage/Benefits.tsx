@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+
 export default function Benefits() {
   const benefits = [
     {
@@ -65,9 +68,7 @@ export default function Benefits() {
             <ul className="flex flex-col gap-6">
               <li className="flex gap-4">
                 <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <span className="material-symbols-outlined text-sm font-bold">
-                    check
-                  </span>
+                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
                 </div>
                 <div>
                   <h5 className="text-navy font-bold dark:text-white">
@@ -80,9 +81,7 @@ export default function Benefits() {
               </li>
               <li className="flex gap-4">
                 <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <span className="material-symbols-outlined text-sm font-bold">
-                    check
-                  </span>
+                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
                 </div>
                 <div>
                   <h5 className="text-navy font-bold dark:text-white">
@@ -96,9 +95,7 @@ export default function Benefits() {
               </li>
               <li className="flex gap-4">
                 <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <span className="material-symbols-outlined text-sm font-bold">
-                    check
-                  </span>
+                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
                 </div>
                 <div>
                   <h5 className="text-navy font-bold dark:text-white">

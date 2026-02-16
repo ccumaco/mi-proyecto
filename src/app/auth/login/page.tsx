@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding, faEye } from '@fortawesome/free-solid-svg-icons';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -22,7 +24,7 @@ export default function Login() {
       if (error) {
         setError(error.message);
       } else {
-        router.push('/');
+        router.push('/profile');
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -39,18 +41,8 @@ export default function Login() {
         <div className="z-10 w-full max-w-120 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl dark:border-gray-800 dark:bg-[#1a242f]">
           {/* Branding Header */}
           <div className="flex flex-col items-center px-8 pt-10 pb-6">
-            <div className="text-primary mb-4 size-12">
-              <svg
-                fill="currentColor"
-                viewBox="0 0 48 48"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  clipRule="evenodd"
-                  d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z"
-                  fillRule="evenodd"
-                ></path>
-              </svg>
+            <div className="text-primary mb-4 flex size-12 items-center justify-center">
+              <FontAwesomeIcon icon={faBuilding} className="h-10 w-10" />
             </div>
             <h2 className="text-2xl leading-tight font-bold tracking-tight text-[#111418] dark:text-white">
               Property Management
@@ -110,9 +102,7 @@ export default function Login() {
                     className="hover:text-primary absolute right-3 text-[#617589] transition-colors"
                     type="button"
                   >
-                    <span className="material-symbols-outlined text-xl">
-                      visibility
-                    </span>
+                    <FontAwesomeIcon icon={faEye} className="h-5 w-5" />
                   </button>
                 </div>
               </div>

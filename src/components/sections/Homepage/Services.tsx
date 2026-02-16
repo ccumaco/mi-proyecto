@@ -1,23 +1,32 @@
-const services = [
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCreditCard,
+  faBullhorn,
+  faChartColumn,
+  faHeadset,
+} from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
+const services: { title: string; desc: string; icon: IconDefinition }[] = [
   {
     title: 'Pagos Online',
     desc: 'Recaudo automático y procesamiento seguro.',
-    icon: '💳',
+    icon: faCreditCard,
   },
   {
     title: 'Comunicación',
     desc: 'Muro de avisos y votaciones digitales.',
-    icon: '📣',
+    icon: faBullhorn,
   },
   {
     title: 'Reportes',
     desc: 'Dashboards financieros en tiempo real.',
-    icon: '📊',
+    icon: faChartColumn,
   },
   {
     title: 'Soporte 24/7',
     desc: 'Asistencia técnica y legal disponible.',
-    icon: '🎧',
+    icon: faHeadset,
   },
 ];
 
@@ -45,7 +54,9 @@ export default function Services() {
               key={i}
               className="rounded-2xl border border-gray-100 bg-white p-8 transition-shadow hover:shadow-xl dark:border-white/10 dark:bg-[#191919]"
             >
-              <div className="mb-4 text-4xl">{s.icon}</div>
+              <div className="text-primary mb-4">
+                <FontAwesomeIcon icon={s.icon} className="h-10 w-10" />
+              </div>
               <h3 className="mb-2 text-xl font-bold">{s.title}</h3>
               <p className="text-secondary text-sm dark:text-gray-400">
                 {s.desc}

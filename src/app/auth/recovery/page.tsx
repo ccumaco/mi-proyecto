@@ -2,6 +2,14 @@
 
 import { useState } from 'react'
 import { createClientBrowser } from '@/lib/supabase'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faBuilding,
+  faUnlockKeyhole,
+  faEnvelope,
+  faArrowLeft,
+  faShieldHalved,
+} from '@fortawesome/free-solid-svg-icons'
 
 export default function Recovery() {
   const [email, setEmail] = useState('')
@@ -33,10 +41,8 @@ export default function Recovery() {
       {/* Top Navigation Bar */}
       <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#dbe0e6] dark:border-[#343d48] bg-white dark:bg-[#1a242f] px-10 py-3">
         <div className="flex items-center gap-4 text-[#111418] dark:text-white">
-          <div className="size-6 text-primary">
-            <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"/>
-            </svg>
+          <div className="size-6 text-primary flex items-center justify-center">
+            <FontAwesomeIcon icon={faBuilding} className="h-5 w-5" />
           </div>
           <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">PropiedadAdmin</h2>
         </div>
@@ -54,7 +60,7 @@ export default function Recovery() {
           <div className="p-8 md:p-10 flex flex-col items-center">
             {/* Icon Header */}
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-              <span className="material-symbols-outlined text-primary text-4xl">lock_reset</span>
+              <FontAwesomeIcon icon={faUnlockKeyhole} className="text-primary h-8 w-8" />
             </div>
             {/* HeadlineText */}
             <h1 className="text-[#111418] dark:text-white tracking-light text-[28px] md:text-[32px] font-bold leading-tight text-center pb-3">
@@ -72,7 +78,7 @@ export default function Recovery() {
                   <p className="text-[#111418] dark:text-white text-sm font-semibold leading-normal pb-2">Correo electrónico</p>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-gray-400 text-xl">mail</span>
+                      <FontAwesomeIcon icon={faEnvelope} className="text-gray-400 h-5 w-5" />
                     </div>
                     <input
                       className="form-input flex w-full rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe0e6] dark:border-[#343d48] bg-white dark:bg-[#101922] h-14 placeholder:text-[#617589] pl-11 pr-4 text-base font-normal transition-all"
@@ -102,11 +108,11 @@ export default function Recovery() {
             {/* Footer Navigation */}
             <div className="mt-8 flex flex-col items-center gap-4">
               <a className="flex items-center gap-2 text-primary font-medium text-sm hover:underline" href="/auth/login">
-                <span className="material-symbols-outlined text-sm">arrow_back</span>
+                <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
                 Volver al inicio de sesión
               </a>
               <div className="flex items-center gap-2 text-xs text-[#617589] dark:text-gray-500 mt-4">
-                <span className="material-symbols-outlined text-sm">shield</span>
+                <FontAwesomeIcon icon={faShieldHalved} className="h-3 w-3" />
                 <span>Conexión segura y cifrada</span>
               </div>
             </div>
