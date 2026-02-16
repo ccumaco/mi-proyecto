@@ -124,7 +124,7 @@ export default function Navbar() {
             /* Usuario no logueado */
             <>
               <Link href="/auth/login">
-                <button className="hover:text-primary text-sm font-medium">
+                <button className="hover:text-primary cursor-pointer text-sm font-medium transition-colors">
                   Iniciar sesión
                 </button>
               </Link>
