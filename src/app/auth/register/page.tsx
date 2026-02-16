@@ -53,7 +53,7 @@ export default function Register() {
       {/* Top Navigation */}
       <header className="dark:bg-background-dark sticky top-0 z-50 flex items-center justify-between border-b border-solid border-[#dbe0e6] bg-white px-6 py-3 whitespace-nowrap md:px-20 dark:border-[#2d394a]">
         <div className="flex items-center gap-4">
-          <div className="text-primary size-8 flex items-center justify-center">
+          <div className="text-primary flex size-8 items-center justify-center">
             <FontAwesomeIcon icon={faBuilding} className="h-7 w-7" />
           </div>
           <h2 className="text-lg leading-tight font-bold tracking-[-0.015em]">
@@ -146,7 +146,7 @@ export default function Register() {
                       required
                       type="text"
                     />
-<FontAwesomeIcon
+                    <FontAwesomeIcon
                       icon={faCircleCheck}
                       className="absolute top-1/2 right-3 -translate-y-1/2 text-xl text-green-500"
                     />
@@ -185,14 +185,14 @@ export default function Register() {
                   <span className="group-focus-within:text-primary text-sm font-semibold transition-colors">
                     Nombre de la Propiedad
                   </span>
-<FontAwesomeIcon
+                  <FontAwesomeIcon
                     icon={faCircleInfo}
                     className="cursor-help text-base text-[#617589]"
                     title="Busca el nombre de tu edificio o condominio"
                   />
                 </div>
                 <div className="relative">
-<FontAwesomeIcon
+                  <FontAwesomeIcon
                     icon={faBuilding}
                     className="absolute top-1/2 left-3 -translate-y-1/2 text-[#617589]"
                   />
@@ -247,7 +247,7 @@ export default function Register() {
                 type="submit"
               >
                 <span>Continuar</span>
-<FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
+                <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
               </button>
               <div className="text-center">
                 <p className="text-sm text-[#617589]">

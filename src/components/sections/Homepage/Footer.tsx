@@ -17,7 +17,10 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <div className="bg-primary rounded-lg p-1.5">
-<FontAwesomeIcon icon={faBuilding} className="text-xl text-white" />
+                <FontAwesomeIcon
+                  icon={faBuilding}
+                  className="text-xl text-white"
+                />
               </div>
               <h2 className="text-navy text-lg font-bold dark:text-white">
                 PropManagement
@@ -32,19 +35,19 @@ export default function Footer() {
                 className="text-slate-gray hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition-all hover:text-white dark:bg-slate-800"
                 href="#"
               >
-<FontAwesomeIcon icon={faShareNodes} className="text-base" />
+                <FontAwesomeIcon icon={faShareNodes} className="text-base" />
               </a>
               <a
                 className="text-slate-gray hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition-all hover:text-white dark:bg-slate-800"
                 href="#"
               >
-<FontAwesomeIcon icon={faAt} className="text-base" />
+                <FontAwesomeIcon icon={faAt} className="text-base" />
               </a>
               <a
                 className="text-slate-gray hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 transition-all hover:text-white dark:bg-slate-800"
                 href="#"
               >
-<FontAwesomeIcon icon={faGlobe} className="text-base" />
+                <FontAwesomeIcon icon={faGlobe} className="text-base" />
               </a>
             </div>
           </div>
@@ -126,15 +129,24 @@ export default function Footer() {
             <h4 className="text-navy font-bold dark:text-white">Contacto</h4>
             <ul className="flex flex-col gap-4">
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
-<FontAwesomeIcon icon={faLocationDot} className="text-primary text-xl" />
+                <FontAwesomeIcon
+                  icon={faLocationDot}
+                  className="text-primary text-xl"
+                />
                 <span>Calle 100 #15-32, Bogotá, Colombia</span>
               </li>
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
-<FontAwesomeIcon icon={faPhone} className="text-primary text-xl" />
+                <FontAwesomeIcon
+                  icon={faPhone}
+                  className="text-primary text-xl"
+                />
                 <span>+57 (601) 456-7890</span>
               </li>
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
-<FontAwesomeIcon icon={faEnvelope} className="text-primary text-xl" />
+                <FontAwesomeIcon
+                  icon={faEnvelope}
+                  className="text-primary text-xl"
+                />
                 <span>contacto@propmanagement.com</span>
               </li>
             </ul>
