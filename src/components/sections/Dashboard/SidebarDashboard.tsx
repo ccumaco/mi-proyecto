@@ -15,7 +15,6 @@ import { AppDispatch } from '@/lib/redux/store';
 import { logoutFromSupabase, selectUser } from '@/lib/redux/slices/authSlice';
 import { useEffect, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
-import { User } from '@supabase/supabase-js'; // Import User type
 
 interface NavItem {
   name: string;
@@ -23,7 +22,7 @@ interface NavItem {
   icon: any; // FontAwesomeIconType
 }
 
-export const SidebarDashboard = ({ user }: { user: User | null }) => {
+export const SidebarDashboard = () => {
   const router = useRouter();
   const pathname = usePathname(); // Get current pathname
   const dispatch = useDispatch<AppDispatch>();
@@ -87,11 +86,15 @@ export const SidebarDashboard = ({ user }: { user: User | null }) => {
           </div>
           {/* Nav Links */}
           <nav className="flex flex-col gap-2">
-            {navItems.map((item) => (
+            {navItems.map(item => (
               <Link
                 key={item.name}
                 href={item.href}
-                className={pathname === item.href ? activeLinkClasses : inactiveLinkClasses}
+                className={
+                  pathname === item.href
+                    ? activeLinkClasses
+                    : inactiveLinkClasses
+                }
               >
                 <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
                 <span className="text-sm font-semibold">{item.name}</span>

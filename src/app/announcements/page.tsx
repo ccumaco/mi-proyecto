@@ -33,7 +33,8 @@ const dummyAnnouncements: Announcement[] = [
     title: 'Suspensión Programada de Agua',
     category: 'Mantenimiento',
     date: '24 Oct, 2023',
-    content: 'Estimados residentes, se informa que debido a trabajos de reparación en la tubería matriz del edificio, el suministro de agua será suspendido el próximo miércoles...',
+    content:
+      'Estimados residentes, se informa que debido a trabajos de reparación en la tubería matriz del edificio, el suministro de agua será suspendido el próximo miércoles...',
     icon: faWrench,
     iconBgColor: 'bg-orange-100',
     iconTextColor: 'text-orange-600',
@@ -45,7 +46,8 @@ const dummyAnnouncements: Announcement[] = [
     title: 'Fiesta de Halloween en el Clubhouse',
     category: 'Eventos',
     date: '20 Oct, 2023',
-    content: '¡Prepárate para una tarde llena de sorpresas! Invitamos a todos los niños y adultos a nuestro concurso de disfraces anual que se llevará a cabo en el área común...',
+    content:
+      '¡Prepárate para una tarde llena de sorpresas! Invitamos a todos los niños y adultos a nuestro concurso de disfraces anual que se llevará a cabo en el área común...',
     icon: faChampagneGlasses,
     iconBgColor: 'bg-blue-100',
     iconTextColor: 'text-blue-600',
@@ -57,7 +59,8 @@ const dummyAnnouncements: Announcement[] = [
     title: 'Actualización de Protocolos de Acceso',
     category: 'Seguridad',
     date: '18 Oct, 2023',
-    content: 'A partir del próximo mes, se implementará un nuevo sistema de códigos QR para visitantes con el fin de mejorar la trazabilidad y seguridad de nuestro conjunto...',
+    content:
+      'A partir del próximo mes, se implementará un nuevo sistema de códigos QR para visitantes con el fin de mejorar la trazabilidad y seguridad de nuestro conjunto...',
     icon: faLock,
     iconBgColor: 'bg-red-100',
     iconTextColor: 'text-red-600',
@@ -70,28 +73,32 @@ const dummyAnnouncements: Announcement[] = [
 export default function AnnouncementsPage() {
   const [activeTab, setActiveTab] = useState('Todos');
 
-  const categories = ['Todos', ...new Set(dummyAnnouncements.map((ann) => ann.category))];
+  const categories = [
+    'Todos',
+    ...new Set(dummyAnnouncements.map(ann => ann.category)),
+  ];
 
   const filteredAnnouncements =
     activeTab === 'Todos'
       ? dummyAnnouncements
-      : dummyAnnouncements.filter((ann) => ann.category === activeTab);
+      : dummyAnnouncements.filter(ann => ann.category === activeTab);
 
   // Existing styles for tabs
-  const activeTabClasses = 'bg-primary rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-sm';
-  const inactiveTabClasses = 'rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
-
+  const activeTabClasses =
+    'bg-primary rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-sm';
+  const inactiveTabClasses =
+    'rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
 
   return (
     <DashboardLayout>
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 space-y-6 overflow-y-auto p-6 lg:p-8">
           <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto pb-2">
-            {categories.map((category) => (
+            {categories.map(category => (
               <button
                 key={category}
                 onClick={() => setActiveTab(category)}
-                className={activeTab === category ? activeTabClasses : inactiveTabClasses}
+                className={`${activeTab === category ? activeTabClasses : inactiveTabClasses} cursor-pointer`}
               >
                 {category}
               </button>
@@ -99,25 +106,34 @@ export default function AnnouncementsPage() {
           </div>
           <div className="grid gap-6">
             {filteredAnnouncements.length > 0 ? (
-              filteredAnnouncements.map((announcement) => (
+              filteredAnnouncements.map(announcement => (
                 <article
                   key={announcement.id}
                   className="dark:bg-background-dark flex flex-col gap-6 rounded-xl border border-[#dbe0e6] bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:flex-row dark:border-gray-800"
                 >
-                  <div className={`flex size-16 shrink-0 items-center justify-center rounded-xl ${announcement.iconBgColor} ${announcement.iconTextColor} dark:${announcement.iconBgColor.replace('bg-', 'bg-')}/30`}>
-                    <FontAwesomeIcon icon={announcement.icon} className="text-3xl" />
+                  <div
+                    className={`flex size-16 shrink-0 items-center justify-center rounded-xl ${announcement.iconBgColor} ${announcement.iconTextColor} dark:${announcement.iconBgColor.replace('bg-', 'bg-')}/30`}
+                  >
+                    <FontAwesomeIcon
+                      icon={announcement.icon}
+                      className="text-3xl"
+                    />
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className={`rounded ${announcement.categoryBgColor} px-2 py-0.5 text-[10px] font-bold tracking-wider ${announcement.categoryTextColor} uppercase dark:${announcement.categoryBgColor.replace('bg-', 'bg-')}/30`}>
+                        <span
+                          className={`rounded ${announcement.categoryBgColor} px-2 py-0.5 text-[10px] font-bold tracking-wider ${announcement.categoryTextColor} uppercase dark:${announcement.categoryBgColor.replace('bg-', 'bg-')}/30`}
+                        >
                           {announcement.category}
                         </span>
                         <h3 className="mt-1 text-xl font-bold">
                           {announcement.title}
                         </h3>
                       </div>
-                      <span className="text-xs text-[#617589]">{announcement.date}</span>
+                      <span className="text-xs text-[#617589]">
+                        {announcement.date}
+                      </span>
                     </div>
                     <p className="text-sm leading-relaxed text-[#617589]">
                       {announcement.content}
@@ -125,14 +141,19 @@ export default function AnnouncementsPage() {
                     <div className="pt-2">
                       <button className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
                         Leer más
-                        <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
+                        <FontAwesomeIcon
+                          icon={faArrowLeft}
+                          className="h-3 w-3"
+                        />
                       </button>
                     </div>
                   </div>
                 </article>
               ))
             ) : (
-              <p className="text-center text-gray-500 dark:text-gray-400">No hay comunicados para esta categoría.</p>
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                No hay comunicados para esta categoría.
+              </p>
             )}
           </div>
         </main>
