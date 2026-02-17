@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
-import type { User } from '@supabase/supabase-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBuilding,
@@ -14,19 +13,33 @@ import {
   faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 import { DashboardLayout } from '@/Layout/dashboardLayout';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchUser,
+  selectUser,
+  selectIsAuthenticated,
+} from '@/lib/redux/slices/authSlice';
+import { AppDispatch } from '@/lib/redux/store';
+import { useRouter } from 'next/navigation';
 
 export default function Profile() {
-  const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
-  const supabase = createClientBrowser(); // Initialize cookie-based Supabase client
+  const supabase = createClientBrowser();
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
+    if (!isAuthenticated) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch, isAuthenticated]);
+
+  useEffect(() => {
+    if (user) {
+      const fetchRole = async () => {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
@@ -37,13 +50,19 @@ export default function Profile() {
         } else {
           setRole(profile.role);
         }
-      }
-    };
-    fetchUser();
-  }, []);
+      };
+      fetchRole();
+    }
+  }, [user, supabase]);
+
+  useEffect(() => {
+    if (!user && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [user, isAuthenticated, router]);
 
   return (
-    <DashboardLayout user={user} role={role}>
+    <DashboardLayout>
       {/* Dashboard Content */}
       <div className="mx-auto w-full max-w-7xl space-y-8 p-8">
         {/* Profile Header */}

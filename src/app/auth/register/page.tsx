@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { createClientBrowser } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -14,39 +13,40 @@ import {
   faShieldHalved,
   faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  signUpWithPassword,
+  selectAuthStatus,
+  selectAuthError,
+} from '@/lib/redux/slices/authSlice';
+import { AppDispatch } from '@/lib/redux/store';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const supabase = createClientBrowser(); // Initialize cookie-based Supabase client
+
+  const authStatus = useSelector(selectAuthStatus);
+  const authError = useSelector(selectAuthError);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     setSuccess(null);
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess(
-          'Registration successful! Please check your email to confirm your account.'
-        );
-        setTimeout(() => {
-          router.push('/auth/login');
-        }, 3000);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setError(error.message);
-    }
+    dispatch(signUpWithPassword({ email, password }));
   };
+
+  useEffect(() => {
+    if (authStatus === 'succeeded') {
+      setSuccess(
+        'Registration successful! Please check your email to confirm your account.'
+      );
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 3000);
+    }
+  }, [authStatus, router]);
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -164,6 +164,7 @@ export default function Register() {
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
+                      disabled={authStatus === 'loading'}
                     />
                   </label>
                   <label className="group block">
@@ -217,6 +218,7 @@ export default function Register() {
                       type="password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
+                      disabled={authStatus === 'loading'}
                     />
                     <button
                       className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 text-[#617589]"
@@ -239,14 +241,17 @@ export default function Register() {
                   </p>
                 </div>
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {authError && <p className="text-sm text-red-500">{authError}</p>}
               {success && <p className="text-sm text-green-500">{success}</p>}
               {/* Action Button */}
               <button
-                className="bg-primary shadow-primary/20 hover:bg-primary/90 flex h-14 w-full transform items-center justify-center gap-2 rounded-lg font-bold text-white shadow-lg transition-all active:scale-[0.98]"
+                className="bg-primary shadow-primary/20 hover:bg-primary/90 flex h-14 w-full transform items-center justify-center gap-2 rounded-lg font-bold text-white shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
                 type="submit"
+                disabled={authStatus === 'loading'}
               >
-                <span>Continuar</span>
+                <span>
+                  {authStatus === 'loading' ? 'Registrando...' : 'Continuar'}
+                </span>
                 <FontAwesomeIcon icon={faArrowRight} className="h-5 w-5" />
               </button>
               <div className="text-center">

@@ -1,4 +1,3 @@
-import { createClientBrowser } from '@/lib/supabase';
 import {
   faArrowRightFromBracket,
   faCampground,
@@ -9,19 +8,40 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
-import type { User } from '@supabase/supabase-js';
+import Link from 'next/link';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '@/lib/redux/store';
+import { logoutFromSupabase, selectUser } from '@/lib/redux/slices/authSlice';
+import { useEffect, useState } from 'react';
+import { createClientBrowser } from '@/lib/supabase';
 
-export const SidebarDashboard = ({
-  user,
-  role,
-}: {
-  user: User | null;
-  role: string | null;
-}) => {
+export const SidebarDashboard = () => {
   const router = useRouter();
-  const supabase = createClientBrowser(); // Initialize cookie-based Supabase client
+  const dispatch = useDispatch<AppDispatch>();
+  const reduxUser = useSelector(selectUser);
+  const [role, setRole] = useState<string | null>(null);
+  const supabase = createClientBrowser();
+
+  useEffect(() => {
+    if (reduxUser) {
+      const fetchRole = async () => {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', reduxUser.id)
+          .single();
+        if (error) {
+          console.error('Error fetching profile:', error);
+        } else {
+          setRole(profile.role);
+        }
+      };
+      fetchRole();
+    }
+  }, [reduxUser, supabase]);
+
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await dispatch(logoutFromSupabase());
     router.push('/auth/login');
   };
   return (
@@ -51,13 +71,13 @@ export const SidebarDashboard = ({
               <FontAwesomeIcon icon={faDashboard} className="h-5 w-5" />
               <span className="text-sm font-semibold">Inicio</span>
             </a>
-            <a
+            <Link
               className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-              href="#"
+              href="/announcements"
             >
               <FontAwesomeIcon icon={faCampground} className="h-5 w-5" />
               <span className="text-sm font-medium">Comunicados</span>
-            </a>
+            </Link>
             <a
               className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
               href="#"
@@ -80,8 +100,11 @@ export const SidebarDashboard = ({
             <FontAwesomeIcon icon={faUser} className="h-9 w-9 text-[#617589]" />
             <div className="flex flex-col">
               <p className="text-sm font-bold dark:text-white">
-                {user?.user_metadata?.full_name ||
-                  user?.email?.slice(0, user?.email?.indexOf('@') || 0) ||
+                {reduxUser?.user_metadata?.full_name ||
+                  reduxUser?.email?.slice(
+                    0,
+                    reduxUser?.email?.indexOf('@') || 0
+                  ) ||
                   'Usuario'}
               </p>
               <p className="text-xs text-[#617589]">

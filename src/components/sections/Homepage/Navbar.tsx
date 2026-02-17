@@ -2,45 +2,47 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createClientBrowser } from '@/lib/supabase';
-import { User } from '@supabase/supabase-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
   faRightFromBracket,
   faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  logoutFromSupabase,
+  selectAuthStatus,
+  selectIsAuthenticated,
+  selectUser,
+  setUser,
+} from '@/lib/redux/slices/authSlice';
+import { AppDispatch } from '@/lib/redux/store';
+import { createClientBrowser } from '@/lib/supabase';
 
 export default function Navbar() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const authStatus = useSelector(selectAuthStatus);
   const supabase = createClientBrowser();
 
+  // No longer need to dispatch fetchUser on initial load because state is hydrated from SSR
+
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-
-    getUser();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      dispatch(setUser(session?.user ?? null));
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [dispatch, supabase.auth]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    dispatch(logoutFromSupabase());
     setDropdownOpen(false);
-    window.location.href = '/';
   };
 
   return (
@@ -71,9 +73,9 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {loading ? (
+          {authStatus === 'loading' ? (
             <div className="h-8 w-24 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
-          ) : user ? (
+          ) : isAuthenticated && user ? (
             /* Usuario logueado */
             <div className="relative">
               <button

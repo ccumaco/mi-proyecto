@@ -2,7 +2,6 @@
 import { DashboardLayout } from '@/Layout/dashboardLayout';
 import {
   faArrowLeft,
-  faArrowRotateForward,
   faBriefcaseMedical,
   faChampagneGlasses,
   faGears,
@@ -11,14 +10,10 @@ import {
   faWrench,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { User } from '@supabase/supabase-js';
-import { useState } from 'react';
 
 export default function AnnouncementsPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
   return (
-    <DashboardLayout user={user} role={role}>
+    <DashboardLayout>
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 space-y-6 overflow-y-auto p-6 lg:p-8">
           <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto pb-2">

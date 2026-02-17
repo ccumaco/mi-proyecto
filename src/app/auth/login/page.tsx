@@ -1,36 +1,38 @@
 'use client';
 
-import { useState } from 'react';
-import { createClientBrowser } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faEye } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  loginWithPassword,
+  selectAuthStatus,
+  selectAuthError,
+  selectIsAuthenticated,
+} from '@/lib/redux/slices/authSlice';
+import { AppDispatch } from '@/lib/redux/store';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const supabase = createClientBrowser(); // Initialize cookie-based Supabase client
+
+  const authStatus = useSelector(selectAuthStatus);
+  const authError = useSelector(selectAuthError);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        router.push('/profile');
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setError(error.message);
-    }
+    dispatch(loginWithPassword({ email, password }));
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/profile');
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display relative flex min-h-screen flex-col">
@@ -70,6 +72,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
+                  disabled={authStatus === 'loading'}
                 />
               </div>
               {/* Password Field */}
@@ -97,6 +100,7 @@ export default function Login() {
                     type="password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
+                    disabled={authStatus === 'loading'}
                   />
                   <button
                     className="hover:text-primary absolute right-3 text-[#617589] transition-colors"
@@ -106,13 +110,16 @@ export default function Login() {
                   </button>
                 </div>
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {authError && <p className="text-sm text-red-500">{authError}</p>}
               {/* Login Button */}
               <button
-                className="bg-primary hover:bg-primary/90 mt-2 w-full rounded-lg py-3.5 font-bold text-white shadow-md transition-all active:scale-[0.98]"
+                className="bg-primary hover:bg-primary/90 mt-2 w-full rounded-lg py-3.5 font-bold text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
                 type="submit"
+                disabled={authStatus === 'loading'}
               >
-                Iniciar sesión
+                {authStatus === 'loading'
+                  ? 'Iniciando sesión...'
+                  : 'Iniciar sesión'}
               </button>
             </form>
             {/* Divider */}
