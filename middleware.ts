@@ -27,6 +27,7 @@ export async function middleware(request: NextRequest) {
     '/profile',
     '/admin',
     '/super-admin',
+    '/instruments', // Added new protected path
   ];
 
   const currentPath = request.nextUrl.pathname;

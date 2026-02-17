@@ -1,4 +1,6 @@
 'use client';
+
+import { useState } from 'react';
 import { DashboardLayout } from '@/Layout/dashboardLayout';
 import {
   faArrowLeft,
@@ -8,121 +10,133 @@ import {
   faLock,
   faUsers,
   faWrench,
+  IconDefinition, // Import IconDefinition type
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+interface Announcement {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  content: string;
+  icon: IconDefinition;
+  iconBgColor: string;
+  iconTextColor: string;
+  categoryBgColor: string;
+  categoryTextColor: string;
+}
+
+const dummyAnnouncements: Announcement[] = [
+  {
+    id: '1',
+    title: 'Suspensión Programada de Agua',
+    category: 'Mantenimiento',
+    date: '24 Oct, 2023',
+    content: 'Estimados residentes, se informa que debido a trabajos de reparación en la tubería matriz del edificio, el suministro de agua será suspendido el próximo miércoles...',
+    icon: faWrench,
+    iconBgColor: 'bg-orange-100',
+    iconTextColor: 'text-orange-600',
+    categoryBgColor: 'bg-orange-100',
+    categoryTextColor: 'text-orange-600',
+  },
+  {
+    id: '2',
+    title: 'Fiesta de Halloween en el Clubhouse',
+    category: 'Eventos',
+    date: '20 Oct, 2023',
+    content: '¡Prepárate para una tarde llena de sorpresas! Invitamos a todos los niños y adultos a nuestro concurso de disfraces anual que se llevará a cabo en el área común...',
+    icon: faChampagneGlasses,
+    iconBgColor: 'bg-blue-100',
+    iconTextColor: 'text-blue-600',
+    categoryBgColor: 'bg-blue-100',
+    categoryTextColor: 'text-blue-600',
+  },
+  {
+    id: '3',
+    title: 'Actualización de Protocolos de Acceso',
+    category: 'Seguridad',
+    date: '18 Oct, 2023',
+    content: 'A partir del próximo mes, se implementará un nuevo sistema de códigos QR para visitantes con el fin de mejorar la trazabilidad y seguridad de nuestro conjunto...',
+    icon: faLock,
+    iconBgColor: 'bg-red-100',
+    iconTextColor: 'text-red-600',
+    categoryBgColor: 'bg-red-100',
+    categoryTextColor: 'text-red-600',
+  },
+  // Add more dummy data if needed
+];
+
 export default function AnnouncementsPage() {
+  const [activeTab, setActiveTab] = useState('Todos');
+
+  const categories = ['Todos', ...new Set(dummyAnnouncements.map((ann) => ann.category))];
+
+  const filteredAnnouncements =
+    activeTab === 'Todos'
+      ? dummyAnnouncements
+      : dummyAnnouncements.filter((ann) => ann.category === activeTab);
+
+  // Existing styles for tabs
+  const activeTabClasses = 'bg-primary rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-sm';
+  const inactiveTabClasses = 'rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
+
+
   return (
     <DashboardLayout>
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 space-y-6 overflow-y-auto p-6 lg:p-8">
           <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto pb-2">
-            <button className="bg-primary rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-sm">
-              Todos
-            </button>
-            <button className="rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-              Mantenimiento
-            </button>
-            <button className="rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-              Eventos
-            </button>
-            <button className="rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-              Seguridad
-            </button>
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveTab(category)}
+                className={activeTab === category ? activeTabClasses : inactiveTabClasses}
+              >
+                {category}
+              </button>
+            ))}
           </div>
           <div className="grid gap-6">
-            <article className="dark:bg-background-dark flex flex-col gap-6 rounded-xl border border-[#dbe0e6] bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:flex-row dark:border-gray-800">
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/30">
-                <FontAwesomeIcon icon={faWrench} className="text-3xl" />
-              </div>
-              <div className="flex-1 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="rounded bg-orange-100 px-2 py-0.5 text-[10px] font-bold tracking-wider text-orange-600 uppercase dark:bg-orange-900/30">
-                      Mantenimiento
-                    </span>
-                    <h3 className="mt-1 text-xl font-bold">
-                      Suspensión Programada de Agua
-                    </h3>
+            {filteredAnnouncements.length > 0 ? (
+              filteredAnnouncements.map((announcement) => (
+                <article
+                  key={announcement.id}
+                  className="dark:bg-background-dark flex flex-col gap-6 rounded-xl border border-[#dbe0e6] bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:flex-row dark:border-gray-800"
+                >
+                  <div className={`flex size-16 shrink-0 items-center justify-center rounded-xl ${announcement.iconBgColor} ${announcement.iconTextColor} dark:${announcement.iconBgColor.replace('bg-', 'bg-')}/30`}>
+                    <FontAwesomeIcon icon={announcement.icon} className="text-3xl" />
                   </div>
-                  <span className="text-xs text-[#617589]">24 Oct, 2023</span>
-                </div>
-                <p className="text-sm leading-relaxed text-[#617589]">
-                  Estimados residentes, se informa que debido a trabajos de
-                  reparación en la tubería matriz del edificio, el suministro de
-                  agua será suspendido el próximo miércoles...
-                </p>
-                <div className="pt-2">
-                  <button className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
-                    Leer más
-                    <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-            </article>
-            <article className="dark:bg-background-dark flex flex-col gap-6 rounded-xl border border-[#dbe0e6] bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:flex-row dark:border-gray-800">
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30">
-                <FontAwesomeIcon
-                  icon={faChampagneGlasses}
-                  className="text-3xl"
-                />
-              </div>
-              <div className="flex-1 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold tracking-wider text-blue-600 uppercase dark:bg-blue-900/30">
-                      Eventos
-                    </span>
-                    <h3 className="mt-1 text-xl font-bold">
-                      Fiesta de Halloween en el Clubhouse
-                    </h3>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className={`rounded ${announcement.categoryBgColor} px-2 py-0.5 text-[10px] font-bold tracking-wider ${announcement.categoryTextColor} uppercase dark:${announcement.categoryBgColor.replace('bg-', 'bg-')}/30`}>
+                          {announcement.category}
+                        </span>
+                        <h3 className="mt-1 text-xl font-bold">
+                          {announcement.title}
+                        </h3>
+                      </div>
+                      <span className="text-xs text-[#617589]">{announcement.date}</span>
+                    </div>
+                    <p className="text-sm leading-relaxed text-[#617589]">
+                      {announcement.content}
+                    </p>
+                    <div className="pt-2">
+                      <button className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
+                        Leer más
+                        <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
-                  <span className="text-xs text-[#617589]">20 Oct, 2023</span>
-                </div>
-                <p className="text-sm leading-relaxed text-[#617589]">
-                  ¡Prepárate para una tarde llena de sorpresas! Invitamos a
-                  todos los niños y adultos a nuestro concurso de disfraces
-                  anual que se llevará a cabo en el área común...
-                </p>
-                <div className="pt-2">
-                  <button className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
-                    Leer más
-                    <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-            </article>
-            <article className="dark:bg-background-dark flex flex-col gap-6 rounded-xl border border-[#dbe0e6] bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:flex-row dark:border-gray-800">
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-900/30">
-                <FontAwesomeIcon icon={faLock} className="text-3xl" />
-              </div>
-              <div className="flex-1 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="rounded bg-red-100 px-2 py-0.5 text-[10px] font-bold tracking-wider text-red-600 uppercase dark:bg-red-900/30">
-                      Seguridad
-                    </span>
-                    <h3 className="mt-1 text-xl font-bold">
-                      Actualización de Protocolos de Acceso
-                    </h3>
-                  </div>
-                  <span className="text-xs text-[#617589]">18 Oct, 2023</span>
-                </div>
-                <p className="text-sm leading-relaxed text-[#617589]">
-                  A partir del próximo mes, se implementará un nuevo sistema de
-                  códigos QR para visitantes con el fin de mejorar la
-                  trazabilidad y seguridad de nuestro conjunto...
-                </p>
-                <div className="pt-2">
-                  <button className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
-                    Leer más
-                    <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-            </article>
+                </article>
+              ))
+            ) : (
+              <p className="text-center text-gray-500 dark:text-gray-400">No hay comunicados para esta categoría.</p>
+            )}
           </div>
         </main>
+        {/* The aside content remains unchanged */}
         <aside className="dark:bg-background-dark sticky top-16 hidden h-[calc(100vh-4rem)] w-80 flex-col gap-8 overflow-y-auto border-l border-[#dbe0e6] bg-white p-6 xl:flex dark:border-gray-800">
           <section>
             <div className="mb-4 flex items-center justify-between">

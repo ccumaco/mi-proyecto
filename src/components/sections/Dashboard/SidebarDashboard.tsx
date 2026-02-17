@@ -5,22 +5,39 @@ import {
   faDashboard,
   faFileSignature,
   faUser,
+  faGuitar, // Adding an icon for instruments
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation'; // Import usePathname
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/lib/redux/store';
 import { logoutFromSupabase, selectUser } from '@/lib/redux/slices/authSlice';
 import { useEffect, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js'; // Import User type
 
-export const SidebarDashboard = () => {
+interface NavItem {
+  name: string;
+  href: string;
+  icon: any; // FontAwesomeIconType
+}
+
+export const SidebarDashboard = ({ user }: { user: User | null }) => {
   const router = useRouter();
+  const pathname = usePathname(); // Get current pathname
   const dispatch = useDispatch<AppDispatch>();
   const reduxUser = useSelector(selectUser);
   const [role, setRole] = useState<string | null>(null);
   const supabase = createClientBrowser();
+
+  const navItems: NavItem[] = [
+    { name: 'Inicio', href: '/profile', icon: faDashboard },
+    { name: 'Comunicados', href: '/announcements', icon: faCampground },
+    { name: 'Pagos', href: '/payments', icon: faCoins },
+    { name: 'Documentos', href: '/documents', icon: faFileSignature },
+    { name: 'Instrumentos', href: '/instruments', icon: faGuitar }, // New nav item for instruments
+  ];
 
   useEffect(() => {
     if (reduxUser) {
@@ -44,6 +61,12 @@ export const SidebarDashboard = () => {
     await dispatch(logoutFromSupabase());
     router.push('/auth/login');
   };
+
+  const inactiveLinkClasses =
+    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800';
+  const activeLinkClasses =
+    'bg-primary/10 text-primary flex items-center gap-3 rounded-lg px-3 py-2.5';
+
   return (
     <aside className="dark:bg-background-dark top-0 hidden h-screen w-64 flex-col border-r border-[#dbe0e6] bg-white lg:flex dark:border-gray-800">
       <div className="flex h-full flex-col justify-between p-6">
@@ -64,34 +87,16 @@ export const SidebarDashboard = () => {
           </div>
           {/* Nav Links */}
           <nav className="flex flex-col gap-2">
-            <a
-              className="bg-primary/10 text-primary flex items-center gap-3 rounded-lg px-3 py-2.5"
-              href="#"
-            >
-              <FontAwesomeIcon icon={faDashboard} className="h-5 w-5" />
-              <span className="text-sm font-semibold">Inicio</span>
-            </a>
-            <Link
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-              href="/announcements"
-            >
-              <FontAwesomeIcon icon={faCampground} className="h-5 w-5" />
-              <span className="text-sm font-medium">Comunicados</span>
-            </Link>
-            <a
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-              href="#"
-            >
-              <FontAwesomeIcon icon={faCoins} className="h-5 w-5" />
-              <span className="text-sm font-medium">Pagos</span>
-            </a>
-            <a
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-              href="#"
-            >
-              <FontAwesomeIcon icon={faFileSignature} className="h-5 w-5" />
-              <span className="text-sm font-medium">Documentos</span>
-            </a>
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={pathname === item.href ? activeLinkClasses : inactiveLinkClasses}
+              >
+                <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
+                <span className="text-sm font-semibold">{item.name}</span>
+              </Link>
+            ))}
           </nav>
         </div>
         {/* Bottom User Nav */}

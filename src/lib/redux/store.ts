@@ -1,5 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { PreloadedState } from 'redux';
 import authReducer from './slices/authSlice';
 import type { User } from '@supabase/supabase-js';
 
@@ -14,12 +13,11 @@ export interface RootState {
   // Add other slices here
 }
 
-export const makeStore = (preloadedState?: PreloadedState<RootState>) => {
+export const makeStore = () => {
   return configureStore<RootState>({
     reducer: {
       auth: authReducer,
     },
-    preloadedState,
   });
 };
 
