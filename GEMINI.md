@@ -10,6 +10,7 @@
 
 - **Next.js 16.1.2** - Framework de React con App Router
 - **React 19.2.3** - Biblioteca de interfaces de usuario
+- **Redux (con Redux Toolkit)** - Gestión de estado global
 - **TypeScript 5** - Tipado estático
 - **Tailwind CSS 4.1.18** - Framework de estilos utilitarios
 
