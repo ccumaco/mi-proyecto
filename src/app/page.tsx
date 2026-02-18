@@ -1,11 +1,11 @@
 // src/app/page.tsx
-import Navbar from '@/components/sections/Homepage/Navbar';
-import Hero from '@/components/sections/Homepage/Hero';
-import AboutSection from '@/components/sections/Homepage/About';
-import Services from '@/components/sections/Homepage/Services';
-import Benefits from '@/components/sections/Homepage/Benefits';
-import FinalCTA from '@/components/sections/Homepage/FinalCTA';
-import Footer from '@/components/sections/Homepage/Footer';
+import Navbar from '@/features/landing/components/Navbar';
+import Hero from '@/features/landing/components/Hero';
+import AboutSection from '@/features/landing/components/About';
+import Services from '@/features/landing/components/Services';
+import Benefits from '@/features/landing/components/Benefits';
+import FinalCTA from '@/features/landing/components/FinalCTA';
+import Footer from '@/features/landing/components/Footer';
 
 export default function Page() {
   return (

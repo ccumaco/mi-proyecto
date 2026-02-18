@@ -14,8 +14,15 @@ interface RoleGuardProps {
  * RoleGuard - Protege componentes visuales basándose en el rol del usuario de Redux.
  * Úsalo para ocultar botones, paneles o secciones enteras.
  */
-export function RoleGuard({ children, allowedRoles, fallback = null }: RoleGuardProps) {
-  const currentRole = useSelector(selectUserRole) as 'user' | 'admin' | 'super-admin';
+export function RoleGuard({
+  children,
+  allowedRoles,
+  fallback = null,
+}: RoleGuardProps) {
+  const currentRole = useSelector(selectUserRole) as
+    | 'user'
+    | 'admin'
+    | 'super-admin';
 
   if (!allowedRoles.includes(currentRole)) {
     return <>{fallback}</>;

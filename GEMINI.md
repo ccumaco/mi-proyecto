@@ -1,129 +1,41 @@
-# AGENDA - PropManagement
+# PropManagement - Manifesto Tecnológico 🚀
 
-## 📋 Descripción del Proyecto
+Este documento define la arquitectura, estándares y convenciones del proyecto. **Es de lectura obligatoria para cualquier intervención técnica.**
 
-**PropManagement** es una plataforma web de administración de conjuntos residenciales que moderniza la gestión de comunidades con tecnología de punta y procesos financieros transparentes.
+## 🏗️ Arquitectura del Sistema
+
+### 1. Gestión de Estado Híbrida (SSR + Redux)
+- **Fuente de Verdad:** Supabase Auth gestiona la sesión mediante cookies.
+- **Hidratación:** El `RootLayout` (Server Component) recupera la sesión y la inyecta como `preloadedState` en el Store de Redux.
+- **Sincronización:** El `AuthProvider` (Client Component) escucha cambios en tiempo real vía `onAuthStateChange` para mantener Redux actualizado sin recargar la página.
+
+### 2. Estructura de Directorios (Feature-Based)
+Hemos adoptado una arquitectura modular para asegurar la escalabilidad:
+
+- `src/app/(auth)`: Grupo de rutas para procesos de autenticación (Login, Registro).
+- `src/app/(dashboard)`: Grupo de rutas protegido para paneles de administración.
+- `src/features/`: Lógica de negocio y componentes complejos agrupados por dominio (ej: `landing/`).
+- `src/components/ui/`: Componentes atómicos/primitivos (Botones, Inputs, Cards).
+- `src/components/layout/`: Estructuras maestras (Sidebars, Headers).
+- `src/components/shared/`: Utilidades de UI como `RoleGuard`.
+
+### 3. Sistema de Roles (RBAC)
+- Los roles se gestionan en los metadatos del usuario (`user_metadata.role`).
+- Roles soportados: `user`, `admin`, `super-admin`.
+- **Protección:** Middleware para rutas y `RoleGuard` para elementos visuales.
 
 ## 🛠️ Stack Tecnológico
+- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4.
+- **Estado:** Redux Toolkit (RTK).
+- **Backend:** Supabase (Auth, DB, Storage, SSR).
+- **UI:** FontAwesome 6, Geist Sans/Mono.
 
-### Frontend
+## 📏 Convenciones de Código
+- **Componentes:** Usar `'use client'` solo cuando sea estrictamente necesario (hooks, eventos).
+- **UI:** Antes de crear un nuevo componente visual, verificar si puede ser un átomo en `src/components/ui`.
+- **Imports:** Usar alias `@/` para todas las rutas absolutas.
+- **Git:** Mensajes de commit claros y en español.
 
-- **Next.js 16.1.2** - Framework de React con App Router
-- **React 19.2.3** - Biblioteca de interfaces de usuario
-- **Redux (con Redux Toolkit)** - Gestión de estado global
-- **TypeScript 5** - Tipado estático
-- **Tailwind CSS 4.1.18** - Framework de estilos utilitarios
-
-### Backend/Base de Datos
-
-- **Supabase** - Backend as a Service
-  - `@supabase/supabase-js` - Cliente de Supabase
-  - `@supabase/ssr` - Integración SSR con Supabase
-
-### Utilidades
-
-- **next-themes** - Soporte para tema oscuro/claro
-- **Font Awesome** - Biblioteca de iconos
-
-### Herramientas de Desarrollo
-
-- **ESLint 9** - Linter de código
-- **Prettier 3.8** - Formateador de código
-- **PostCSS** - Procesador de CSS
-- **Autoprefixer** - Prefijos CSS automáticos
-
-## 📁 Estructura del Proyecto
-
-```
-src/
-├── app/
-│   ├── layout.tsx          # Layout principal
-│   ├── page.tsx            # Landing page
-│   ├── admin/              # Panel de administrador
-│   ├── super-admin/        # Panel de super administrador
-│   ├── profile/            # Perfil de usuario
-│   └── auth/
-│       ├── login/          # Inicio de sesión
-│       ├── register/       # Registro
-│       ├── recovery/       # Recuperación de contraseña
-│       └── reset-password/ # Restablecer contraseña
-├── components/
-│   └── sections/
-│       ├── Navbar.tsx      # Barra de navegación
-│       ├── Hero.tsx        # Sección principal
-│       ├── About.tsx       # Sección nosotros
-│       ├── Services.tsx    # Sección servicios
-│       ├── Benefits.tsx    # Sección beneficios
-│       ├── FinalCTA.tsx    # Llamado a la acción
-│       └── Footer.tsx      # Pie de página
-├── lib/
-│   └── supabase.ts         # Configuración de Supabase
-└── proxy.ts
-```
-
-## ✨ Características Principales
-
-### 🏠 Landing Page
-
-- Navbar con navegación responsive
-- Hero section con diseño moderno
-- Sección "Quiénes somos"
-- Catálogo de servicios
-- Beneficios destacados
-- Llamado a la acción (CTA)
-- Footer con información de contacto
-
-### 🔐 Sistema de Autenticación
-
-- Inicio de sesión
-- Registro de usuarios
-- Recuperación de contraseña
-- Restablecimiento de contraseña
-- Integración con Supabase Auth
-
-### 👤 Roles de Usuario
-
-- **Usuario** - Perfil básico
-- **Administrador** - Panel de administración
-- **Super Administrador** - Panel con permisos completos
-
-### 🎨 UI/UX
-
-- Diseño responsive (mobile-first)
-- Soporte para tema claro/oscuro
-- Fuentes optimizadas (Geist Sans/Mono)
-- Animaciones y transiciones suaves
-- Componentes con Tailwind CSS
-
-## 🚀 Scripts Disponibles
-
-```bash
-npm run dev      # Servidor de desarrollo
-npm run build    # Build de producción
-npm run start    # Iniciar servidor de producción
-npm run lint     # Ejecutar ESLint
-```
-
-## 📝 Tareas Pendientes
-
-- [ ] Implementar dashboard de usuario
-- [ ] Sistema de pagos de cuotas
-- [ ] Módulo de comunicación/notificaciones
-- [ ] Reportes financieros
-- [ ] Gestión de residentes
-- [ ] Sistema de PQRS (Peticiones, Quejas, Reclamos, Sugerencias)
-
-## 🔧 Configuración
-
-### Variables de Entorno
-
-Crear archivo `.env.local` con:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
-```
-
-## 📄 Licencia
-
-Proyecto privado - Todos los derechos reservados.
+## 🔐 Seguridad
+- Nunca exponer `SUPABASE_SERVICE_ROLE_KEY` en el cliente.
+- Siempre validar la sesión en el servidor (`layout.tsx` o `page.tsx`) mediante `createClient()` de `supabase/server`.

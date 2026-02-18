@@ -13,7 +13,9 @@ export async function middleware(request: NextRequest) {
   await supabase.auth.getSession();
 
   // Now, apply the route protection logic
-  const { data: { session } } = await supabase.auth.getSession(); // Get current session after refresh
+  const {
+    data: { session },
+  } = await supabase.auth.getSession(); // Get current session after refresh
 
   const publicPaths = [
     '/',
@@ -33,7 +35,12 @@ export async function middleware(request: NextRequest) {
   const currentPath = request.nextUrl.pathname;
 
   // If trying to access public auth page while authenticated, redirect to profile
-  if (session && publicPaths.includes(currentPath) && (currentPath.startsWith('/auth/login') || currentPath.startsWith('/auth/register'))) {
+  if (
+    session &&
+    publicPaths.includes(currentPath) &&
+    (currentPath.startsWith('/auth/login') ||
+      currentPath.startsWith('/auth/register'))
+  ) {
     return NextResponse.redirect(new URL('/profile', request.url));
   }
 

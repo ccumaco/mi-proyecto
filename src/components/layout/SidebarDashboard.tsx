@@ -1,3 +1,4 @@
+'use client';
 import {
   faArrowRightFromBracket,
   faCampground,
@@ -8,22 +9,24 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/lib/redux/store';
-import { logoutFromSupabase, selectUserRole } from '@/lib/redux/slices/authSlice';
+import {
+  logoutFromSupabase,
+  selectUserRole,
+} from '@/lib/redux/slices/authSlice';
 import type { User } from '@supabase/supabase-js';
 import { MENU_ITEMS } from '@/config/menu-items';
 
-export const SidebarDashboard = ({
-  user,
-}: {
-  user: User | null;
-}) => {
+export const SidebarDashboard = ({ user }: { user: User | null }) => {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
-  const currentRole = useSelector(selectUserRole) as 'user' | 'admin' | 'super-admin';
+  const currentRole = useSelector(selectUserRole) as
+    | 'user'
+    | 'admin'
+    | 'super-admin';
 
   // Filtrar items según el rol del usuario
-  const filteredNavItems = MENU_ITEMS.filter(item => 
+  const filteredNavItems = MENU_ITEMS.filter(item =>
     item.roles.includes(currentRole)
   );
 
@@ -57,11 +60,15 @@ export const SidebarDashboard = ({
           </div>
           {/* Nav Links */}
           <nav className="flex flex-col gap-2">
-            {filteredNavItems.map((item) => (
+            {filteredNavItems.map(item => (
               <Link
                 key={item.label}
                 href={item.href}
-                className={pathname === item.href ? activeLinkClasses : inactiveLinkClasses}
+                className={
+                  pathname === item.href
+                    ? activeLinkClasses
+                    : inactiveLinkClasses
+                }
               >
                 <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
                 <span className="text-sm font-semibold">{item.label}</span>
@@ -76,15 +83,10 @@ export const SidebarDashboard = ({
             <div className="flex flex-col">
               <p className="text-sm font-bold dark:text-white">
                 {user?.user_metadata?.full_name ||
-                  user?.email?.slice(
-                    0,
-                    user?.email?.indexOf('@') || 0
-                  ) ||
+                  user?.email?.slice(0, user?.email?.indexOf('@') || 0) ||
                   'Usuario'}
               </p>
-              <p className="text-xs text-[#617589] capitalize">
-                {currentRole}
-              </p>
+              <p className="text-xs text-[#617589] capitalize">{currentRole}</p>
             </div>
             <button className="ml-auto text-[#617589]" onClick={handleLogout}>
               <FontAwesomeIcon
