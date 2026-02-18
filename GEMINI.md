@@ -1,41 +1,53 @@
-# PropManagement - Manifesto Tecnológico 🚀
+# PropManagement - Roadmap & Seguimiento de Tareas 📅
 
-Este documento define la arquitectura, estándares y convenciones del proyecto. **Es de lectura obligatoria para cualquier intervención técnica.**
+Este documento rastrea el progreso técnico y la evolución de la plataforma.
 
-## 🏗️ Arquitectura del Sistema
+## ✅ Hitos Completados (Milestones)
 
-### 1. Gestión de Estado Híbrida (SSR + Redux)
-- **Fuente de Verdad:** Supabase Auth gestiona la sesión mediante cookies.
-- **Hidratación:** El `RootLayout` (Server Component) recupera la sesión y la inyecta como `preloadedState` en el Store de Redux.
-- **Sincronización:** El `AuthProvider` (Client Component) escucha cambios en tiempo real vía `onAuthStateChange` para mantener Redux actualizado sin recargar la página.
+### 🚀 Milestone 1: Arquitectura Base y Reorganización Profesional
 
-### 2. Estructura de Directorios (Feature-Based)
-Hemos adoptado una arquitectura modular para asegurar la escalabilidad:
+- [x] **Gestión de Sesión:** Hidratación de Redux desde el servidor (SSR) para eliminar parpadeos.
+- [x] **Sincronización Real-time:** `AuthProvider` para cambios de sesión instantáneos.
+- [x] **Clean Routing:** Implementación de Route Groups (`(auth)`, `(dashboard)`) con URLs limpias (sin prefijo `/auth/`).
+- [x] **Dark Mode Premium:** Soporte completo con `next-themes` y selector en el Header.
 
-- `src/app/(auth)`: Grupo de rutas para procesos de autenticación (Login, Registro).
-- `src/app/(dashboard)`: Grupo de rutas protegido para paneles de administración.
-- `src/features/`: Lógica de negocio y componentes complejos agrupados por dominio (ej: `landing/`).
-- `src/components/ui/`: Componentes atómicos/primitivos (Botones, Inputs, Cards).
-- `src/components/layout/`: Estructuras maestras (Sidebars, Headers).
-- `src/components/shared/`: Utilidades de UI como `RoleGuard`.
+### 🎨 Milestone 2: Sistema de Diseño y Refactorización
 
-### 3. Sistema de Roles (RBAC)
-- Los roles se gestionan en los metadatos del usuario (`user_metadata.role`).
-- Roles soportados: `user`, `admin`, `super-admin`.
-- **Protección:** Middleware para rutas y `RoleGuard` para elementos visuales.
+- [x] **Diseño Atómico:** Creación de componentes UI core (`Button`, `Input`, `Card`, `Badge`).
+- [x] **Refactorización Auth:** Login, Registro, Recuperación y Reset 100% funcionales y estilizados.
+- [x] **Dashboard de Usuario:** Vistas de Perfil, Edición de Perfil y Pagos (UI/UX completada).
+- [x] **Paneles Administrativos:** Refactorización de las vistas Admin y Super Admin con arquitectura modular.
+- [x] **Modularidad de Características:** Migración de la Landing Page a `src/features/landing`.
 
-## 🛠️ Stack Tecnológico
-- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4.
-- **Estado:** Redux Toolkit (RTK).
-- **Backend:** Supabase (Auth, DB, Storage, SSR).
-- **UI:** FontAwesome 6, Geist Sans/Mono.
+---
 
-## 📏 Convenciones de Código
-- **Componentes:** Usar `'use client'` solo cuando sea estrictamente necesario (hooks, eventos).
-- **UI:** Antes de crear un nuevo componente visual, verificar si puede ser un átomo en `src/components/ui`.
-- **Imports:** Usar alias `@/` para todas las rutas absolutas.
-- **Git:** Mensajes de commit claros y en español.
+## 🏗️ Próximos Pasos (En Desarrollo)
 
-## 🔐 Seguridad
-- Nunca exponer `SUPABASE_SERVICE_ROLE_KEY` en el cliente.
-- Siempre validar la sesión en el servidor (`layout.tsx` o `page.tsx`) mediante `createClient()` de `supabase/server`.
+### 🔌 Fase 3: Conectividad y Datos Reales (Prioridad Alta)
+
+- [ ] **Tablas en Supabase:** Crear el esquema de base de datos para `announcements`, `payments` y `units`.
+- [ ] **Fetching de Datos:** Reemplazar los `dummyData` por llamadas reales a Supabase usando el cliente de servidor.
+- [ ] **Roles Dinámicos:** Implementar la lógica de asignación de roles en la base de datos (actualmente son metadatos).
+
+### 🏠 Funcionalidades del Residente
+
+- [ ] **Pasarela de Pagos:** Integrar un webhook de prueba para simular el pago de administración.
+- [ ] **Sistema de PQRS:** Formulario para crear solicitudes de mantenimiento desde el dashboard.
+- [ ] **Documentación:** Carga y visualización de archivos PDF reales desde Supabase Storage.
+
+### 🏢 Gestión Administrativa
+
+- [ ] **CRUD de Residentes:** Interfaz para que el Admin pueda crear/editar usuarios de su conjunto.
+- [ ] **Generador de Comunicados:** Panel para redactar anuncios que se guarden en la DB.
+
+---
+
+## 🛠️ Notas de la Sesión Actual
+
+- La arquitectura de carpetas es ahora **escalable y profesional**.
+- Se han corregido conflictos críticos de importación de `next/headers` en el cliente.
+- El sistema es **100% responsivo** y soporta **temas claro/oscuro**.
+
+---
+
+_Última actualización: 17 de Febrero de 2026 - ¡Arquitectura Core Finalizada!_
