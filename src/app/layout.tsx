@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '@/lib/fontawesome';
 import './globals.css';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/server'; // Import the custom helper
 import { RootState } from '@/lib/redux/store';
 
@@ -48,7 +49,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReduxProvider initialState={initialState}>{children}</ReduxProvider>
+        <ReduxProvider initialState={initialState}>
+          <AuthProvider>{children}</AuthProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

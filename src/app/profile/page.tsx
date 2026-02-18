@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createClientBrowser } from '@/lib/supabase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBuilding,
@@ -13,53 +11,16 @@ import {
   faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 import { DashboardLayout } from '@/Layout/dashboardLayout';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchUser,
-  selectUser,
-  selectIsAuthenticated,
-} from '@/lib/redux/slices/authSlice';
-import { AppDispatch } from '@/lib/redux/store';
-import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { selectUser } from '@/lib/redux/slices/authSlice';
 
 export default function Profile() {
-  const [role, setRole] = useState<string | null>(null);
-  const supabase = createClientBrowser();
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
-
   const user = useSelector(selectUser);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      dispatch(fetchUser());
-    }
-  }, [dispatch, isAuthenticated]);
-
-  useEffect(() => {
-    if (user) {
-      const fetchRole = async () => {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        if (error) {
-          console.error('Error fetching profile:', error);
-        } else {
-          setRole(profile.role);
-        }
-      };
-      fetchRole();
-    }
-  }, [user, supabase]);
-
-  useEffect(() => {
-    if (!user && !isAuthenticated) {
-      router.push('/auth/login');
-    }
-  }, [user, isAuthenticated, router]);
+  // Role and authentication checks are now handled by DashboardLayout.
+  // The DashboardLayout passes the fetched role to SidebarDashboard.
+  // If the role is needed directly within Profile content, a Context API
+  // or additional prop drilling from DashboardLayout would be necessary.
 
   return (
     <DashboardLayout>
@@ -79,12 +40,10 @@ export default function Profile() {
               <h2 className="text-2xl font-bold text-[#111418] dark:text-white">
                 {user?.user_metadata?.full_name || user?.email || 'Usuario'}
               </h2>
+              {/* Role display removed as it's now managed by DashboardLayout and passed to SidebarDashboard */}
               <p className="font-medium text-[#617589]">
-                {role
-                  ? role === 'resident'
-                    ? 'Residente'
-                    : role
-                  : 'Rol Desconocido'}
+                {/* Placeholder or access via context if role is needed here */}
+                Rol gestionado centralmente
               </p>
               <div className="mt-3 flex flex-wrap justify-center gap-4 md:justify-start">
                 <span className="flex items-center gap-1.5 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">

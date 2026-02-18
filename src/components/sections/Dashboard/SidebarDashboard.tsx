@@ -1,60 +1,31 @@
 import {
   faArrowRightFromBracket,
   faCampground,
-  faCoins,
-  faDashboard,
-  faFileSignature,
   faUser,
-  faGuitar, // Adding an icon for instruments
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { usePathname, useRouter } from 'next/navigation'; // Import usePathname
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/lib/redux/store';
-import { logoutFromSupabase, selectUser } from '@/lib/redux/slices/authSlice';
-import { useEffect, useState } from 'react';
-import { createClientBrowser } from '@/lib/supabase';
+import { logoutFromSupabase, selectUserRole } from '@/lib/redux/slices/authSlice';
+import type { User } from '@supabase/supabase-js';
+import { MENU_ITEMS } from '@/config/menu-items';
 
-interface NavItem {
-  name: string;
-  href: string;
-  icon: any; // FontAwesomeIconType
-}
-
-export const SidebarDashboard = () => {
+export const SidebarDashboard = ({
+  user,
+}: {
+  user: User | null;
+}) => {
   const router = useRouter();
-  const pathname = usePathname(); // Get current pathname
+  const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
-  const reduxUser = useSelector(selectUser);
-  const [role, setRole] = useState<string | null>(null);
-  const supabase = createClientBrowser();
+  const currentRole = useSelector(selectUserRole) as 'user' | 'admin' | 'super-admin';
 
-  const navItems: NavItem[] = [
-    { name: 'Inicio', href: '/profile', icon: faDashboard },
-    { name: 'Comunicados', href: '/announcements', icon: faCampground },
-    { name: 'Pagos', href: '/payments', icon: faCoins },
-    { name: 'Documentos', href: '/documents', icon: faFileSignature },
-    { name: 'Instrumentos', href: '/instruments', icon: faGuitar }, // New nav item for instruments
-  ];
-
-  useEffect(() => {
-    if (reduxUser) {
-      const fetchRole = async () => {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', reduxUser.id)
-          .single();
-        if (error) {
-          console.error('Error fetching profile:', error);
-        } else {
-          setRole(profile.role);
-        }
-      };
-      fetchRole();
-    }
-  }, [reduxUser, supabase]);
+  // Filtrar items según el rol del usuario
+  const filteredNavItems = MENU_ITEMS.filter(item => 
+    item.roles.includes(currentRole)
+  );
 
   const handleLogout = async () => {
     await dispatch(logoutFromSupabase());
@@ -77,27 +48,23 @@ export const SidebarDashboard = () => {
             </div>
             <div className="flex flex-col">
               <h1 className="text-base leading-tight font-bold text-[#111418] dark:text-white">
-                Gestión Residencial
+                PropManagement
               </h1>
               <p className="text-xs font-normal text-[#617589]">
-                Admin Central
+                Gestión Residencial
               </p>
             </div>
           </div>
           {/* Nav Links */}
           <nav className="flex flex-col gap-2">
-            {navItems.map(item => (
+            {filteredNavItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.label}
                 href={item.href}
-                className={
-                  pathname === item.href
-                    ? activeLinkClasses
-                    : inactiveLinkClasses
-                }
+                className={pathname === item.href ? activeLinkClasses : inactiveLinkClasses}
               >
                 <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
-                <span className="text-sm font-semibold">{item.name}</span>
+                <span className="text-sm font-semibold">{item.label}</span>
               </Link>
             ))}
           </nav>
@@ -108,15 +75,15 @@ export const SidebarDashboard = () => {
             <FontAwesomeIcon icon={faUser} className="h-9 w-9 text-[#617589]" />
             <div className="flex flex-col">
               <p className="text-sm font-bold dark:text-white">
-                {reduxUser?.user_metadata?.full_name ||
-                  reduxUser?.email?.slice(
+                {user?.user_metadata?.full_name ||
+                  user?.email?.slice(
                     0,
-                    reduxUser?.email?.indexOf('@') || 0
+                    user?.email?.indexOf('@') || 0
                   ) ||
                   'Usuario'}
               </p>
-              <p className="text-xs text-[#617589]">
-                {role || 'Rol Desconocido'}
+              <p className="text-xs text-[#617589] capitalize">
+                {currentRole}
               </p>
             </div>
             <button className="ml-auto text-[#617589]" onClick={handleLogout}>

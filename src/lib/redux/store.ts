@@ -13,11 +13,12 @@ export interface RootState {
   // Add other slices here
 }
 
-export const makeStore = () => {
-  return configureStore<RootState>({
+export const makeStore = (preloadedState?: RootState) => {
+  return configureStore({
     reducer: {
       auth: authReducer,
     },
+    preloadedState,
   });
 };
 
