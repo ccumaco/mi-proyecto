@@ -3,10 +3,15 @@
 import { useState, Suspense } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { faLock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
@@ -15,89 +20,100 @@ function ResetPasswordForm() {
 
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
     setSuccess(null);
     const access_token = searchParams.get('access_token');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
       return;
     }
-    if (!access_token) {
-      setError('Invalid or expired token.');
-      return;
-    }
-
+    
+    // El token de acceso se maneja automáticamente si la sesión se refresca desde el link
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
       setError(error.message);
     } else {
-      setSuccess('Password updated successfully!');
+      setSuccess('¡Contraseña actualizada con éxito!');
       setTimeout(() => {
         router.push('/auth/login');
       }, 3000);
     }
+    setLoading(false);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-md">
-        <h1 className="text-center text-2xl font-bold text-gray-900">
-          Reset Password
+    <div className="w-full space-y-6">
+      {/* Icon & Header */}
+      <div className="text-center space-y-2">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <FontAwesomeIcon icon={faLock} className="h-6 w-6" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+          Nueva Contraseña
         </h1>
-        <form onSubmit={handleResetPassword} className="space-y-6">
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              New Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirm New Password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              required
-              className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-            />
-          </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          {success && <p className="text-sm text-green-500">{success}</p>}
-          <div>
-            <button
-              type="submit"
-              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-            >
-              Reset Password
-            </button>
-          </div>
-        </form>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Ingresa y confirma tu nueva contraseña de acceso
+        </p>
       </div>
+
+      <form onSubmit={handleResetPassword} className="space-y-4">
+        <Input
+          label="Nueva Contraseña"
+          type="password"
+          placeholder="Mínimo 8 caracteres"
+          leftIcon={faLock}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+          required
+        />
+        
+        <Input
+          label="Confirmar Contraseña"
+          type="password"
+          placeholder="Repite tu contraseña"
+          leftIcon={faCheckCircle}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          disabled={loading}
+          required
+        />
+
+        {error && (
+          <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500 dark:bg-red-900/20">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-lg bg-green-50 p-3 text-sm font-medium text-green-600 dark:bg-green-900/20">
+            {success}
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full py-6 text-base"
+          isLoading={loading}
+        >
+          Restablecer Contraseña
+        </Button>
+      </form>
     </div>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-12">
+        <p className="text-sm text-zinc-500">Cargando formulario...</p>
+      </div>
+    }>
       <ResetPasswordForm />
     </Suspense>
   );
