@@ -23,7 +23,7 @@ export default function RecoveryPage() {
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) {
         setError(error.message);
@@ -87,7 +87,7 @@ export default function RecoveryPage() {
 
       <div className="text-center">
         <Link
-          href="/auth/login"
+          href="/login"
           className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
         >
           <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />

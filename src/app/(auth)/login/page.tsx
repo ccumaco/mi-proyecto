@@ -71,7 +71,7 @@ export default function LoginPage() {
               Contraseña
             </label>
             <Link 
-              href="/auth/recovery" 
+              href="/recovery" 
               className="text-xs font-semibold text-primary hover:underline"
             >
               ¿Olvidaste tu contraseña?
@@ -118,7 +118,7 @@ export default function LoginPage() {
       <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
         ¿No tienes una cuenta?{' '}
         <Link
-          href="/auth/register"
+          href="/register"
           className="font-bold text-primary hover:underline"
         >
           Regístrate ahora

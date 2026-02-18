@@ -46,7 +46,7 @@ export default function RegisterPage() {
     if (authStatus === 'succeeded') {
       setSuccess('¡Registro exitoso! Por favor, verifica tu correo electrónico.');
       setTimeout(() => {
-        router.push('/auth/login');
+        router.push('/login');
       }, 3000);
     }
   }, [authStatus, router]);
@@ -151,7 +151,7 @@ export default function RegisterPage() {
 
         {authError && (
           <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500 dark:bg-red-900/20">
-            {authError}
+            {error}
           </div>
         )}
 
@@ -174,7 +174,7 @@ export default function RegisterPage() {
       <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
         ¿Ya tienes una cuenta?{' '}
         <Link
-          href="/auth/login"
+          href="/login"
           className="font-bold text-primary hover:underline"
         >
           Inicia sesión

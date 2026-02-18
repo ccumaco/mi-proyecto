@@ -17,37 +17,32 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession(); // Get current session after refresh
 
-  const publicPaths = [
-    '/',
-    '/auth/login',
-    '/auth/register',
-    '/auth/recovery',
-    '/auth/reset-password',
-  ];
-
-  const protectedPaths = [
-    '/profile',
-    '/admin',
-    '/super-admin',
-    '/instruments', // Added new protected path
-  ];
-
-  const currentPath = request.nextUrl.pathname;
-
-  // If trying to access public auth page while authenticated, redirect to profile
-  if (
-    session &&
-    publicPaths.includes(currentPath) &&
-    (currentPath.startsWith('/auth/login') ||
-      currentPath.startsWith('/auth/register'))
-  ) {
-    return NextResponse.redirect(new URL('/profile', request.url));
-  }
-
-  // If trying to access protected page while unauthenticated, redirect to login
-  if (!session && protectedPaths.includes(currentPath)) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
-  }
+    const publicPaths = [
+      '/',
+      '/login',
+      '/register',
+      '/recovery',
+      '/reset-password',
+    ];
+  
+    const protectedPaths = [
+      '/profile',
+      '/admin',
+      '/super-admin',
+      '/instruments', // Added new protected path
+    ];
+  
+    const currentPath = request.nextUrl.pathname;
+  
+    // If trying to access public auth page while authenticated, redirect to profile
+    if (session && publicPaths.includes(currentPath) && (currentPath.startsWith('/login') || currentPath.startsWith('/register'))) {
+      return NextResponse.redirect(new URL('/profile', request.url));
+    }
+  
+    // If trying to access protected page while unauthenticated, redirect to login
+    if (!session && protectedPaths.includes(currentPath)) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
 
   // If no redirection is needed, proceed with the request, ensuring cookies are set.
   // The createClient helper's cookieStore.set calls will implicitly set cookies on the final response.

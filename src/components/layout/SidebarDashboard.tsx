@@ -32,7 +32,7 @@ export const SidebarDashboard = ({ user }: { user: User | null }) => {
 
   const handleLogout = async () => {
     await dispatch(logoutFromSupabase());
-    router.push('/auth/login');
+    router.push('/login');
   };
 
   const inactiveLinkClasses =
