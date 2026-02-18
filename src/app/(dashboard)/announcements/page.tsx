@@ -2,16 +2,18 @@
 
 import { useState } from 'react';
 import {
-  faArrowLeft,
+  faArrowRight,
   faBriefcaseMedical,
   faChampagneGlasses,
   faGears,
   faLock,
   faUsers,
   faWrench,
-  IconDefinition, // Import IconDefinition type
+  faCalendarAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Card, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 
 interface Announcement {
   id: string;
@@ -19,231 +21,181 @@ interface Announcement {
   category: string;
   date: string;
   content: string;
-  icon: IconDefinition;
-  iconBgColor: string;
-  iconTextColor: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
+  icon: any;
+  color: 'orange' | 'blue' | 'red' | 'green' | 'purple';
 }
 
-const dummyAnnouncements: Announcement[] = [
+const ANNOUNCEMENTS: Announcement[] = [
   {
     id: '1',
     title: 'Suspensión Programada de Agua',
     category: 'Mantenimiento',
     date: '24 Oct, 2023',
-    content:
-      'Estimados residentes, se informa que debido a trabajos de reparación en la tubería matriz del edificio, el suministro de agua será suspendido el próximo miércoles...',
+    content: 'Estimados residentes, se informa que debido a trabajos de reparación en la tubería matriz del edificio, el suministro de agua será suspendido el próximo miércoles...',
     icon: faWrench,
-    iconBgColor: 'bg-orange-100',
-    iconTextColor: 'text-orange-600',
-    categoryBgColor: 'bg-orange-100',
-    categoryTextColor: 'text-orange-600',
+    color: 'orange',
   },
   {
     id: '2',
     title: 'Fiesta de Halloween en el Clubhouse',
     category: 'Eventos',
     date: '20 Oct, 2023',
-    content:
-      '¡Prepárate para una tarde llena de sorpresas! Invitamos a todos los niños y adultos a nuestro concurso de disfraces anual que se llevará a cabo en el área común...',
+    content: '¡Prepárate para una tarde llena de sorpresas! Invitamos a todos los niños y adultos a nuestro concurso de disfraces anual que se llevará a cabo en el área común...',
     icon: faChampagneGlasses,
-    iconBgColor: 'bg-blue-100',
-    iconTextColor: 'text-blue-600',
-    categoryBgColor: 'bg-blue-100',
-    categoryTextColor: 'text-blue-600',
+    color: 'blue',
   },
   {
     id: '3',
     title: 'Actualización de Protocolos de Acceso',
     category: 'Seguridad',
     date: '18 Oct, 2023',
-    content:
-      'A partir del próximo mes, se implementará un nuevo sistema de códigos QR para visitantes con el fin de mejorar la trazabilidad y seguridad de nuestro conjunto...',
+    content: 'A partir del próximo mes, se implementará un nuevo sistema de códigos QR para visitantes con el fin de mejorar la trazabilidad y seguridad de nuestro conjunto...',
     icon: faLock,
-    iconBgColor: 'bg-red-100',
-    iconTextColor: 'text-red-600',
-    categoryBgColor: 'bg-red-100',
-    categoryTextColor: 'text-red-600',
+    color: 'red',
   },
-  // Add more dummy data if needed
 ];
+
+const CATEGORIES = ['Todos', 'Mantenimiento', 'Eventos', 'Seguridad', 'Finanzas'];
 
 export default function AnnouncementsPage() {
   const [activeTab, setActiveTab] = useState('Todos');
 
-  const categories = [
-    'Todos',
-    ...new Set(dummyAnnouncements.map(ann => ann.category)),
-  ];
+  const filteredAnnouncements = activeTab === 'Todos'
+    ? ANNOUNCEMENTS
+    : ANNOUNCEMENTS.filter(ann => ann.category === activeTab);
 
-  const filteredAnnouncements =
-    activeTab === 'Todos'
-      ? dummyAnnouncements
-      : dummyAnnouncements.filter(ann => ann.category === activeTab);
-
-  // Existing styles for tabs
-  const activeTabClasses =
-    'bg-primary rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-sm';
-  const inactiveTabClasses =
-    'rounded-lg border border-[#dbe0e6] bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-[#617589] transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
+  const colorMap = {
+    orange: 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-950/20 dark:border-orange-900/30',
+    blue: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:border-blue-900/30',
+    red: 'bg-red-50 text-red-600 border-red-100 dark:bg-red-950/20 dark:border-red-900/30',
+    green: 'bg-green-50 text-green-600 border-green-100 dark:bg-green-950/20 dark:border-green-900/30',
+    purple: 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/20 dark:border-purple-900/30',
+  };
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      <main className="flex-1 space-y-6 overflow-y-auto p-6 lg:p-8">
-        <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto pb-2">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setActiveTab(category)}
-              className={`${activeTab === category ? activeTabClasses : inactiveTabClasses} cursor-pointer`}
-            >
-              {category}
-            </button>
+    <div className="flex flex-col lg:flex-row gap-8 h-full">
+      {/* Main Content */}
+      <main className="flex-1 space-y-6">
+        <header className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Anuncios y Comunicados</h1>
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {CATEGORIES.map(category => (
+              <Button
+                key={category}
+                variant={activeTab === category ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setActiveTab(category)}
+                className="whitespace-nowrap"
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+        </header>
+
+        <div className="grid gap-4">
+          {filteredAnnouncements.map((ann) => (
+            <Card key={ann.id} isHoverable className="flex flex-col md:flex-row gap-6">
+              <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border ${colorMap[ann.color]}`}>
+                <FontAwesomeIcon icon={ann.icon} className="text-2xl" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <span className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border ${colorMap[ann.color]}`}>
+                      {ann.category}
+                    </span>
+                    <CardTitle className="text-xl">{ann.title}</CardTitle>
+                  </div>
+                  <span className="text-xs text-zinc-500 font-medium">{ann.date}</span>
+                </div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {ann.content}
+                </p>
+                <div className="pt-2">
+                  <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline group">
+                    Leer más completo
+                    <FontAwesomeIcon icon={faArrowRight} className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
-        <div className="grid gap-6">
-          {filteredAnnouncements.length > 0 ? (
-            filteredAnnouncements.map(announcement => (
-              <article
-                key={announcement.id}
-                className="dark:bg-background-dark flex flex-col gap-6 rounded-xl border border-[#dbe0e6] bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:flex-row dark:border-gray-800"
-              >
-                <div
-                  className={`flex size-16 shrink-0 items-center justify-center rounded-xl ${announcement.iconBgColor} ${announcement.iconTextColor} dark:${announcement.iconBgColor.replace('bg-', 'bg-')}/30`}
-                >
-                  <FontAwesomeIcon
-                    icon={announcement.icon}
-                    className="text-3xl"
-                  />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span
-                        className={`rounded ${announcement.categoryBgColor} px-2 py-0.5 text-[10px] font-bold tracking-wider ${announcement.categoryTextColor} uppercase dark:${announcement.categoryBgColor.replace('bg-', 'bg-')}/30`}
-                      >
-                        {announcement.category}
-                      </span>
-                      <h3 className="mt-1 text-xl font-bold">
-                        {announcement.title}
-                      </h3>
-                    </div>
-                    <span className="text-xs text-[#617589]">
-                      {announcement.date}
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-[#617589]">
-                    {announcement.content}
-                  </p>
-                  <div className="pt-2">
-                    <button className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
-                      Leer más
-                      <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400">
-              No hay comunicados para esta categoría.
-            </p>
-          )}
-        </div>
       </main>
-      {/* The aside content remains unchanged */}
-      <aside className="dark:bg-background-dark sticky top-16 hidden h-[calc(100vh-4rem)] w-80 flex-col gap-8 overflow-y-auto border-l border-[#dbe0e6] bg-white p-6 xl:flex dark:border-gray-800">
-        <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h4 className="text-sm font-bold tracking-wider text-[#617589] uppercase">
-              Calendario de Eventos
-            </h4>
-            <button className="text-primary text-xs font-bold">Ver todo</button>
+
+      {/* Sidebar Info */}
+      <aside className="w-full lg:w-80 space-y-8">
+        <Card padding="md">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Próximos Eventos</h3>
+            <Button variant="ghost" size="sm" className="text-primary">Ver todo</Button>
           </div>
           <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex size-12 flex-col items-center justify-center rounded-lg border border-[#dbe0e6] bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                <span className="text-[10px] font-bold text-red-500 uppercase">
-                  Oct
-                </span>
-                <span className="text-lg leading-none font-black">28</span>
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold">Asamblea Ordinaria</p>
-                <p className="text-xs text-[#617589]">18:00 • Salón Social</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex size-12 flex-col items-center justify-center rounded-lg border border-[#dbe0e6] bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                <span className="text-[10px] font-bold text-red-500 uppercase">
-                  Oct
-                </span>
-                <span className="text-lg leading-none font-black">31</span>
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold">Halloween Party</p>
-                <p className="text-xs text-[#617589]">16:00 • Áreas Comunes</p>
-              </div>
-            </div>
-            <div className="flex gap-4 opacity-60">
-              <div className="flex size-12 flex-col items-center justify-center rounded-lg border border-[#dbe0e6] bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                <span className="text-[10px] font-bold text-red-500 uppercase">
-                  Nov
-                </span>
-                <span className="text-lg leading-none font-black">05</span>
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold">Fumigación Torres</p>
-                <p className="text-xs text-[#617589]">08:00 • Todo el predio</p>
-              </div>
-            </div>
+            <EventItem day="28" month="OCT" title="Asamblea Ordinaria" time="18:00 • Salón Social" />
+            <EventItem day="31" month="OCT" title="Halloween Party" time="16:00 • Áreas Comunes" />
+            <EventItem day="05" month="NOV" title="Fumigación Torres" time="08:00 • Todo el predio" isPast />
           </div>
-        </section>
-        <hr className="border-[#dbe0e6] dark:border-gray-800" />
-        <section>
-          <h4 className="mb-4 text-sm font-bold tracking-wider text-[#617589] uppercase">
-            Contactos de Emergencia
-          </h4>
+        </Card>
+
+        <Card padding="md">
+          <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-6">Contactos de Emergencia</h3>
           <div className="space-y-3">
-            <a
-              className="flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-3 transition-colors hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/10"
-              href="tel:911"
-            >
-              <div className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white">
-                <FontAwesomeIcon
-                  icon={faBriefcaseMedical}
-                  className="h-4 w-4"
-                />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-red-700 dark:text-red-400">
-                  Portería Principal
-                </p>
-                <p className="text-xs text-red-600/70">Ext. 101 / 102</p>
-              </div>
-            </a>
-            <div className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#dbe0e6] p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-              <div className="flex size-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30">
-                <FontAwesomeIcon icon={faUsers} className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold">Cuadrante Policía</p>
-                <p className="text-xs text-[#617589]">300 123 4567</p>
-              </div>
-            </div>
-            <div className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#dbe0e6] p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-              <div className="flex size-8 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30">
-                <FontAwesomeIcon icon={faGears} className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold">Servicios Técnicos</p>
-                <p className="text-xs text-[#617589]">Mantenimiento 24h</p>
-              </div>
-            </div>
+            <EmergencyContact 
+              icon={faBriefcaseMedical} 
+              title="Portería Principal" 
+              subtitle="Ext. 101 / 102" 
+              variant="danger" 
+              href="tel:101"
+            />
+            <EmergencyContact 
+              icon={faUsers} 
+              title="Cuadrante Policía" 
+              subtitle="300 123 4567" 
+            />
+            <EmergencyContact 
+              icon={faGears} 
+              title="Mantenimiento 24h" 
+              subtitle="Servicios Técnicos" 
+            />
           </div>
-        </section>
+        </Card>
       </aside>
     </div>
   );
+}
+
+function EventItem({ day, month, title, time, isPast = false }: { day: string, month: string, title: string, time: string, isPast?: boolean }) {
+  return (
+    <div className={`flex gap-4 ${isPast ? 'opacity-50' : ''}`}>
+      <div className="flex h-12 w-12 flex-col items-center justify-center rounded-xl border border-zinc-100 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
+        <span className="text-[10px] font-bold text-red-500 uppercase">{month}</span>
+        <span className="text-lg font-black text-zinc-900 dark:text-white leading-none">{day}</span>
+      </div>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-bold text-zinc-900 dark:text-white">{title}</p>
+        <p className="text-xs text-zinc-500">{time}</p>
+      </div>
+    </div>
+  );
+}
+
+function EmergencyContact({ icon, title, subtitle, variant = 'default', href }: { icon: any, title: string, subtitle: string, variant?: 'default' | 'danger', href?: string }) {
+  const styles = variant === 'danger' 
+    ? 'border-red-100 bg-red-50 text-red-600 dark:border-red-900/30 dark:bg-red-900/10'
+    : 'border-zinc-100 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800/50';
+
+  const content = (
+    <div className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${styles}`}>
+      <div className={`flex h-8 w-8 items-center justify-center rounded-full ${variant === 'danger' ? 'bg-red-500 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}>
+        <FontAwesomeIcon icon={icon} className="h-4 w-4" />
+      </div>
+      <div className="flex-1">
+        <p className="text-sm font-bold">{title}</p>
+        <p className="text-xs opacity-70">{subtitle}</p>
+      </div>
+    </div>
+  );
+
+  return href ? <a href={href}>{content}</a> : <div className="cursor-pointer">{content}</div>;
 }
