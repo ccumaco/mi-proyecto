@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   faUser, 
@@ -39,17 +39,15 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSuccess(null);
-    dispatch(signUpWithPassword({ email, password }));
-  };
-
-  useEffect(() => {
-    if (authStatus === 'succeeded') {
+    const resultAction = await dispatch(signUpWithPassword({ email, password }));
+    
+    if (signUpWithPassword.fulfilled.match(resultAction)) {
       setSuccess('¡Registro exitoso! Por favor, verifica tu correo electrónico.');
       setTimeout(() => {
         router.push('/login');
       }, 3000);
     }
-  }, [authStatus, router]);
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -151,7 +149,7 @@ export default function RegisterPage() {
 
         {authError && (
           <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500 dark:bg-red-900/20">
-            {error}
+            {authError}
           </div>
         )}
 

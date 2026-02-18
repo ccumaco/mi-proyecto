@@ -39,7 +39,7 @@ function ResetPasswordForm() {
     } else {
       setSuccess('¡Contraseña actualizada con éxito!');
       setTimeout(() => {
-        router.push('/auth/login');
+        router.push('/login');
       }, 3000);
     }
     setLoading(false);

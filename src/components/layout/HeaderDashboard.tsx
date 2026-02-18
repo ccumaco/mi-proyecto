@@ -8,8 +8,9 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '../shared/ThemeToggle';
+import type { User } from '@supabase/supabase-js';
 
-export const HeaderDashboard = () => {
+export const HeaderDashboard = ({ user }: { user: User | null }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
