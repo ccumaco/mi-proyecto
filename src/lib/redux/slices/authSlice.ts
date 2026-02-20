@@ -47,6 +47,20 @@ export const sendOtpToEmail = createAsyncThunk(
   }
 );
 
+export const sendOtpToPhone = createAsyncThunk(
+  'auth/sendOtpToPhone',
+  async (phone: string, { rejectWithValue }) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone,
+      options: { shouldCreateUser: false },
+    });
+    if (error) {
+      return rejectWithValue(error.message);
+    }
+    return data;
+  }
+);
+
 export const verifyOtp = createAsyncThunk(
   'auth/verifyOtp',
   async (
@@ -57,6 +71,24 @@ export const verifyOtp = createAsyncThunk(
       email,
       token,
       type: 'email',
+    });
+    if (error) {
+      return rejectWithValue(error.message);
+    }
+    return data.user;
+  }
+);
+
+export const verifyPhoneOtp = createAsyncThunk(
+  'auth/verifyPhoneOtp',
+  async (
+    { phone, token }: { phone: string; token: string },
+    { rejectWithValue }
+  ) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms',
     });
     if (error) {
       return rejectWithValue(error.message);
@@ -148,6 +180,30 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(verifyOtp.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(sendOtpToPhone.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(sendOtpToPhone.fulfilled, state => {
+        state.status = 'succeeded';
+      })
+      .addCase(sendOtpToPhone.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(verifyPhoneOtp.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(verifyPhoneOtp.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(verifyPhoneOtp.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       })

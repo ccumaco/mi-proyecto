@@ -8,13 +8,14 @@ import {
   faBuilding,
   faArrowLeft,
   faKey,
+  faPhone,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   loginWithPassword,
-  sendOtpToEmail,
-  verifyOtp,
+  sendOtpToPhone,
+  verifyPhoneOtp,
   selectAuthStatus,
   selectAuthError,
   selectIsAuthenticated,
@@ -23,6 +24,9 @@ import { AppDispatch } from '@/lib/redux/store';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { createClientBrowser } from '@/lib/supabase';
+
+const supabase = createClientBrowser();
 
 type Step = 1 | 2 | 3;
 type LoginMethod = 'otp' | 'password';
@@ -34,12 +38,19 @@ function maskEmail(email: string): string {
   return `${local[0]}*******@${domain}`;
 }
 
+function maskPhone(phone: string): string {
+  if (!phone) return '*******000';
+  return `*******${phone.slice(-3)}`;
+}
+
 export default function LoginPage() {
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState(''); // Teléfono recuperado de la DB
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
   const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
+  const [localError, setLocalError] = useState<string | null>(null);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -57,14 +68,32 @@ export default function LoginPage() {
 
   const handleStep1Next = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLocalError(null);
     setStep(2);
   };
 
-  const handleStep2Next = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleStep2Next = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLocalError(null);
+
     if (loginMethod === 'otp') {
-      dispatch(sendOtpToEmail(email)).then(result => {
-        if (sendOtpToEmail.fulfilled.match(result)) {
+      // 1. Buscar el teléfono asociado al correo en la tabla profiles
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      if (error || !data?.phone) {
+        setLocalError('No encontramos un teléfono asociado a este correo.');
+        return;
+      }
+
+      setPhone(data.phone);
+
+      // 2. Enviar OTP al teléfono encontrado
+      dispatch(sendOtpToPhone(data.phone)).then(result => {
+        if (sendOtpToPhone.fulfilled.match(result)) {
           setStep(3);
           setOtpCode(['', '', '', '', '', '']);
         }
@@ -108,14 +137,15 @@ export default function LoginPage() {
     e.preventDefault();
     const code = otpCode.join('');
     if (code.length !== 6) return;
-    dispatch(verifyOtp({ email, token: code }));
+    dispatch(verifyPhoneOtp({ phone, token: code }));
   };
 
   const handleResendOtp = () => {
-    dispatch(sendOtpToEmail(email));
+    if (phone) dispatch(sendOtpToPhone(phone));
   };
 
   const goBack = () => {
+    setLocalError(null);
     if (step === 2) setStep(1);
     if (step === 3) setStep(2);
   };
@@ -149,7 +179,7 @@ export default function LoginPage() {
       {/* Right: Form */}
       <div className="flex flex-1 items-center justify-center bg-white p-6 sm:p-10">
         <div className="w-full max-w-md space-y-8">
-          {/* Paso 1 */}
+          {/* Paso 1: Email */}
           {step === 1 && (
             <>
               <div className="space-y-2 text-center sm:text-left">
@@ -193,7 +223,7 @@ export default function LoginPage() {
             </>
           )}
 
-          {/* Paso 2 */}
+          {/* Paso 2: Método */}
           {step === 2 && (
             <>
               <div className="flex justify-center">
@@ -224,12 +254,12 @@ export default function LoginPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <FontAwesomeIcon icon={faEnvelope} className="h-5 w-5" />
+                        <FontAwesomeIcon icon={faPhone} className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900">Código por email</p>
+                        <p className="font-bold text-zinc-900">Código por SMS</p>
                         <p className="text-sm text-zinc-500">
-                          Recibirás un código en tu correo
+                          Lo enviaremos a tu celular registrado
                         </p>
                       </div>
                     </div>
@@ -250,15 +280,15 @@ export default function LoginPage() {
                       <div>
                         <p className="font-bold text-zinc-900">Contraseña</p>
                         <p className="text-sm text-zinc-500">
-                          Ingresa con la contraseña que creaste al crear la cuenta
+                          Ingresa con tu clave personal
                         </p>
                       </div>
                     </div>
                   </button>
                 </div>
-                {authError && (
+                {(authError || localError) && (
                   <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500">
-                    {authError}
+                    {authError || localError}
                   </div>
                 )}
                 <Button
@@ -280,147 +310,59 @@ export default function LoginPage() {
             </>
           )}
 
-          {/* Paso 3: Contraseña */}
-          {step === 3 && loginMethod === 'password' && (
+          {/* Paso 3: Contraseña o OTP */}
+          {step === 3 && (
             <>
-              <div className="flex justify-center">
-                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600">
-                  <FontAwesomeIcon icon={faLock} className="h-3.5 w-3.5" />
-                  SEGURIDAD DE CUENTA
-                </span>
-              </div>
-              <div className="space-y-2">
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-                  Contraseña
-                </h1>
-                <p className="text-sm text-zinc-600">
-                  Estás ingresando con{' '}
-                  <span className="font-medium text-primary">{maskEmail(email)}</span>
-                </p>
-              </div>
-              <form onSubmit={handleLoginWithPassword} className="space-y-4">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between px-1">
-                    <label className="text-sm font-semibold text-zinc-700">
-                      Contraseña
-                    </label>
-                    <Link
-                      href="/recovery"
-                      className="text-xs font-semibold text-primary hover:underline"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </Link>
+              {loginMethod === 'password' ? (
+                <>
+                  <div className="space-y-2">
+                    <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Contraseña</h1>
+                    <p className="text-sm text-zinc-600">Para: <span className="font-medium text-primary">{maskEmail(email)}</span></p>
                   </div>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    leftIcon={faLock}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    disabled={isLoading}
-                    required
-                  />
-                </div>
-                {authError && (
-                  <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500">
-                    {authError}
-                  </div>
-                )}
-                <Button
-                  type="submit"
-                  className="w-full py-3.5 text-base font-bold"
-                  isLoading={isLoading}
-                >
-                  Iniciar sesión
-                </Button>
-              </form>
-              <button
-                type="button"
-                onClick={goBack}
-                className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700"
-              >
-                <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
-                Volver
-              </button>
-            </>
-          )}
-
-          {/* Paso 3: OTP */}
-          {step === 3 && loginMethod === 'otp' && (
-            <>
-              <div className="flex justify-center">
-                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600">
-                  <FontAwesomeIcon icon={faLock} className="h-3.5 w-3.5" />
-                  SEGURIDAD DE CUENTA
-                </span>
-              </div>
-              <div className="space-y-2">
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-                  Verificación de Código
-                </h1>
-                <p className="text-sm text-zinc-600">
-                  Ingresa el código de 6 dígitos enviado a{' '}
-                  <span className="font-medium text-primary">{maskEmail(email)}</span>
-                </p>
-              </div>
-              <form onSubmit={handleVerifyOtp} className="space-y-6">
-                <div className="flex justify-center gap-2">
-                  {otpCode.map((digit, i) => (
-                    <input
-                      key={i}
-                      ref={el => { otpInputRefs.current[i] = el; }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      value={digit}
-                      onChange={e => handleOtpChange(i, e.target.value)}
-                      onKeyDown={e => handleOtpKeyDown(i, e)}
-                      disabled={isLoading}
-                      className="h-12 w-11 rounded-lg border-2 border-zinc-200 text-center text-lg font-bold text-zinc-900 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                  <form onSubmit={handleLoginWithPassword} className="space-y-4 mt-6">
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      leftIcon={faLock}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
                     />
-                  ))}
-                </div>
-                {authError && (
-                  <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500">
-                    {authError}
+                    {authError && <p className="text-sm text-red-500">{authError}</p>}
+                    <Button type="submit" className="w-full py-3.5" isLoading={isLoading}>Iniciar sesión</Button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2 text-center">
+                    <h1 className="text-2xl font-bold text-zinc-900">Verificación SMS</h1>
+                    <p className="text-sm text-zinc-600">Enviamos un código al celular <span className="font-medium text-primary">{maskPhone(phone)}</span></p>
                   </div>
-                )}
-                <Button
-                  type="submit"
-                  className="w-full py-3.5 text-base font-bold"
-                  isLoading={isLoading}
-                >
-                  Verificar e Ingresar
-                </Button>
-              </form>
-              <div className="space-y-4">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-zinc-200" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-3 text-zinc-500">
-                      No recibiste el código?{' '}
-                      <button
-                        type="button"
-                        onClick={handleResendOtp}
-                        disabled={isLoading}
-                        className="font-bold text-primary hover:underline disabled:opacity-50"
-                      >
-                        Reenviar código
-                      </button>
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={goBack}
-                  className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700"
-                >
-                  <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
-                  Volver a intentar con otro método
-                </button>
-              </div>
+                  <form onSubmit={handleVerifyOtp} className="space-y-6 mt-6">
+                    <div className="flex justify-center gap-2">
+                      {otpCode.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={el => { otpInputRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={e => handleOtpChange(i, e.target.value)}
+                          onKeyDown={e => handleOtpKeyDown(i, e)}
+                          className="h-12 w-11 rounded-lg border-2 border-zinc-200 text-center text-lg font-bold focus:border-primary outline-none"
+                        />
+                      ))}
+                    </div>
+                    {authError && <p className="text-sm text-red-500 text-center">{authError}</p>}
+                    <Button type="submit" className="w-full py-3.5" isLoading={isLoading}>Verificar e Ingresar</Button>
+                    <button type="button" onClick={handleResendOtp} className="w-full text-center text-sm font-bold text-primary hover:underline">Reenviar código</button>
+                  </form>
+                </>
+              )}
+              <button onClick={goBack} className="mt-6 flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700">
+                <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" /> Volver
+              </button>
             </>
           )}
 
