@@ -50,6 +50,8 @@ export default function RegisterPage() {
   };
 
   return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
     <div className="w-full space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
@@ -178,6 +180,8 @@ export default function RegisterPage() {
           Inicia sesión
         </Link>
       </p>
+    </div>
+      </div>
     </div>
   );
 }

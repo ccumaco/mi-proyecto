@@ -33,6 +33,38 @@ export const loginWithPassword = createAsyncThunk(
   }
 );
 
+export const sendOtpToEmail = createAsyncThunk(
+  'auth/sendOtpToEmail',
+  async (email: string, { rejectWithValue }) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+    if (error) {
+      return rejectWithValue(error.message);
+    }
+    return data;
+  }
+);
+
+export const verifyOtp = createAsyncThunk(
+  'auth/verifyOtp',
+  async (
+    { email, token }: { email: string; token: string },
+    { rejectWithValue }
+  ) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    });
+    if (error) {
+      return rejectWithValue(error.message);
+    }
+    return data.user;
+  }
+);
+
 export const signUpWithPassword = createAsyncThunk(
   'auth/signUpWithPassword',
   async (
@@ -92,6 +124,30 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(loginWithPassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(sendOtpToEmail.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(sendOtpToEmail.fulfilled, state => {
+        state.status = 'succeeded';
+      })
+      .addCase(sendOtpToEmail.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(verifyOtp.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       })

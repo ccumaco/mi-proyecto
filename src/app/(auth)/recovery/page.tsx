@@ -38,6 +38,8 @@ export default function RecoveryPage() {
   };
 
   return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
     <div className="w-full space-y-6">
       {/* Icon & Header */}
       <div className="text-center space-y-2">
@@ -93,6 +95,8 @@ export default function RecoveryPage() {
           <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
           Volver al inicio de sesión
         </Link>
+      </div>
+    </div>
       </div>
     </div>
   );
