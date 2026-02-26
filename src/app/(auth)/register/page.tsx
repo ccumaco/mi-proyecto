@@ -101,8 +101,11 @@ export default function RegisterPage() {
     if (password !== confirmPassword) return;
     if (!acceptTerms) return;
     
+    // Clean phone number to match E.164 format (remove spaces)
+    const cleanPhone = phone.replace(/\s+/g, '');
+
     // In step 1 we create the user in Supabase
-    // We send additional metadata (full_name, phone)
+    // We send additional metadata (full_name, celular)
     const result = await dispatch(signUpWithPassword({ 
       email, 
       password,
@@ -110,7 +113,7 @@ export default function RegisterPage() {
         data: {
           full_name: fullName,
           display_name: fullName,
-          phone: phone,
+          celular: cleanPhone,
           role: 'admin' // First person registering is likely admin
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`

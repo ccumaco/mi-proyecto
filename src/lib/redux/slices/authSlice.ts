@@ -107,6 +107,13 @@ export const signUpWithPassword = createAsyncThunk(
     if (error) {
       return rejectWithValue(error.message);
     }
+
+    // Supabase returns a user but with empty identities if the email already exists 
+    // and email confirmation is enabled (to prevent email enumeration).
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      return rejectWithValue('Este correo electrónico ya está registrado.');
+    }
+
     return data.user;
   }
 );
