@@ -72,17 +72,17 @@ function generateUnitPreview(floors: number, unitsPerFloor: number): string[] {
 
 export default function RegisterPage() {
   const [step, setStep] = useState<Step>(1);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [fullName, setFullName] = useState('Administrador de Prueba');
+  const [email, setEmail] = useState('admin@prueba.com');
+  const [phone, setPhone] = useState('+573001234567');
+  const [password, setPassword] = useState('Admin123456!');
+  const [confirmPassword, setConfirmPassword] = useState('Admin123456!');
+  const [acceptTerms, setAcceptTerms] = useState(true);
 
-  const [complexName, setComplexName] = useState('');
-  const [nit, setNit] = useState('');
-  const [unitsCount, setUnitsCount] = useState('');
-  const [address, setAddress] = useState('');
+  const [complexName, setComplexName] = useState('Conjunto Residencial El Sol');
+  const [nit, setNit] = useState('900123456-1');
+  const [unitsCount, setUnitsCount] = useState('24');
+  const [address, setAddress] = useState('Calle 123 # 45 - 67');
   const [country, setCountry] = useState('colombia');
   const [city, setCity] = useState('Bogotá');
 
