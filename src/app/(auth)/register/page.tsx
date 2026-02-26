@@ -105,7 +105,7 @@ export default function RegisterPage() {
     const cleanPhone = phone.replace(/\s+/g, '');
 
     // In step 1 we create the user in Supabase
-    // We send additional metadata (full_name, celular)
+    // We send additional metadata (full_name, phone)
     const result = await dispatch(signUpWithPassword({ 
       email, 
       password,
@@ -113,7 +113,7 @@ export default function RegisterPage() {
         data: {
           full_name: fullName,
           display_name: fullName,
-          celular: cleanPhone,
+          phone: cleanPhone,
           role: 'admin' // First person registering is likely admin
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`

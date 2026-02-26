@@ -45,10 +45,10 @@ function maskPhone(phone: string): string {
 
 export default function LoginPage() {
   const [step, setStep] = useState<Step>(1);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('admin@prueba.com');
   const [phone, setPhone] = useState(''); // Teléfono recuperado de la DB
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('Admin123456!');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [localError, setLocalError] = useState<string | null>(null);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
