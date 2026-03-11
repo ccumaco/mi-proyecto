@@ -46,7 +46,7 @@ function maskPhone(phone: string): string {
 export default function LoginPage() {
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('admin@prueba.com');
-  const [phone, setPhone] = useState(''); // Teléfono recuperado de la DB
+  const [phone, setPhone] = useState('');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
   const [password, setPassword] = useState('Admin123456!');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
@@ -77,7 +77,6 @@ export default function LoginPage() {
     setLocalError(null);
 
     if (loginMethod === 'otp') {
-      // 1. Buscar el teléfono asociado al correo en la tabla profiles
       const { data, error } = await supabase
         .from('profiles')
         .select('phone')
@@ -91,7 +90,6 @@ export default function LoginPage() {
 
       setPhone(data.phone);
 
-      // 2. Enviar OTP al teléfono encontrado
       dispatch(sendOtpToPhone(data.phone)).then(result => {
         if (sendOtpToPhone.fulfilled.match(result)) {
           setStep(3);
@@ -177,16 +175,16 @@ export default function LoginPage() {
       </div>
 
       {/* Right: Form */}
-      <div className="flex flex-1 items-center justify-center bg-white p-6 sm:p-10">
+      <div className="flex flex-1 items-center justify-center bg-white dark:bg-zinc-900 p-6 sm:p-10">
         <div className="w-full max-w-md space-y-8">
           {/* Paso 1: Email */}
           {step === 1 && (
             <>
               <div className="space-y-2 text-center sm:text-left">
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+                <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
                   Bienvenido de nuevo
                 </h1>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
                   Ingresa tus datos para acceder a tu panel
                 </p>
               </div>
@@ -206,10 +204,10 @@ export default function LoginPage() {
               </form>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-zinc-200" />
+                  <span className="w-full border-t border-zinc-200 dark:border-zinc-700" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-3 text-zinc-500">
+                  <span className="bg-white dark:bg-zinc-900 px-3 text-zinc-500 dark:text-zinc-400">
                     ¿Eres nuevo aquí?{' '}
                     <Link
                       href="/register"
@@ -227,16 +225,16 @@ export default function LoginPage() {
           {step === 2 && (
             <>
               <div className="flex justify-center">
-                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600">
+                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">
                   <FontAwesomeIcon icon={faLock} className="h-3.5 w-3.5" />
                   SEGURIDAD DE CUENTA
                 </span>
               </div>
               <div className="space-y-2">
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+                <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
                   Elige un método de ingreso
                 </h1>
-                <p className="text-sm text-zinc-600">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Estás ingresando con{' '}
                   <span className="font-medium text-primary">{maskEmail(email)}</span>
                 </p>
@@ -249,7 +247,7 @@ export default function LoginPage() {
                     className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
                       loginMethod === 'otp'
                         ? 'border-primary bg-primary/5'
-                        : 'border-zinc-200 hover:border-zinc-300 bg-white'
+                        : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -257,8 +255,8 @@ export default function LoginPage() {
                         <FontAwesomeIcon icon={faPhone} className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900">Código por SMS</p>
-                        <p className="text-sm text-zinc-500">
+                        <p className="font-bold text-zinc-900 dark:text-white">Código por SMS</p>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
                           Lo enviaremos a tu celular registrado
                         </p>
                       </div>
@@ -270,7 +268,7 @@ export default function LoginPage() {
                     className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
                       loginMethod === 'password'
                         ? 'border-primary bg-primary/5'
-                        : 'border-zinc-200 hover:border-zinc-300 bg-white'
+                        : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -278,8 +276,8 @@ export default function LoginPage() {
                         <FontAwesomeIcon icon={faKey} className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900">Contraseña</p>
-                        <p className="text-sm text-zinc-500">
+                        <p className="font-bold text-zinc-900 dark:text-white">Contraseña</p>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
                           Ingresa con tu clave personal
                         </p>
                       </div>
@@ -287,7 +285,7 @@ export default function LoginPage() {
                   </button>
                 </div>
                 {(authError || localError) && (
-                  <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500">
+                  <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm font-medium text-red-500">
                     {authError || localError}
                   </div>
                 )}
@@ -302,7 +300,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={goBack}
-                className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700"
+                className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
                 Volver
@@ -316,8 +314,8 @@ export default function LoginPage() {
               {loginMethod === 'password' ? (
                 <>
                   <div className="space-y-2">
-                    <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Contraseña</h1>
-                    <p className="text-sm text-zinc-600">Para: <span className="font-medium text-primary">{maskEmail(email)}</span></p>
+                    <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Contraseña</h1>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Para: <span className="font-medium text-primary">{maskEmail(email)}</span></p>
                   </div>
                   <form onSubmit={handleLoginWithPassword} className="space-y-4 mt-6">
                     <Input
@@ -335,8 +333,8 @@ export default function LoginPage() {
               ) : (
                 <>
                   <div className="space-y-2 text-center">
-                    <h1 className="text-2xl font-bold text-zinc-900">Verificación SMS</h1>
-                    <p className="text-sm text-zinc-600">Enviamos un código al celular <span className="font-medium text-primary">{maskPhone(phone)}</span></p>
+                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Verificación SMS</h1>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Enviamos un código al celular <span className="font-medium text-primary">{maskPhone(phone)}</span></p>
                   </div>
                   <form onSubmit={handleVerifyOtp} className="space-y-6 mt-6">
                     <div className="flex justify-center gap-2">
@@ -350,7 +348,7 @@ export default function LoginPage() {
                           value={digit}
                           onChange={e => handleOtpChange(i, e.target.value)}
                           onKeyDown={e => handleOtpKeyDown(i, e)}
-                          className="h-12 w-11 rounded-lg border-2 border-zinc-200 text-center text-lg font-bold focus:border-primary outline-none"
+                          className="h-12 w-11 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white text-center text-lg font-bold focus:border-primary outline-none"
                         />
                       ))}
                     </div>
@@ -360,7 +358,7 @@ export default function LoginPage() {
                   </form>
                 </>
               )}
-              <button onClick={goBack} className="mt-6 flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700">
+              <button onClick={goBack} className="mt-6 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
                 <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" /> Volver
               </button>
             </>

@@ -13,7 +13,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex w-full flex-col gap-1.5">
         {label && (
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
             {label}
           </label>
         )}
@@ -27,10 +27,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
           <input
             ref={ref}
-            className={`w-full rounded-xl border-2 bg-white px-4 py-3 text-sm transition-all duration-200 outline-none placeholder:text-zinc-400 dark:bg-zinc-900/50 dark:text-white ${leftIcon ? 'pl-11' : ''} ${rightIcon ? 'pr-11' : ''} ${
+            className={`w-full rounded-xl border-2 bg-white px-4 py-3 text-sm text-zinc-900 transition-all duration-200 outline-none placeholder:text-zinc-400 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 ${leftIcon ? 'pl-11' : ''} ${rightIcon ? 'pr-11' : ''} ${
               error
-                ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/30'
-                : 'focus:border-primary focus:ring-primary/10 dark:focus:border-primary/50 border-zinc-100 focus:ring-4 dark:border-zinc-800'
+                ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100 dark:border-red-500 dark:focus:ring-red-900/30'
+                : 'border-zinc-300 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-zinc-600 dark:focus:border-primary/70 dark:focus:ring-primary/10'
             } ${className} `}
             {...props}
           />

@@ -18,6 +18,7 @@ import {
 } from '@/lib/redux/slices/authSlice';
 import { AppDispatch } from '@/lib/redux/store';
 import { createClientBrowser } from '@/lib/supabase';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -73,6 +74,7 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           {authStatus === 'loading' ? (
             <div className="h-8 w-24 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
           ) : isAuthenticated && user ? (
