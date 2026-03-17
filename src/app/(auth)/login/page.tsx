@@ -183,6 +183,7 @@ export default function LoginPage() {
                 <Input
                   label="Correo Electrónico"
                   type="email"
+                  autoComplete="true"
                   placeholder="ejemplo@admin.com"
                   leftIcon={faEnvelope}
                   value={email}

@@ -162,6 +162,8 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.isAuthenticated = true;
+        // Debug: show role returned by backend (helps diagnose menu visibility issues)
+        console.debug('[auth] loginWithPassword role:', action.payload?.role);
       })
       .addCase(loginWithPassword.rejected, (state, action) => {
         state.status = 'failed';
@@ -199,6 +201,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.isAuthenticated = !!action.payload;
+        console.debug('[auth] fetchUser role:', action.payload?.role);
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = 'failed';
@@ -223,6 +226,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.isAuthenticated = true;
+        console.debug('[auth] verifyOtp role:', action.payload?.role);
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.status = 'failed';
@@ -236,8 +240,20 @@ export const { setUser, clearAuth } = authSlice.actions;
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.isAuthenticated;
 export const selectUser = (state: RootState) => state.auth.user;
-export const selectUserRole = (state: RootState) =>
-  state.auth.user?.role || 'user';
+export const selectUserRole = (state: RootState) => {
+  const rawRole = String(state.auth.user?.role || 'user')
+    .trim()
+    .toLowerCase();
+
+  if (rawRole === 'admin' || rawRole === 'administrator') return 'admin';
+  if (
+    rawRole === 'super-admin' ||
+    rawRole === 'superadmin' ||
+    rawRole === 'super admin'
+  )
+    return 'super-admin';
+  return 'user';
+};
 export const selectAuthStatus = (state: RootState) => state.auth.status;
 export const selectAuthError = (state: RootState) => state.auth.error;
 

@@ -4,6 +4,8 @@
 
 **PropAdmin PRO** — A property/community management platform for residential administrators in Spanish-speaking markets. Built with Next.js, TypeScript, and Supabase.
 
+**Note:** This is a project-specific documentation. For full-stack overview, API contracts, and shared types, see the root [CLAUDE.MD](../CLAUDE.MD).
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -48,7 +50,8 @@ src/
     │   ├── store.ts
     │   └── slices/authSlice.ts  # Auth thunks + selectors
     ├── supabase.ts              # Browser client
-    └── supabase/server.ts       # Server-side client (SSR + cookies)
+    ├── supabase/server.ts       # Server-side client (SSR + cookies)
+    └── api.ts                   # Custom API client for backend integration
 supabase/
 ├── config.toml           # Local dev config
 └── migrations/           # SQL migration files
@@ -85,12 +88,21 @@ Auth state shape:
 { isAuthenticated: boolean, user: User | null, status: 'idle' | 'loading' | 'succeeded' | 'failed', error: string | null }
 ```
 
+## Backend Integration
+
+The frontend integrates with the backend API at `http://localhost:4000/api` via `src/lib/api.ts`:
+
+- **Auth Endpoints:** Register, login, refresh, logout, me
+- **Data Endpoints:** Properties, units, announcements, payments, uploads
+- **Token Management:** JWT tokens stored in localStorage with auto-refresh
+
 ## Environment Variables
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 SUPABASE_SERVICE_ROLE_KEY=<service role key>
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ```
 
 Local Supabase ports: API `54321`, DB `54322`, Studio `54323`, Email `54324`.

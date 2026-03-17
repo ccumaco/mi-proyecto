@@ -1,4 +1,7 @@
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCalendarAlt,
+  IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
 import {
   faHome,
   faUser,
@@ -34,18 +37,47 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 
   // Administrador (Admin)
-  { label: 'Panel Admin', icon: faChartBar, href: '/admin', roles: ['admin'] },
+  {
+    label: 'Dashboard',
+    icon: faChartBar,
+    href: '/admin',
+    roles: ['admin', 'super-admin'],
+  },
+  {
+    label: 'Gestión de Zonas y Reservas',
+    icon: faCalendarAlt,
+    href: '/admin/reservas',
+    roles: ['admin', 'super-admin'],
+  },
+  {
+    label: 'Cobranzas',
+    icon: faWallet,
+    href: '/admin/cobranzas',
+    roles: ['admin', 'super-admin'],
+  },
+  {
+    label: 'Comunicados',
+    icon: faBell,
+    href: '/admin/comunicados',
+    roles: ['admin', 'super-admin'],
+  },
   {
     label: 'Residentes',
     icon: faUsers,
-    href: '/admin/residents',
-    roles: ['admin'],
+    href: '/admin/residentes',
+    roles: ['admin', 'super-admin'],
   },
   {
-    label: 'Unidades',
+    label: 'Documentos',
     icon: faBuilding,
-    href: '/admin/units',
-    roles: ['admin'],
+    href: '/admin/documentos',
+    roles: ['admin', 'super-admin'],
+  },
+  {
+    label: 'Historial de Acceso',
+    icon: faShieldAlt,
+    href: '/admin/historial',
+    roles: ['admin', 'super-admin'],
   },
 
   // Super Administrador (SuperAdmin)

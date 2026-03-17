@@ -24,7 +24,15 @@ export function useAnnouncements() {
       try {
         setLoading(true);
         const data = await apiClient.getAnnouncements();
-        setAnnouncements(data);
+
+        // Asegurarnos de que always sea un arreglo (el backend puede devolver { announcements: [] })
+        const normalized = Array.isArray(data)
+          ? data
+          : Array.isArray((data as any)?.announcements)
+            ? (data as any).announcements
+            : [];
+
+        setAnnouncements(normalized);
       } catch (err: any) {
         setError(err.message);
       } finally {

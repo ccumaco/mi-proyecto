@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+/* Habilitar modo oscuro en v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #137fec;
+  --color-navy: #0f172a;
+  --color-slate-gray: #64748b;
+  --color-emerald-green: #10b981;
+  --color-background-light: #f6f7f8;
+  --color-background-dark: #101922;
+
+  --font-display: 'Inter', sans-serif;
+
+  --radius-default: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* Estilos base para el cuerpo del sitio */
+@layer base {
+  body {
+    @apply bg-white text-[#37352f] dark:bg-[#191919] dark:text-[#ffffffcf];
+  }
+}
