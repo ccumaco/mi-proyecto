@@ -1,26 +1,17 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
-import type { User } from '@supabase/supabase-js';
 
-// Define the root state type
-export interface RootState {
-  auth: {
-    isAuthenticated: boolean;
-    user: User | null;
-    status: 'idle' | 'loading' | 'succeeded' | 'failed';
-    error: string | null;
-  };
-  // Add other slices here
-}
+const rootReducer = combineReducers({
+  auth: authReducer,
+});
 
-export const makeStore = (preloadedState?: RootState) => {
+export const makeStore = (preloadedState?: any) => {
   return configureStore({
-    reducer: {
-      auth: authReducer,
-    },
+    reducer: rootReducer,
     preloadedState,
   });
 };
 
 export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore['getState']>;
 export type AppDispatch = AppStore['dispatch'];

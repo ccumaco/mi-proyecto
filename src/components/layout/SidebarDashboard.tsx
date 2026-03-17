@@ -9,11 +9,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/lib/redux/store';
-import {
-  logoutFromSupabase,
-  selectUserRole,
-} from '@/lib/redux/slices/authSlice';
-import type { User } from '@supabase/supabase-js';
+import { logout, selectUserRole } from '@/lib/redux/slices/authSlice';
+import type { User } from '@/lib/api';
 import { MENU_ITEMS } from '@/config/menu-items';
 
 export const SidebarDashboard = ({ user }: { user: User | null }) => {
@@ -31,7 +28,7 @@ export const SidebarDashboard = ({ user }: { user: User | null }) => {
   );
 
   const handleLogout = async () => {
-    await dispatch(logoutFromSupabase());
+    await dispatch(logout());
     router.push('/login');
   };
 
@@ -85,7 +82,7 @@ export const SidebarDashboard = ({ user }: { user: User | null }) => {
             />
             <div className="flex flex-col">
               <p className="text-sm font-bold text-zinc-900 dark:text-white">
-                {user?.user_metadata?.full_name ||
+                {user?.displayName ||
                   user?.email?.slice(0, user?.email?.indexOf('@') || 0) ||
                   'Usuario'}
               </p>

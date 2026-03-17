@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -10,14 +10,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  logoutFromSupabase,
+  logout,
   selectAuthStatus,
   selectIsAuthenticated,
   selectUser,
-  setUser,
 } from '@/lib/redux/slices/authSlice';
 import { AppDispatch } from '@/lib/redux/store';
-import { createClientBrowser } from '@/lib/supabase';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
 export default function Navbar() {
@@ -27,22 +25,9 @@ export default function Navbar() {
   const user = useSelector(selectUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const authStatus = useSelector(selectAuthStatus);
-  const supabase = createClientBrowser();
-
-  // No longer need to dispatch fetchUser on initial load because state is hydrated from SSR
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      dispatch(setUser(session?.user ?? null));
-    });
-
-    return () => subscription.unsubscribe();
-  }, [dispatch, supabase.auth]);
 
   const handleLogout = async () => {
-    dispatch(logoutFromSupabase());
+    await dispatch(logout());
     setDropdownOpen(false);
   };
 

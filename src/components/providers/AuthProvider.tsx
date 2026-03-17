@@ -2,31 +2,61 @@
 
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { createClientBrowser } from '@/lib/supabase';
-import { setUser } from '@/lib/redux/slices/authSlice';
+import { apiClient } from '@/lib/api';
+import { setUser, clearAuth, refreshAuth } from '@/lib/redux/slices/authSlice';
+import type { AppDispatch } from '@/lib/redux/store';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
-  const supabase = createClientBrowser();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    // Escuchar cambios de autenticación (Login, Logout, Token refrescado)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
+    const initializeAuth = async () => {
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
 
-      if (session) {
-        dispatch(setUser(session.user));
-      } else {
-        dispatch(setUser(null));
+      if (accessToken && refreshToken) {
+        try {
+          // Try to get current user with existing token
+          const user = await apiClient.getCurrentUser();
+          dispatch(setUser(user));
+        } catch (error) {
+          // Token might be expired, try refresh
+          try {
+            await dispatch(refreshAuth()).unwrap();
+          } catch (refreshError) {
+            // Refresh failed, clear auth
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            dispatch(clearAuth());
+          }
+        }
       }
-    });
+    };
+
+    initializeAuth();
+
+    // Set up periodic token refresh (every 10 minutes)
+    const refreshInterval = setInterval(
+      async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          try {
+            await dispatch(refreshAuth()).unwrap();
+          } catch (error) {
+            // Refresh failed, clear auth
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            dispatch(clearAuth());
+          }
+        }
+      },
+      10 * 60 * 1000
+    ); // 10 minutes
 
     return () => {
-      subscription.unsubscribe();
+      clearInterval(refreshInterval);
     };
-  }, [dispatch, supabase.auth]);
+  }, [dispatch]);
 
   return <>{children}</>;
 }

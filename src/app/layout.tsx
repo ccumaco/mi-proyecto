@@ -5,7 +5,6 @@ import './globals.css';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { createClient } from '@/lib/supabase/server'; // Import the custom helper
 import { RootState } from '@/lib/redux/store';
 
 const geistSans = Geist({
@@ -23,32 +22,24 @@ export const metadata: Metadata = {
   description: 'Gestión moderna y eficiente de comunidades',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Use the custom createClient helper for server components
-  const supabase = await createClient();
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
   const initialState: RootState = {
     auth: {
-      isAuthenticated: !!session,
-      user: session?.user || null,
+      isAuthenticated: false,
+      user: null,
       status: 'idle',
       error: null,
     },
-    // Initialize other slices if you have them
   };
 
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-white text-zinc-900 antialiased transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100`}
       >
         <ThemeProvider>
           <ReduxProvider initialState={initialState}>

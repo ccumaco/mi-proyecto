@@ -8,7 +8,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '../shared/ThemeToggle';
-import type { User } from '@supabase/supabase-js';
+import type { User } from '@/lib/api';
 
 export const HeaderDashboard = ({ user }: { user: User | null }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -31,7 +31,7 @@ export const HeaderDashboard = ({ user }: { user: User | null }) => {
   }, []);
 
   return (
-    <header className="dark:bg-zinc-900 sticky top-0 z-10 flex h-16 items-center justify-between border-b border-[#dbe0e6] bg-white px-8 dark:border-zinc-800 transition-colors duration-300">
+    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-[#dbe0e6] bg-white px-8 transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex max-w-xl flex-1 items-center gap-4">
         <div className="relative w-full">
           <FontAwesomeIcon
@@ -39,7 +39,7 @@ export const HeaderDashboard = ({ user }: { user: User | null }) => {
             className="absolute top-1/2 left-3 -translate-y-1/2 text-[#617589]"
           />
           <input
-            className="focus:ring-primary w-full rounded-lg border-none bg-[#f0f2f4] py-2 pr-4 pl-10 text-sm transition-all placeholder:text-[#617589] focus:bg-white focus:ring-2 dark:bg-zinc-800 dark:focus:bg-zinc-700 dark:text-white"
+            className="focus:ring-primary w-full rounded-lg border-none bg-[#f0f2f4] py-2 pr-4 pl-10 text-sm transition-all placeholder:text-[#617589] focus:bg-white focus:ring-2 dark:bg-zinc-800 dark:text-white dark:focus:bg-zinc-700"
             placeholder="Buscar comunicados, pagos o documentos..."
             type="text"
           />
@@ -48,7 +48,7 @@ export const HeaderDashboard = ({ user }: { user: User | null }) => {
       <div className="flex items-center gap-4">
         <ThemeToggle />
         <div className="mx-2 h-6 w-[1px] bg-[#dbe0e6] dark:bg-zinc-800"></div>
-        <button className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors shrink-0">
+        <button className="bg-primary hover:bg-primary/90 flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors">
           <FontAwesomeIcon icon={faCirclePlus} className="h-4 w-4" />
           <span className="hidden md:inline">Nueva Solicitud</span>
         </button>

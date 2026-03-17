@@ -14,8 +14,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   loginWithPassword,
-  sendOtpToPhone,
-  verifyPhoneOtp,
+  sendOtpToEmail,
+  verifyOtp,
   selectAuthStatus,
   selectAuthError,
   selectIsAuthenticated,
@@ -24,9 +24,6 @@ import { AppDispatch } from '@/lib/redux/store';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import { createClientBrowser } from '@/lib/supabase';
-
-const supabase = createClientBrowser();
 
 type Step = 1 | 2 | 3;
 type LoginMethod = 'otp' | 'password';
@@ -45,10 +42,10 @@ function maskPhone(phone: string): string {
 
 export default function LoginPage() {
   const [step, setStep] = useState<Step>(1);
-  const [email, setEmail] = useState('admin@prueba.com');
+  const [email, setEmail] = useState('admin@propadmin.local');
   const [phone, setPhone] = useState('');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
-  const [password, setPassword] = useState('Admin123456!');
+  const [password, setPassword] = useState('SuperAdmin123!');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [localError, setLocalError] = useState<string | null>(null);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -77,21 +74,9 @@ export default function LoginPage() {
     setLocalError(null);
 
     if (loginMethod === 'otp') {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('phone')
-        .eq('email', email.toLowerCase().trim())
-        .single();
-
-      if (error || !data?.phone) {
-        setLocalError('No encontramos un teléfono asociado a este correo.');
-        return;
-      }
-
-      setPhone(data.phone);
-
-      dispatch(sendOtpToPhone(data.phone)).then(result => {
-        if (sendOtpToPhone.fulfilled.match(result)) {
+      // Send OTP to email instead of phone
+      dispatch(sendOtpToEmail(email)).then(result => {
+        if (sendOtpToEmail.fulfilled.match(result)) {
           setStep(3);
           setOtpCode(['', '', '', '', '', '']);
         }
@@ -101,7 +86,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleLoginWithPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLoginWithPassword = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     dispatch(loginWithPassword({ email, password }));
   };
@@ -125,7 +112,10 @@ export default function LoginPage() {
     if (digit && index < 5) otpInputRefs.current[index + 1]?.focus();
   };
 
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleOtpKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
       otpInputRefs.current[index - 1]?.focus();
     }
@@ -135,11 +125,11 @@ export default function LoginPage() {
     e.preventDefault();
     const code = otpCode.join('');
     if (code.length !== 6) return;
-    dispatch(verifyPhoneOtp({ phone, token: code }));
+    dispatch(verifyOtp({ email, token: code }));
   };
 
   const handleResendOtp = () => {
-    if (phone) dispatch(sendOtpToPhone(phone));
+    dispatch(sendOtpToEmail(email));
   };
 
   const goBack = () => {
@@ -153,8 +143,8 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left: Branding */}
-      <div className="relative hidden w-[40%] min-h-screen bg-slate-900 lg:flex flex-col justify-between p-10 overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-slate-900/95 via-slate-900/90 to-slate-800/95 z-1" />
+      <div className="relative hidden min-h-screen w-[40%] flex-col justify-between overflow-hidden bg-slate-900 p-10 lg:flex">
+        <div className="absolute inset-0 z-1 bg-linear-to-br from-slate-900/95 via-slate-900/90 to-slate-800/95" />
         <div className="relative z-10 flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white">
             <FontAwesomeIcon icon={faBuilding} className="h-5 w-5" />
@@ -162,11 +152,12 @@ export default function LoginPage() {
           <span className="text-lg font-bold text-white">Residencia PRO</span>
         </div>
         <div className="relative z-10 space-y-4">
-          <h2 className="text-2xl lg:text-3xl font-bold text-white leading-tight">
+          <h2 className="text-2xl leading-tight font-bold text-white lg:text-3xl">
             Tu hogar, conectado y seguro
           </h2>
-          <p className="text-sm text-white/80 max-w-sm">
-            Verificamos tu identidad para asegurar que solo tú tengas acceso a la información de tu residencia.
+          <p className="max-w-sm text-sm text-white/80">
+            Verificamos tu identidad para asegurar que solo tú tengas acceso a
+            la información de tu residencia.
           </p>
         </div>
         <p className="relative z-10 text-xs text-white/60">
@@ -175,7 +166,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right: Form */}
-      <div className="flex flex-1 items-center justify-center bg-white dark:bg-zinc-900 p-6 sm:p-10">
+      <div className="flex flex-1 items-center justify-center bg-white p-6 sm:p-10 dark:bg-zinc-900">
         <div className="w-full max-w-md space-y-8">
           {/* Paso 1: Email */}
           {step === 1 && (
@@ -198,7 +189,10 @@ export default function LoginPage() {
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
-                <Button type="submit" className="w-full py-3.5 text-base font-bold">
+                <Button
+                  type="submit"
+                  className="w-full py-3.5 text-base font-bold"
+                >
                   Continuar
                 </Button>
               </form>
@@ -207,11 +201,11 @@ export default function LoginPage() {
                   <span className="w-full border-t border-zinc-200 dark:border-zinc-700" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-white dark:bg-zinc-900 px-3 text-zinc-500 dark:text-zinc-400">
+                  <span className="bg-white px-3 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
                     ¿Eres nuevo aquí?{' '}
                     <Link
                       href="/register"
-                      className="font-bold text-primary hover:underline"
+                      className="text-primary font-bold hover:underline"
                     >
                       Crea una cuenta de administrador
                     </Link>
@@ -225,7 +219,7 @@ export default function LoginPage() {
           {step === 2 && (
             <>
               <div className="flex justify-center">
-                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                   <FontAwesomeIcon icon={faLock} className="h-3.5 w-3.5" />
                   SEGURIDAD DE CUENTA
                 </span>
@@ -236,7 +230,9 @@ export default function LoginPage() {
                 </h1>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Estás ingresando con{' '}
-                  <span className="font-medium text-primary">{maskEmail(email)}</span>
+                  <span className="text-primary font-medium">
+                    {maskEmail(email)}
+                  </span>
                 </p>
               </div>
               <form onSubmit={handleStep2Next} className="space-y-4">
@@ -247,15 +243,17 @@ export default function LoginPage() {
                     className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
                       loginMethod === 'otp'
                         ? 'border-primary bg-primary/5'
-                        : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800'
+                        : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
                         <FontAwesomeIcon icon={faPhone} className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900 dark:text-white">Código por SMS</p>
+                        <p className="font-bold text-zinc-900 dark:text-white">
+                          Código por SMS
+                        </p>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">
                           Lo enviaremos a tu celular registrado
                         </p>
@@ -268,15 +266,17 @@ export default function LoginPage() {
                     className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
                       loginMethod === 'password'
                         ? 'border-primary bg-primary/5'
-                        : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800'
+                        : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
                         <FontAwesomeIcon icon={faKey} className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900 dark:text-white">Contraseña</p>
+                        <p className="font-bold text-zinc-900 dark:text-white">
+                          Contraseña
+                        </p>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">
                           Ingresa con tu clave personal
                         </p>
@@ -285,7 +285,7 @@ export default function LoginPage() {
                   </button>
                 </div>
                 {(authError || localError) && (
-                  <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm font-medium text-red-500">
+                  <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500 dark:bg-red-900/20">
                     {authError || localError}
                   </div>
                 )}
@@ -300,7 +300,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={goBack}
-                className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
                 Volver
@@ -314,10 +314,20 @@ export default function LoginPage() {
               {loginMethod === 'password' ? (
                 <>
                   <div className="space-y-2">
-                    <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Contraseña</h1>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Para: <span className="font-medium text-primary">{maskEmail(email)}</span></p>
+                    <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                      Contraseña
+                    </h1>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Para:{' '}
+                      <span className="text-primary font-medium">
+                        {maskEmail(email)}
+                      </span>
+                    </p>
                   </div>
-                  <form onSubmit={handleLoginWithPassword} className="space-y-4 mt-6">
+                  <form
+                    onSubmit={handleLoginWithPassword}
+                    className="mt-6 space-y-4"
+                  >
                     <Input
                       type="password"
                       placeholder="••••••••"
@@ -326,44 +336,80 @@ export default function LoginPage() {
                       onChange={e => setPassword(e.target.value)}
                       required
                     />
-                    {authError && <p className="text-sm text-red-500">{authError}</p>}
-                    <Button type="submit" className="w-full py-3.5" isLoading={isLoading}>Iniciar sesión</Button>
+                    {authError && (
+                      <p className="text-sm text-red-500">{authError}</p>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full py-3.5"
+                      isLoading={isLoading}
+                    >
+                      Iniciar sesión
+                    </Button>
                   </form>
                 </>
               ) : (
                 <>
                   <div className="space-y-2 text-center">
-                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Verificación SMS</h1>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Enviamos un código al celular <span className="font-medium text-primary">{maskPhone(phone)}</span></p>
+                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                      Verificación SMS
+                    </h1>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Enviamos un código al celular{' '}
+                      <span className="text-primary font-medium">
+                        {maskPhone(phone)}
+                      </span>
+                    </p>
                   </div>
-                  <form onSubmit={handleVerifyOtp} className="space-y-6 mt-6">
+                  <form onSubmit={handleVerifyOtp} className="mt-6 space-y-6">
                     <div className="flex justify-center gap-2">
                       {otpCode.map((digit, i) => (
                         <input
                           key={i}
-                          ref={el => { otpInputRefs.current[i] = el; }}
+                          ref={el => {
+                            otpInputRefs.current[i] = el;
+                          }}
                           type="text"
                           inputMode="numeric"
                           maxLength={1}
                           value={digit}
                           onChange={e => handleOtpChange(i, e.target.value)}
                           onKeyDown={e => handleOtpKeyDown(i, e)}
-                          className="h-12 w-11 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white text-center text-lg font-bold focus:border-primary outline-none"
+                          className="focus:border-primary h-12 w-11 rounded-lg border-2 border-zinc-300 bg-white text-center text-lg font-bold text-zinc-900 outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                         />
                       ))}
                     </div>
-                    {authError && <p className="text-sm text-red-500 text-center">{authError}</p>}
-                    <Button type="submit" className="w-full py-3.5" isLoading={isLoading}>Verificar e Ingresar</Button>
-                    <button type="button" onClick={handleResendOtp} className="w-full text-center text-sm font-bold text-primary hover:underline">Reenviar código</button>
+                    {authError && (
+                      <p className="text-center text-sm text-red-500">
+                        {authError}
+                      </p>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full py-3.5"
+                      isLoading={isLoading}
+                    >
+                      Verificar e Ingresar
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      className="text-primary w-full text-center text-sm font-bold hover:underline"
+                    >
+                      Reenviar código
+                    </button>
                   </form>
                 </>
               )}
-              <button onClick={goBack} className="mt-6 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
-                <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" /> Volver
+              <button
+                onClick={goBack}
+                className="mt-6 flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              >
+                <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />{' '}
+                Volver
               </button>
             </>
           )}
-
         </div>
       </div>
     </div>

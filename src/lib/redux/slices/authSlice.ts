@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-import { User } from '@supabase/supabase-js';
-import { createClientBrowser } from '@/lib/supabase';
-
-const supabase = createClientBrowser();
+import { apiClient, User } from '@/lib/api';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -22,108 +19,57 @@ const initialState: AuthState = {
 export const loginWithPassword = createAsyncThunk(
   'auth/loginWithPassword',
   async (
-    credentials: Parameters<typeof supabase.auth.signInWithPassword>[0],
+    credentials: { email: string; password: string },
     { rejectWithValue }
   ) => {
-    const { data, error } = await supabase.auth.signInWithPassword(credentials);
-    if (error) {
-      return rejectWithValue(error.message);
+    try {
+      const { user } = await apiClient.login(credentials);
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Credenciales inválidas');
     }
-    return data.user;
-  }
-);
-
-export const sendOtpToEmail = createAsyncThunk(
-  'auth/sendOtpToEmail',
-  async (email: string, { rejectWithValue }) => {
-    const { data, error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false },
-    });
-    if (error) {
-      return rejectWithValue(error.message);
-    }
-    return data;
-  }
-);
-
-export const sendOtpToPhone = createAsyncThunk(
-  'auth/sendOtpToPhone',
-  async (phone: string, { rejectWithValue }) => {
-    const { data, error } = await supabase.auth.signInWithOtp({
-      phone,
-      options: { shouldCreateUser: false },
-    });
-    if (error) {
-      return rejectWithValue(error.message);
-    }
-    return data;
-  }
-);
-
-export const verifyOtp = createAsyncThunk(
-  'auth/verifyOtp',
-  async (
-    { email, token }: { email: string; token: string },
-    { rejectWithValue }
-  ) => {
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'email',
-    });
-    if (error) {
-      return rejectWithValue(error.message);
-    }
-    return data.user;
-  }
-);
-
-export const verifyPhoneOtp = createAsyncThunk(
-  'auth/verifyPhoneOtp',
-  async (
-    { phone, token }: { phone: string; token: string },
-    { rejectWithValue }
-  ) => {
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: 'sms',
-    });
-    if (error) {
-      return rejectWithValue(error.message);
-    }
-    return data.user;
   }
 );
 
 export const signUpWithPassword = createAsyncThunk(
   'auth/signUpWithPassword',
   async (
-    credentials: Parameters<typeof supabase.auth.signUp>[0],
+    params: {
+      email: string;
+      password: string;
+      full_name?: string;
+      phone?: string;
+      nit?: string;
+      role?: string;
+    },
     { rejectWithValue }
   ) => {
-    const { data, error } = await supabase.auth.signUp(credentials);
-    if (error) {
-      return rejectWithValue(error.message);
+    try {
+      const { user } = await apiClient.register({
+        email: params.email,
+        password: params.password,
+        fullName: params.full_name,
+        displayName: params.full_name,
+        phone: params.phone,
+        nit: params.nit,
+        role: params.role,
+      });
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.message || 'No se pudo registrar el usuario'
+      );
     }
-
-    // Supabase returns a user but with empty identities if the email already exists 
-    // and email confirmation is enabled (to prevent email enumeration).
-    if (data.user && data.user.identities && data.user.identities.length === 0) {
-      return rejectWithValue('Este correo electrónico ya está registrado.');
-    }
-
-    return data.user;
   }
 );
 
-export const logoutFromSupabase = createAsyncThunk(
-  'auth/logoutFromSupabase',
+export const logout = createAsyncThunk(
+  'auth/logout',
   async (_, { rejectWithValue }) => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      return rejectWithValue(error.message);
+    try {
+      await apiClient.logout();
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Error al cerrar sesión');
     }
   }
 );
@@ -131,14 +77,61 @@ export const logoutFromSupabase = createAsyncThunk(
 export const fetchUser = createAsyncThunk(
   'auth/fetchUser',
   async (_, { rejectWithValue }) => {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
+    try {
+      const user = await apiClient.getCurrentUser();
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'No se pudo obtener el usuario');
+    }
+  }
+);
+
+export const refreshAuth = createAsyncThunk(
+  'auth/refreshAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      await apiClient.refresh();
+      const user = await apiClient.getCurrentUser();
+      return user;
+    } catch (error: any) {
       return rejectWithValue(error.message);
     }
-    return user;
+  }
+);
+
+// Dummy OTP thunks for mocked functionality
+export const sendOtpToEmail = createAsyncThunk(
+  'auth/sendOtpToEmail',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      // Mock: Simulate sending OTP to email
+      // In real implementation, this would call the backend
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
+      return { email, message: 'OTP enviado exitosamente' };
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Error al enviar OTP');
+    }
+  }
+);
+
+export const verifyOtp = createAsyncThunk(
+  'auth/verifyOtp',
+  async (params: { email: string; token: string }, { rejectWithValue }) => {
+    try {
+      // Mock: Check against dummy OTP code
+      const dummyOtp = '123456';
+      if (params.token !== dummyOtp) {
+        throw new Error('Código OTP inválido');
+      }
+      // Mock: Simulate login with the user
+      const { user } = await apiClient.login({
+        email: params.email,
+        password: 'dummy', // This should be handled properly in real implementation
+      });
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Error al verificar OTP');
+    }
   }
 );
 
@@ -149,6 +142,14 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
+      state.status = 'succeeded';
+      state.error = null;
+    },
+    clearAuth: state => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.status = 'succeeded';
+      state.error = null;
     },
   },
   extraReducers: builder => {
@@ -163,6 +164,43 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(loginWithPassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(signUpWithPassword.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(signUpWithPassword.fulfilled, state => {
+        state.status = 'succeeded';
+        // User is set on login; registration does not auto-login.
+      })
+      .addCase(signUpWithPassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(logout.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(logout.fulfilled, state => {
+        state.status = 'succeeded';
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(fetchUser.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+        state.isAuthenticated = !!action.payload;
+      })
+      .addCase(fetchUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       })
@@ -189,78 +227,17 @@ const authSlice = createSlice({
       .addCase(verifyOtp.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
-      })
-      .addCase(sendOtpToPhone.pending, state => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(sendOtpToPhone.fulfilled, state => {
-        state.status = 'succeeded';
-      })
-      .addCase(sendOtpToPhone.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
-      })
-      .addCase(verifyPhoneOtp.pending, state => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(verifyPhoneOtp.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload;
-        state.isAuthenticated = true;
-      })
-      .addCase(verifyPhoneOtp.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
-      })
-      .addCase(signUpWithPassword.pending, state => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(signUpWithPassword.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        // User is not set here because they need to confirm their email
-      })
-      .addCase(signUpWithPassword.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
-      })
-      .addCase(logoutFromSupabase.pending, state => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(logoutFromSupabase.fulfilled, state => {
-        state.status = 'succeeded';
-        state.user = null;
-        state.isAuthenticated = false;
-      })
-      .addCase(logoutFromSupabase.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
-      })
-      .addCase(fetchUser.pending, state => {
-        state.status = 'loading';
-      })
-      .addCase(fetchUser.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload;
-        state.isAuthenticated = !!action.payload;
-      })
-      .addCase(fetchUser.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
       });
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { setUser, clearAuth } = authSlice.actions;
 
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.isAuthenticated;
 export const selectUser = (state: RootState) => state.auth.user;
 export const selectUserRole = (state: RootState) =>
-  state.auth.user?.user_metadata?.role || 'user';
+  state.auth.user?.role || 'user';
 export const selectAuthStatus = (state: RootState) => state.auth.status;
 export const selectAuthError = (state: RootState) => state.auth.error;
 
