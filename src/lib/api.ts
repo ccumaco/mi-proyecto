@@ -1,6 +1,6 @@
 // API client for our custom backend
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+  process.env.NEXT_PUBLIC_API_URL || 'backend-production-cf300.up.railway.app';
 
 export type ApiErrorType = 'network' | 'auth' | 'client' | 'server';
 
@@ -84,7 +84,12 @@ class ApiClient {
       // Token refresh interceptor: si el token expiró y no es un endpoint de
       // auth ni ya reintentamos, intentar refrescar y reintentar el request.
       const isAuthEndpoint = endpoint.startsWith('/auth/');
-      if (type === 'auth' && response.status === 401 && !isAuthEndpoint && !_retry) {
+      if (
+        type === 'auth' &&
+        response.status === 401 &&
+        !isAuthEndpoint &&
+        !_retry
+      ) {
         try {
           await this.refresh();
           return this.request<T>(endpoint, options, true);
@@ -283,7 +288,10 @@ class ApiClient {
     return this.post('/auth/forgot-password', { email });
   }
 
-  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+  async resetPassword(
+    token: string,
+    password: string
+  ): Promise<{ message: string }> {
     return this.post('/auth/reset-password', { token, password });
   }
 
@@ -295,11 +303,17 @@ class ApiClient {
     });
   }
 
-  async verifyOtp(email: string, code: string): Promise<{ user: User; tokens: AuthTokens }> {
-    const result = await this.request<{ user: User; tokens: AuthTokens }>('/auth/otp/verify', {
-      method: 'POST',
-      body: JSON.stringify({ email, code }),
-    });
+  async verifyOtp(
+    email: string,
+    code: string
+  ): Promise<{ user: User; tokens: AuthTokens }> {
+    const result = await this.request<{ user: User; tokens: AuthTokens }>(
+      '/auth/otp/verify',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email, code }),
+      }
+    );
     this.setTokens(result.tokens);
     return result;
   }
