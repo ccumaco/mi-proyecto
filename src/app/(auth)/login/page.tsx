@@ -35,7 +35,6 @@ function maskEmail(email: string): string {
   return `${local[0]}*******@${domain}`;
 }
 
-
 export default function LoginPage() {
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('admin@propadmin.local');
@@ -178,6 +177,7 @@ export default function LoginPage() {
                 </h1>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
                   Ingresa tus datos para acceder a tu panel
+                  {process.env.NEXT_PUBLIC_API_URL}
                 </p>
               </div>
               <form onSubmit={handleStep1Next} className="space-y-5">
