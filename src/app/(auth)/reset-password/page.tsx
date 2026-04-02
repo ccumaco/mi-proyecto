@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { createClientBrowser } from '@/lib/supabase';
+import { apiClient } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { faLock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,33 +16,49 @@ function ResetPasswordForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClientBrowser();
+  const token = searchParams.get('token');
+
+  if (!token) {
+    return (
+      <div className="w-full space-y-6">
+        <div className="text-center space-y-2">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <FontAwesomeIcon icon={faLock} className="h-6 w-6" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            Nueva Contraseña
+          </h1>
+        </div>
+        <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500 dark:bg-red-900/20">
+          El enlace no es válido. Solicita uno nuevo.
+        </div>
+      </div>
+    );
+  }
 
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
-    const access_token = searchParams.get('access_token');
 
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       setLoading(false);
       return;
     }
-    
-    // El token de acceso se maneja automáticamente si la sesión se refresca desde el link
-    const { error } = await supabase.auth.updateUser({ password });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess('¡Contraseña actualizada con éxito!');
+    try {
+      const result = await apiClient.resetPassword(token, password);
+      setSuccess(result.message);
       setTimeout(() => {
         router.push('/login');
       }, 3000);
+    } catch (err: any) {
+      setError(err?.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -71,7 +87,7 @@ function ResetPasswordForm() {
           disabled={loading}
           required
         />
-        
+
         <Input
           label="Confirmar Contraseña"
           type="password"

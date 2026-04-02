@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientBrowser } from '@/lib/supabase';
+import { apiClient } from '@/lib/api';
 import { faEnvelope, faUnlockKeyhole, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input } from '@/components/ui/Input';
@@ -13,25 +13,18 @@ export default function RecoveryPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const supabase = createClientBrowser();
 
   const handleRecovery = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess('¡Correo enviado! Revisa tu bandeja de entrada para restablecer tu contraseña.');
-      }
+      const result = await apiClient.forgotPassword(email);
+      setSuccess(result.message);
     } catch (err: any) {
-      setError('Ocurrió un error inesperado. Inténtalo de nuevo.');
+      setError(err?.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }

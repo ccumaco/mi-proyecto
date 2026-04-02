@@ -278,6 +278,15 @@ class ApiClient {
     });
   }
 
+  // Password recovery methods
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    return this.post('/auth/forgot-password', { email });
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    return this.post('/auth/reset-password', { token, password });
+  }
+
   // OTP methods
   async requestOtp(email: string): Promise<{ maskedPhone: string }> {
     return this.request('/auth/otp/request', {
