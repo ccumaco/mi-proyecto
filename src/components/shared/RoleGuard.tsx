@@ -2,11 +2,12 @@
 
 import { useSelector } from 'react-redux';
 import { selectUserRole } from '@/lib/redux/slices/authSlice';
+import { type UserRole } from '@/lib/roles';
 import { ReactNode } from 'react';
 
 interface RoleGuardProps {
   children: ReactNode;
-  allowedRoles: ('user' | 'admin' | 'super-admin')[];
+  allowedRoles: UserRole[];
   fallback?: ReactNode;
 }
 
@@ -19,10 +20,7 @@ export function RoleGuard({
   allowedRoles,
   fallback = null,
 }: RoleGuardProps) {
-  const currentRole = useSelector(selectUserRole) as
-    | 'user'
-    | 'admin'
-    | 'super-admin';
+  const currentRole = useSelector(selectUserRole);
 
   if (!allowedRoles.includes(currentRole)) {
     return <>{fallback}</>;

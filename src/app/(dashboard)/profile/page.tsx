@@ -11,10 +11,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { selectUser } from '@/lib/redux/slices/authSlice';
+import { getRoleLabel } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { useState } from 'react';
+
 
 export default function Profile() {
   const user = useSelector(selectUser);
@@ -64,11 +66,7 @@ export default function Profile() {
                 {user?.displayName || user?.email || 'Usuario'}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {user?.role === 'admin'
-                  ? 'Administrador'
-                  : user?.role === 'super-admin'
-                    ? 'Super Administrador'
-                    : 'Residente'}
+                {getRoleLabel(user?.role)}
               </p>
             </div>
 

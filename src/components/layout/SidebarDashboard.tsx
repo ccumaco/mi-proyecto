@@ -17,10 +17,7 @@ export const SidebarDashboard = ({ user }: { user: User | null }) => {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
-  const currentRole = useSelector(selectUserRole) as
-    | 'user'
-    | 'admin'
-    | 'super-admin';
+  const currentRole = useSelector(selectUserRole);
 
   // Filtrar items según el rol del usuario
   const filteredNavItems = MENU_ITEMS.filter(item =>

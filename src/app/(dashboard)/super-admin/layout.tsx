@@ -8,6 +8,7 @@ import {
   selectIsAuthenticated,
   selectUserRole,
 } from '@/lib/redux/slices/authSlice';
+import { Role } from '@/lib/roles';
 
 export default function SuperAdminLayout({
   children,
@@ -27,8 +28,8 @@ export default function SuperAdminLayout({
       return;
     }
 
-    if (role !== 'super-admin') {
-      router.replace('/');
+    if (role !== Role.SUPER_ADMIN) {
+      router.replace('/profile');
     }
   }, [authStatus, isAuthenticated, role, router]);
 

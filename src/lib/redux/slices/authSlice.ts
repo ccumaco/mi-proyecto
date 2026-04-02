@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 import { apiClient, User } from '@/lib/api';
+import { normalizeRole, type UserRole } from '@/lib/roles';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -240,20 +241,8 @@ export const { setUser, clearAuth } = authSlice.actions;
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.isAuthenticated;
 export const selectUser = (state: RootState) => state.auth.user;
-export const selectUserRole = (state: RootState) => {
-  const rawRole = String(state.auth.user?.role || 'user')
-    .trim()
-    .toLowerCase();
-
-  if (rawRole === 'admin' || rawRole === 'administrator') return 'admin';
-  if (
-    rawRole === 'super-admin' ||
-    rawRole === 'superadmin' ||
-    rawRole === 'super admin'
-  )
-    return 'super-admin';
-  return 'user';
-};
+export const selectUserRole = (state: RootState): UserRole =>
+  normalizeRole(state.auth.user?.role);
 export const selectAuthStatus = (state: RootState) => state.auth.status;
 export const selectAuthError = (state: RootState) => state.auth.error;
 

@@ -8,16 +8,16 @@
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript 5 (strict) |
-| Styling | Tailwind CSS 4 + PostCSS |
-| Icons | Font Awesome 7 (SVG) |
-| State | Redux Toolkit 2 |
-| Auth/DB | Supabase (PostgreSQL, Auth, Realtime) |
-| Theme | next-themes (dark mode) |
-| Linting | ESLint 9 + Prettier 3 |
+| Layer     | Technology                            |
+| --------- | ------------------------------------- |
+| Framework | Next.js 16 (App Router)               |
+| Language  | TypeScript 5 (strict)                 |
+| Styling   | Tailwind CSS 4 + PostCSS              |
+| Icons     | Font Awesome 7 (SVG)                  |
+| State     | Redux Toolkit 2                       |
+| Auth/DB   | Supabase (PostgreSQL, Auth, Realtime) |
+| Theme     | next-themes (dark mode)               |
+| Linting   | ESLint 9 + Prettier 3                 |
 
 ## Commands
 
@@ -84,6 +84,7 @@ Implemented via Redux Thunks in `src/lib/redux/slices/authSlice.ts`:
 Redux selectors: `selectIsAuthenticated`, `selectUser`, `selectUserRole`, `selectAuthStatus`, `selectAuthError`
 
 Auth state shape:
+
 ```ts
 { isAuthenticated: boolean, user: User | null, status: 'idle' | 'loading' | 'succeeded' | 'failed', error: string | null }
 ```

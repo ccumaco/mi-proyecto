@@ -30,6 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             dispatch(clearAuth());
           }
         }
+      } else {
+        // No tokens — resolve immediately so layout doesn't hang
+        dispatch(clearAuth());
       }
     };
 

@@ -2,6 +2,19 @@
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
+export type ApiErrorType = 'network' | 'auth' | 'client' | 'server';
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly type: ApiErrorType,
+    public readonly status?: number
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 interface AuthTokens {
   accessToken: string;
   refreshToken: string;
@@ -46,13 +59,26 @@ class ApiClient {
       };
     }
 
-    const response = await fetch(url, config);
+    let response: Response;
+    try {
+      response = await fetch(url, config);
+    } catch {
+      throw new ApiError(
+        'No se pudo conectar al servidor. Verifica tu conexión o intenta más tarde.',
+        'network'
+      );
+    }
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ message: 'Network error' }));
-      throw new Error(error.message || `HTTP ${response.status}`);
+      const body = await response.json().catch(() => ({}));
+      const message = body?.message || `Error ${response.status}`;
+      const type: ApiErrorType =
+        response.status === 401 || response.status === 403
+          ? 'auth'
+          : response.status >= 500
+            ? 'server'
+            : 'client';
+      throw new ApiError(message, type, response.status);
     }
 
     return response.json();

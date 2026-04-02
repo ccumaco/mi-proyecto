@@ -13,12 +13,13 @@ import {
   faShieldAlt,
   faChartBar,
 } from '@fortawesome/free-solid-svg-icons';
+import { Role, type UserRole } from '@/lib/roles';
 
 export interface MenuItem {
   label: string;
   icon: IconDefinition;
   href: string;
-  roles: ('user' | 'admin' | 'super-admin')[];
+  roles: UserRole[];
 }
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -27,13 +28,13 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'Mis Pagos',
     icon: faWallet,
     href: '/profile/payments',
-    roles: ['user'],
+    roles: [Role.RESIDENT],
   },
   {
     label: 'Anuncios',
     icon: faBell,
     href: '/announcements',
-    roles: ['user', 'admin'],
+    roles: [Role.RESIDENT, Role.ADMIN],
   },
 
   // Administrador (Admin)
@@ -41,43 +42,43 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'Dashboard',
     icon: faChartBar,
     href: '/admin',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
   {
     label: 'Gestión de Zonas y Reservas',
     icon: faCalendarAlt,
     href: '/admin/reservas',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
   {
     label: 'Cobranzas',
     icon: faWallet,
     href: '/admin/cobranzas',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
   {
     label: 'Comunicados',
     icon: faBell,
     href: '/admin/comunicados',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
   {
     label: 'Residentes',
     icon: faUsers,
     href: '/admin/residentes',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
   {
     label: 'Documentos',
     icon: faBuilding,
     href: '/admin/documentos',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
   {
     label: 'Historial de Acceso',
     icon: faShieldAlt,
     href: '/admin/historial',
-    roles: ['admin', 'super-admin'],
+    roles: [Role.ADMIN, Role.SUPER_ADMIN],
   },
 
   // Super Administrador (SuperAdmin)
@@ -85,19 +86,19 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'Panel Global',
     icon: faShieldAlt,
     href: '/super-admin',
-    roles: ['super-admin'],
+    roles: [Role.SUPER_ADMIN],
   },
   {
     label: 'Conjuntos',
     icon: faBuilding,
     href: '/super-admin/complexes',
-    roles: ['super-admin'],
+    roles: [Role.SUPER_ADMIN],
   },
   {
     label: 'Configuración',
     icon: faCog,
     href: '/super-admin/settings',
-    roles: ['super-admin'],
+    roles: [Role.SUPER_ADMIN],
   },
 
   // Compartido
@@ -105,6 +106,6 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'Mi Perfil',
     icon: faUser,
     href: '/profile',
-    roles: ['user', 'admin', 'super-admin'],
+    roles: [Role.RESIDENT, Role.ADMIN, Role.SUPER_ADMIN],
   },
 ];
