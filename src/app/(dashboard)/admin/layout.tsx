@@ -28,7 +28,7 @@ export default function AdminLayout({
       return;
     }
 
-    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+    if (!([Role.ADMIN, Role.SUPER_ADMIN] as string[]).includes(role)) {
       router.replace('/profile');
     }
   }, [authStatus, isAuthenticated, role, router]);
