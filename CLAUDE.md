@@ -51,7 +51,8 @@ src/
     │   └── slices/authSlice.ts  # Auth thunks + selectors
     ├── supabase.ts              # Browser client
     ├── supabase/server.ts       # Server-side client (SSR + cookies)
-    └── api.ts                   # Custom API client for backend integration
+    ├── api.ts                   # Custom API client + ApiError class
+    └── roles.ts                 # Role type, UserRole, normalizeRole(), getRoleLabel()
 supabase/
 ├── config.toml           # Local dev config
 └── migrations/           # SQL migration files
@@ -93,9 +94,10 @@ Auth state shape:
 
 The frontend integrates with the backend API at `http://localhost:4000/api` via `src/lib/api.ts`:
 
-- **Auth Endpoints:** Register, login, refresh, logout, me
+- **Auth Endpoints:** Register, login, refresh, logout, me, OTP request/verify
 - **Data Endpoints:** Properties, units, announcements, payments, uploads
 - **Token Management:** JWT tokens stored in localStorage with auto-refresh
+- **Error Handling:** `ApiError` class with typed `kind`: `network | auth | client | server`
 
 ## Environment Variables
 
@@ -112,7 +114,7 @@ Local Supabase ports: API `54321`, DB `54322`, Studio `54323`, Email `54324`.
 
 - **Language:** UI text and user-facing strings are in **Spanish** (Latin American market)
 - **Phone field:** Use `phone` (not `celular`) in database and auth metadata
-- **Roles:** `admin`, `resident`, `super-admin`
+- **Roles:** `SUPER_ADMIN`, `ADMIN`, `RESIDENT` (canonical DB format — use `normalizeRole()` from `@/lib/roles.ts` to convert legacy/external strings)
 - **Route groups:** `(auth)` for public auth pages, `(dashboard)` for protected pages
 - **Migrations:** Place new SQL files in `supabase/migrations/` with timestamp prefix `YYYYMMDDHHMMSS_description.sql`
 - **Imports:** Always use `@/` alias, never relative paths like `../../`

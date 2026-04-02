@@ -14,6 +14,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { CardSkeleton } from '@/components/ui/CardSkeleton';
 import { useAnnouncements } from '@/features/announcements/hooks/useAnnouncements';
 
 const CATEGORIES = [
@@ -86,11 +87,15 @@ export default function AnnouncementsPage() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"></div>
-          <p className="text-zinc-500">Cargando anuncios...</p>
-        </div>
+      <div className="flex h-full flex-col gap-8 lg:flex-row">
+        <main className="flex-1 space-y-6">
+          <div className="h-8 w-64 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
+          <div className="grid gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        </main>
       </div>
     );
   }

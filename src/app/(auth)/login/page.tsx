@@ -76,6 +76,10 @@ export default function LoginPage() {
           setMaskedPhone(result.payload.maskedPhone);
           setStep(3);
           setOtpCode(['', '', '', '', '', '']);
+        } else if (sendOtpToEmail.rejected.match(result)) {
+          setLocalError(
+            (result.payload as string) ?? 'Error al enviar el código OTP'
+          );
         }
       });
     } else {

@@ -39,7 +39,8 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    _retry = false
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const config: RequestInit = {
@@ -78,7 +79,22 @@ class ApiClient {
           : response.status >= 500
             ? 'server'
             : 'client';
-      throw new ApiError(message, type, response.status);
+      const error = new ApiError(message, type, response.status);
+
+      // Token refresh interceptor: si el token expiró y no es un endpoint de
+      // auth ni ya reintentamos, intentar refrescar y reintentar el request.
+      const isAuthEndpoint = endpoint.startsWith('/auth/');
+      if (type === 'auth' && response.status === 401 && !isAuthEndpoint && !_retry) {
+        try {
+          await this.refresh();
+          return this.request<T>(endpoint, options, true);
+        } catch {
+          this.clearTokens();
+          throw error;
+        }
+      }
+
+      throw error;
     }
 
     return response.json();
