@@ -1,6 +1,6 @@
 // API client for our custom backend
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'backend-production-cf300.up.railway.app';
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 export type ApiErrorType = 'network' | 'auth' | 'client' | 'server';
 
