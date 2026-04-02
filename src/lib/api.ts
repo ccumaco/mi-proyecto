@@ -262,6 +262,23 @@ class ApiClient {
     });
   }
 
+  // OTP methods
+  async requestOtp(email: string): Promise<{ maskedPhone: string }> {
+    return this.request('/auth/otp/request', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async verifyOtp(email: string, code: string): Promise<{ user: User; tokens: AuthTokens }> {
+    const result = await this.request<{ user: User; tokens: AuthTokens }>('/auth/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+    this.setTokens(result.tokens);
+    return result;
+  }
+
   // Generic CRUD methods
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint);

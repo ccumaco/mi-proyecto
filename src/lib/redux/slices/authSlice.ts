@@ -100,15 +100,12 @@ export const refreshAuth = createAsyncThunk(
   }
 );
 
-// Dummy OTP thunks for mocked functionality
 export const sendOtpToEmail = createAsyncThunk(
   'auth/sendOtpToEmail',
   async (email: string, { rejectWithValue }) => {
     try {
-      // Mock: Simulate sending OTP to email
-      // In real implementation, this would call the backend
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-      return { email, message: 'OTP enviado exitosamente' };
+      const { maskedPhone } = await apiClient.requestOtp(email);
+      return { email, maskedPhone };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Error al enviar OTP');
     }
@@ -119,16 +116,7 @@ export const verifyOtp = createAsyncThunk(
   'auth/verifyOtp',
   async (params: { email: string; token: string }, { rejectWithValue }) => {
     try {
-      // Mock: Check against dummy OTP code
-      const dummyOtp = '123456';
-      if (params.token !== dummyOtp) {
-        throw new Error('Código OTP inválido');
-      }
-      // Mock: Simulate login with the user
-      const { user } = await apiClient.login({
-        email: params.email,
-        password: 'dummy', // This should be handled properly in real implementation
-      });
+      const { user } = await apiClient.verifyOtp(params.email, params.token);
       return user;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Error al verificar OTP');

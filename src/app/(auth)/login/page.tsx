@@ -35,18 +35,14 @@ function maskEmail(email: string): string {
   return `${local[0]}*******@${domain}`;
 }
 
-function maskPhone(phone: string): string {
-  if (!phone) return '*******000';
-  return `*******${phone.slice(-3)}`;
-}
 
 export default function LoginPage() {
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('admin@propadmin.local');
-  const [phone, setPhone] = useState('');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
   const [password, setPassword] = useState('SuperAdmin123!');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
+  const [maskedPhone, setMaskedPhone] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -77,6 +73,7 @@ export default function LoginPage() {
       // Send OTP to email instead of phone
       dispatch(sendOtpToEmail(email)).then(result => {
         if (sendOtpToEmail.fulfilled.match(result)) {
+          setMaskedPhone(result.payload.maskedPhone);
           setStep(3);
           setOtpCode(['', '', '', '', '', '']);
         }
@@ -358,7 +355,7 @@ export default function LoginPage() {
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
                       Enviamos un código al celular{' '}
                       <span className="text-primary font-medium">
-                        {maskPhone(phone)}
+                        {maskedPhone}
                       </span>
                     </p>
                   </div>
