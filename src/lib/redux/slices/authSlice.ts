@@ -87,6 +87,18 @@ export const fetchUser = createAsyncThunk(
   }
 );
 
+export const uploadUserAvatar = createAsyncThunk(
+  'auth/uploadUserAvatar',
+  async (file: File, { rejectWithValue }) => {
+    try {
+      const user = await apiClient.uploadAvatar(file);
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Error al subir la foto de perfil');
+    }
+  }
+);
+
 export const refreshAuth = createAsyncThunk(
   'auth/refreshAuth',
   async (_, { rejectWithValue }) => {
@@ -219,6 +231,17 @@ const authSlice = createSlice({
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(uploadUserAvatar.pending, state => {
+        state.error = null;
+      })
+      .addCase(uploadUserAvatar.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = { ...state.user, avatarUrl: action.payload.avatarUrl };
+        }
+      })
+      .addCase(uploadUserAvatar.rejected, (state, action) => {
         state.error = action.payload as string;
       });
   },

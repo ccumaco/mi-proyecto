@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**PropAdmin PRO** — A property/community management platform for residential administrators in Spanish-speaking markets. Built with Next.js, TypeScript, and Supabase.
+**PropAdmin PRO** — A property/community management platform for residential administrators in Spanish-speaking markets. Built with Next.js, TypeScript, and Redux Toolkit. Desplegado en Vercel.
 
 **Note:** This is a project-specific documentation. For full-stack overview, API contracts, and shared types, see the root [CLAUDE.MD](../CLAUDE.MD).
 
@@ -15,7 +15,7 @@
 | Styling   | Tailwind CSS 4 + PostCSS              |
 | Icons     | Font Awesome 7 (SVG)                  |
 | State     | Redux Toolkit 2                       |
-| Auth/DB   | Supabase (PostgreSQL, Auth, Realtime) |
+| Auth      | JWT via backend propio (apiClient)    |
 | Theme     | next-themes (dark mode)               |
 | Linting   | ESLint 9 + Prettier 3                 |
 
@@ -35,8 +35,9 @@ npm run prettier:fix # Auto-format all files
 src/
 ├── app/
 │   ├── (auth)/           # Login, register, recovery, reset-password
-│   ├── (dashboard)/      # Protected routes
-│   ├── auth/callback/    # OAuth callback handler
+│   │   ├── recovery/     # Solicitar reset — usa apiClient.forgotPassword()
+│   │   └── reset-password/ # Confirmar reset — usa apiClient.resetPassword()
+│   ├── (dashboard)/      # Protected routes (protección via layouts + Redux + JWT)
 │   └── layout.tsx        # Root layout with providers
 ├── components/
 │   ├── layout/           # Layout components
@@ -49,38 +50,22 @@ src/
     ├── redux/
     │   ├── store.ts
     │   └── slices/authSlice.ts  # Auth thunks + selectors
-    ├── supabase.ts              # Browser client
-    ├── supabase/server.ts       # Server-side client (SSR + cookies)
     ├── api.ts                   # Custom API client + ApiError class
     └── roles.ts                 # Role type, UserRole, normalizeRole(), getRoleLabel()
-supabase/
-├── config.toml           # Local dev config
-└── migrations/           # SQL migration files
 ```
 
 ## Path Aliases
 
 `@/*` maps to `./src/*` — always use this for imports.
 
-## Database Schema
-
-Key tables (all with RLS enabled):
-
-- **profiles** — User profiles, linked to `auth.users`. Fields: `id`, `email`, `full_name`, `display_name`, `phone`, `nit`, `role`
-- **properties** — Residential complexes. Fields: `name`, `nit`, `address`, `country`, `city`, `units_count`, `admin_id`
-- **units** — Apartments/units. Fields: `unit_number`, `block`, `property_id`, `resident_id`
-- **announcements** — Community announcements. Fields: `title`, `content`, `author_id`, `type`
-- **payments** — Payment tracking. Fields: `unit_id`, `amount`, `status`, `payment_period`
-
-The `handle_new_user()` trigger auto-creates a profile row on signup, cleaning phone/nit data and handling ON CONFLICT.
-
 ## Authentication
 
-Implemented via Redux Thunks in `src/lib/redux/slices/authSlice.ts`:
+Implementado vía Redux Thunks en `src/lib/redux/slices/authSlice.ts`. Todo el flujo de autenticación consume el backend propio a través de `apiClient` (no Supabase):
 
-- **Password auth:** `loginWithPassword()`, `signUpWithPassword()` (with metadata: full_name, phone, nit, role)
-- **OTP auth:** `sendOtpToEmail()`, `sendOtpToPhone()`, `verifyOtp()`, `verifyPhoneOtp()`
-- **Session:** Server-side via SSR cookies; client-side via `createClientBrowser()`
+- **Password auth:** `loginWithPassword()`, `signUpWithPassword()` (con metadata: full_name, phone, nit, role)
+- **OTP auth:** `sendOtpToPhone()`, `verifyPhoneOtp()`
+- **Reset de contraseña:** `recovery/page.tsx` llama `apiClient.forgotPassword({ email })`; `reset-password/page.tsx` llama `apiClient.resetPassword({ token, password })`
+- **Sesión:** Tokens JWT almacenados en localStorage con auto-refresh; protección de rutas manejada por layouts con Redux
 
 Redux selectors: `selectIsAuthenticated`, `selectUser`, `selectUserRole`, `selectAuthStatus`, `selectAuthError`
 
@@ -92,9 +77,9 @@ Auth state shape:
 
 ## Backend Integration
 
-The frontend integrates with the backend API at `http://localhost:4000/api` via `src/lib/api.ts`:
+El frontend integra con el backend API (Railway) vía `src/lib/api.ts`. La URL base se configura con `NEXT_PUBLIC_API_URL`:
 
-- **Auth Endpoints:** Register, login, refresh, logout, me, OTP request/verify
+- **Auth Endpoints:** Register, login, refresh, logout, me, forgot-password, reset-password, OTP request/verify
 - **Data Endpoints:** Properties, units, announcements, payments, uploads
 - **Token Management:** JWT tokens stored in localStorage with auto-refresh
 - **Error Handling:** `ApiError` class with typed `kind`: `network | auth | client | server`
@@ -102,13 +87,9 @@ The frontend integrates with the backend API at `http://localhost:4000/api` via 
 ## Environment Variables
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
-SUPABASE_SERVICE_ROLE_KEY=<service role key>
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
+NEXT_PRIVATE_INALAMBRIA=<inalambria-api-key>
 ```
-
-Local Supabase ports: API `54321`, DB `54322`, Studio `54323`, Email `54324`.
 
 ## Key Conventions
 
@@ -116,13 +97,12 @@ Local Supabase ports: API `54321`, DB `54322`, Studio `54323`, Email `54324`.
 - **Phone field:** Use `phone` (not `celular`) in database and auth metadata
 - **Roles:** `SUPER_ADMIN`, `ADMIN`, `RESIDENT` (canonical DB format — use `normalizeRole()` from `@/lib/roles.ts` to convert legacy/external strings)
 - **Route groups:** `(auth)` for public auth pages, `(dashboard)` for protected pages
-- **Migrations:** Place new SQL files in `supabase/migrations/` with timestamp prefix `YYYYMMDDHHMMSS_description.sql`
 - **Imports:** Always use `@/` alias, never relative paths like `../../`
 
 ## Development Notes
 
-- No CI/CD or production deployment configured yet — local development only
-- No `.env.example` file; use the local Supabase dev keys above
-- Test OTP phone: `+573000000000` → code `123456` (configured in supabase/config.toml)
-- Email confirmations are **disabled** in local Supabase config
+- Frontend desplegado en **Vercel**; backend desplegado en **Railway**
+- El middleware de Next.js no usa Supabase — solo deja pasar las requests; la protección de rutas la manejan los layouts con Redux + JWT
+- No `.env.example` file; configurar `NEXT_PUBLIC_API_URL` apuntando al backend
+- Test OTP phone: `+573000000000` → code `123456`
 - Minimum password length: 6 characters

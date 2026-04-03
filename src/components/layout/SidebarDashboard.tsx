@@ -2,7 +2,6 @@
 import {
   faArrowRightFromBracket,
   faCampground,
-  faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePathname, useRouter } from 'next/navigation';
@@ -12,6 +11,22 @@ import { AppDispatch } from '@/lib/redux/store';
 import { logout, selectUserRole } from '@/lib/redux/slices/authSlice';
 import type { User } from '@/lib/api';
 import { MENU_ITEMS } from '@/config/menu-items';
+
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+
+function getAvatarUrl(avatarUrl?: string): string | null {
+  if (!avatarUrl) return null;
+  if (avatarUrl.startsWith('http')) return avatarUrl;
+  return `${BACKEND_URL}${avatarUrl}`;
+}
+
+function getInitials(name?: string, email?: string): string {
+  const source = name || email || 'U';
+  const parts = source.split(/[\s@]+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
 
 export const SidebarDashboard = ({ user }: { user: User | null }) => {
   const router = useRouter();
@@ -73,10 +88,21 @@ export const SidebarDashboard = ({ user }: { user: User | null }) => {
         {/* Bottom User Nav */}
         <div className="border-t border-[#dbe0e6] pt-6 dark:border-zinc-800">
           <div className="flex items-center gap-3">
-            <FontAwesomeIcon
-              icon={faUser}
-              className="h-9 w-9 text-zinc-400 dark:text-zinc-500"
-            />
+            {(() => {
+              const src = getAvatarUrl(user?.avatarUrl);
+              const initials = getInitials(user?.displayName || user?.fullName, user?.email);
+              return src ? (
+                <img
+                  src={src}
+                  alt="Avatar"
+                  className="h-9 w-9 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-200 text-xs font-bold text-zinc-600 dark:bg-zinc-700 dark:text-zinc-200">
+                  {initials}
+                </div>
+              );
+            })()}
             <div className="flex flex-col">
               <p className="text-sm font-bold text-zinc-900 dark:text-white">
                 {user?.displayName ||

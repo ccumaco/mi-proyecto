@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectUser, setUser } from '@/lib/redux/slices/authSlice';
+import { selectUser, setUser, uploadUserAvatar } from '@/lib/redux/slices/authSlice';
 import type { User } from '@/lib/api';
 import {
   faUser,
@@ -12,17 +12,35 @@ import {
   faCheckCircle,
   faCamera,
   faArrowLeft,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { apiClient } from '@/lib/api';
 import Link from 'next/link';
+import type { AppDispatch } from '@/lib/redux/store';
+
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+
+function getAvatarUrl(avatarUrl?: string): string | null {
+  if (!avatarUrl) return null;
+  if (avatarUrl.startsWith('http')) return avatarUrl;
+  return `${BACKEND_URL}${avatarUrl}`;
+}
+
+function getInitials(name?: string, email?: string): string {
+  const source = name || email || 'U';
+  const parts = source.split(/[\s@]+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
 
 export default function ProfileEditPage() {
   const user = useSelector(selectUser);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Estados del formulario
   const [fullName, setFullName] = useState(user?.displayName || '');
@@ -33,10 +51,23 @@ export default function ProfileEditPage() {
     text: string;
   } | null>(null);
 
+  // Estados del avatar
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+
   // Estados para cambio de contraseña
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPendingAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +77,15 @@ export default function ProfileEditPage() {
     setMessage(null);
 
     try {
+      // Si hay un archivo de avatar pendiente, subirlo primero
+      if (pendingAvatarFile) {
+        setAvatarLoading(true);
+        await dispatch(uploadUserAvatar(pendingAvatarFile)).unwrap();
+        setAvatarLoading(false);
+        setPendingAvatarFile(null);
+        setAvatarPreview(null);
+      }
+
       // TODO: Implementar endpoint de actualización de perfil en el backend
       // Por ahora, solo actualizamos localmente
       const updatedUser: User = { ...user, fullName, phone };
@@ -55,6 +95,7 @@ export default function ProfileEditPage() {
         text: '¡Perfil actualizado correctamente!',
       });
     } catch (error: any) {
+      setAvatarLoading(false);
       setMessage({
         type: 'error',
         text: error.message || 'Error al actualizar el perfil',
@@ -116,16 +157,52 @@ export default function ProfileEditPage() {
         <div className="space-y-6">
           <Card className="text-center" padding="lg">
             <div className="relative mx-auto mb-4 inline-block">
-              <div
-                className="size-32 rounded-full border-4 border-zinc-100 bg-cover bg-center shadow-lg dark:border-zinc-800"
-                style={{
-                  backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDY2JGQqcIfcWNjD0odXNmEE2jWBOjLj7IPnr11DBocAlkG7CYeqChlW-ugxIO_w_UAEH-9TTy_dl5wQ326vZkYeT5PgUEWEydAH9uB_-0yI3M5gUqif7-vwx6-MVl7_lws_j43dCkrYed6bLuhuNGujjxeMbCHGjcYabn-apkAEoubY8LzxxW7RlMf2X4GP7KBbCgp23QJzJJh56c5uE5QRPZf-nyv8zcwuGTSEqgreEorWHzC0_S6xODl2tlAVKGTmR7Cfk-YjMzF")`,
-                }}
+              {/* Input file oculto */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarFileChange}
               />
-              <button className="bg-primary absolute right-0 bottom-0 rounded-full p-2.5 text-white shadow-lg transition-transform hover:scale-110">
-                <FontAwesomeIcon icon={faCamera} className="h-4 w-4" />
+
+              {/* Avatar: previsualización local, luego guardado, luego iniciales */}
+              {(() => {
+                const src = avatarPreview || getAvatarUrl(user?.avatarUrl);
+                const initials = getInitials(fullName || user?.displayName, user?.email);
+                return src ? (
+                  <img
+                    src={src}
+                    alt="Foto de perfil"
+                    className="size-32 rounded-full border-4 border-zinc-100 object-cover shadow-lg dark:border-zinc-800"
+                  />
+                ) : (
+                  <div className="flex size-32 items-center justify-center rounded-full border-4 border-zinc-100 bg-zinc-200 text-3xl font-bold text-zinc-600 shadow-lg dark:border-zinc-800 dark:bg-zinc-700 dark:text-zinc-200">
+                    {initials}
+                  </div>
+                );
+              })()}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarLoading}
+                className="bg-primary absolute right-0 bottom-0 rounded-full p-2.5 text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-60"
+                title="Cambiar foto de perfil"
+              >
+                <FontAwesomeIcon
+                  icon={avatarLoading ? faSpinner : faCamera}
+                  className={`h-4 w-4 ${avatarLoading ? 'animate-spin' : ''}`}
+                />
               </button>
             </div>
+
+            {pendingAvatarFile && (
+              <p className="mb-2 text-xs text-blue-600 dark:text-blue-400">
+                Nueva foto seleccionada — se subirá al guardar
+              </p>
+            )}
+
             <h3 className="font-bold text-zinc-900 dark:text-white">
               {fullName || 'Usuario'}
             </h3>

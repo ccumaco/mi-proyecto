@@ -28,6 +28,7 @@ interface User {
   displayName?: string;
   phone?: string;
   nit?: string;
+  avatarUrl?: string;
 }
 
 class ApiClient {
@@ -192,6 +193,34 @@ class ApiClient {
     return result.user;
   }
 
+  async uploadAvatar(file: File): Promise<User> {
+    const url = `${this.baseURL}/users/me/avatar`;
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const formData = new FormData();
+    formData.append('avatar', file);
+    let response: Response;
+    try {
+      response = await fetch(url, { method: 'POST', headers, body: formData });
+    } catch {
+      throw new ApiError('No se pudo conectar al servidor.', 'network');
+    }
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      const message = body?.message || `Error ${response.status}`;
+      const type: ApiErrorType =
+        response.status === 401 || response.status === 403
+          ? 'auth'
+          : response.status >= 500
+            ? 'server'
+            : 'client';
+      throw new ApiError(message, type, response.status);
+    }
+    const result = await response.json();
+    return result.user ?? result;
+  }
+
   // Properties methods
   async getProperties(): Promise<any[]> {
     return this.request<any[]>('/properties');
@@ -269,6 +298,113 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(announcement),
     });
+  }
+
+  async updateAnnouncement(id: string, announcement: any): Promise<any> {
+    return this.request<any>(`/announcements/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(announcement),
+    });
+  }
+
+  async deleteAnnouncement(id: string): Promise<void> {
+    return this.request<void>(`/announcements/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Zones methods
+  async getZones(propertyId?: string): Promise<any[]> {
+    const qs = propertyId ? `?propertyId=${propertyId}` : '';
+    return this.request<any[]>(`/zones${qs}`);
+  }
+
+  async createZone(zone: any): Promise<any> {
+    return this.request<any>('/zones', {
+      method: 'POST',
+      body: JSON.stringify(zone),
+    });
+  }
+
+  async updateZone(id: string, zone: any): Promise<any> {
+    return this.request<any>(`/zones/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(zone),
+    });
+  }
+
+  async deleteZone(id: string): Promise<void> {
+    return this.request<void>(`/zones/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Reservations methods
+  async getReservations(params?: { propertyId?: string; zoneId?: string; unitId?: string; date?: string }): Promise<any[]> {
+    const qs = params
+      ? '?' + Object.entries(params).filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join('&')
+      : '';
+    return this.request<any[]>(`/reservations${qs}`);
+  }
+
+  async createReservation(reservation: any): Promise<any> {
+    return this.request<any>('/reservations', {
+      method: 'POST',
+      body: JSON.stringify(reservation),
+    });
+  }
+
+  async updateReservation(id: string, reservation: any): Promise<any> {
+    return this.request<any>(`/reservations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(reservation),
+    });
+  }
+
+  async deleteReservation(id: string): Promise<void> {
+    return this.request<void>(`/reservations/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Documents methods
+  async getDocuments(propertyId?: string, category?: string): Promise<any[]> {
+    const params: string[] = [];
+    if (propertyId) params.push(`propertyId=${propertyId}`);
+    if (category) params.push(`category=${category}`);
+    const qs = params.length ? `?${params.join('&')}` : '';
+    return this.request<any[]>(`/documents${qs}`);
+  }
+
+  async createDocument(formData: FormData): Promise<any> {
+    const url = `${this.baseURL}/documents`;
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    let response: Response;
+    try {
+      response = await fetch(url, { method: 'POST', headers, body: formData });
+    } catch {
+      throw new ApiError('No se pudo conectar al servidor.', 'network');
+    }
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      const message = body?.message || `Error ${response.status}`;
+      const type: ApiErrorType = response.status === 401 || response.status === 403 ? 'auth' : response.status >= 500 ? 'server' : 'client';
+      throw new ApiError(message, type, response.status);
+    }
+    return response.json();
+  }
+
+  async deleteDocument(id: string): Promise<void> {
+    return this.request<void>(`/documents/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Units (with propertyId filter)
+  async getUnitsForProperty(propertyId: string): Promise<any[]> {
+    return this.request<any[]>(`/units?propertyId=${propertyId}`);
   }
 
   // Payments methods

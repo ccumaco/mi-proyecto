@@ -2,27 +2,44 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faEnvelope,
-  faMapMarkerAlt,
-  faPhone,
   faCamera,
   faLock,
   faCheckCircle,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
-import { useSelector } from 'react-redux';
-import { selectUser } from '@/lib/redux/slices/authSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectUser, uploadUserAvatar } from '@/lib/redux/slices/authSlice';
 import { getRoleLabel } from '@/lib/roles';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import type { AppDispatch } from '@/lib/redux/store';
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+
+function getAvatarUrl(avatarUrl?: string): string | null {
+  if (!avatarUrl) return null;
+  if (avatarUrl.startsWith('http')) return avatarUrl;
+  return `${BACKEND_URL}${avatarUrl}`;
+}
+
+function getInitials(name?: string, email?: string): string {
+  const source = name || email || 'U';
+  const parts = source.split(/[\s@]+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
 
 export default function Profile() {
   const user = useSelector(selectUser);
+  const dispatch = useDispatch<AppDispatch>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   const handleSavePassword = async () => {
     setIsSaving(true);
@@ -32,6 +49,25 @@ export default function Profile() {
     setCurrentPassword('');
     setNewPassword('');
   };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarError(null);
+    setAvatarLoading(true);
+    try {
+      await dispatch(uploadUserAvatar(file)).unwrap();
+    } catch (err: any) {
+      setAvatarError(err || 'Error al subir la foto');
+    } finally {
+      setAvatarLoading(false);
+      // Limpiar el input para permitir re-seleccionar el mismo archivo
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const avatarSrc = getAvatarUrl(user?.avatarUrl);
+  const initials = getInitials(user?.displayName || user?.fullName, user?.email);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
@@ -47,19 +83,50 @@ export default function Profile() {
         <Card className="space-y-6 lg:col-span-1">
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
-              <div
-                className="h-32 w-32 rounded-full border-4 border-zinc-200 bg-cover bg-center shadow-lg dark:border-zinc-700"
-                style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1550525811-e5869dd03032?auto=format&fit=crop&w=400&q=80')`,
-                }}
+              {/* Input file oculto */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
               />
-              <button className="bg-primary hover:bg-primary/90 absolute right-0 bottom-0 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg">
-                <FontAwesomeIcon icon={faCamera} className="h-4 w-4" />
+
+              {/* Avatar */}
+              {avatarSrc ? (
+                <img
+                  src={avatarSrc}
+                  alt="Foto de perfil"
+                  className="h-32 w-32 rounded-full border-4 border-zinc-200 object-cover shadow-lg dark:border-zinc-700"
+                />
+              ) : (
+                <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-zinc-200 bg-zinc-200 text-3xl font-bold text-zinc-600 shadow-lg dark:border-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                  {initials}
+                </div>
+              )}
+
+              {/* Botón cámara */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarLoading}
+                className="bg-primary hover:bg-primary/90 absolute right-0 bottom-0 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg disabled:opacity-60"
+                title="Cambiar foto de perfil"
+              >
+                <FontAwesomeIcon
+                  icon={avatarLoading ? faSpinner : faCamera}
+                  className={`h-4 w-4 ${avatarLoading ? 'animate-spin' : ''}`}
+                />
               </button>
+
               <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white shadow">
                 <FontAwesomeIcon icon={faCheckCircle} className="h-4 w-4" />
               </div>
             </div>
+
+            {/* Error de avatar */}
+            {avatarError && (
+              <p className="text-center text-xs text-red-500">{avatarError}</p>
+            )}
 
             <div className="text-center">
               <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
@@ -70,9 +137,13 @@ export default function Profile() {
               </p>
             </div>
 
-            <button className="mt-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarLoading}
+              className="mt-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-200 disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+            >
               <FontAwesomeIcon icon={faCamera} className="mr-2" />
-              Editar Foto
+              {avatarLoading ? 'Subiendo...' : 'Editar Foto'}
             </button>
           </div>
 
