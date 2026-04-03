@@ -136,12 +136,12 @@ export default function RegisterPage() {
       // Create property
       const property = await apiClient.createProperty({
         name: complexName,
-        nit: nit,
-        address: address,
-        country: country,
-        city: city,
-        units_count: parseInt(unitsCount, 10) || 0,
-        admin_id: user.id,
+        nit,
+        address,
+        country,
+        city,
+        unitsCount: parseInt(unitsCount, 10) || 0,
+        adminId: user.id,
       });
 
       // Create units for each tower

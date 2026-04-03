@@ -5,10 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { SidebarDashboard } from '@/components/layout/SidebarDashboard';
 import { HeaderDashboard } from '@/components/layout/HeaderDashboard';
+import { SubscriptionExpiredScreen } from '@/components/subscription/SubscriptionExpiredScreen';
+import { TrialBanner } from '@/components/subscription/TrialBanner';
+import { useSubscription } from '@/features/subscription/hooks/useSubscription';
 import {
   selectAuthStatus,
   selectIsAuthenticated,
   selectUser,
+  selectUserRole,
 } from '@/lib/redux/slices/authSlice';
 
 const AUTH_TIMEOUT_MS = 8000;
@@ -22,6 +26,9 @@ export default function DashboardLayout({
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const authStatus = useSelector(selectAuthStatus);
   const user = useSelector(selectUser);
+  const userRole = useSelector(selectUserRole);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { subscription } = useSubscription();
   // Track whether auth has resolved at least once so that background operations
   // (refreshAuth, fetchUser, etc.) don't re-trigger the full-page loading screen.
   const initializedRef = useRef(false);
@@ -81,11 +88,34 @@ export default function DashboardLayout({
     );
   }
 
+  // Bloqueo por suscripción — solo para ADMIN y RESIDENT, nunca para SUPER_ADMIN
+  const isSubscriptionBlocked =
+    userRole !== 'SUPER_ADMIN' &&
+    subscription?.status === 'BLOCKED';
+
+  if (isSubscriptionBlocked) {
+    const screenRole = userRole === 'ADMIN' ? 'ADMIN' : 'RESIDENT';
+    return <SubscriptionExpiredScreen role={screenRole} />;
+  }
+
+  // Banner de trial — solo cuando quedan ≤ 7 días
+  const showTrialBanner =
+    userRole !== 'SUPER_ADMIN' &&
+    subscription?.status === 'TRIAL' &&
+    (() => {
+      const diffMs = new Date(subscription.trialEndsAt).getTime() - Date.now();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return diffDays <= 7;
+    })();
+
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-zinc-950">
-      <SidebarDashboard user={user} />
+      <SidebarDashboard user={user} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <HeaderDashboard user={user} />
+        <HeaderDashboard user={user} onMenuToggle={() => setSidebarOpen(prev => !prev)} />
+        {showTrialBanner && subscription && (
+          <TrialBanner trialEndsAt={subscription.trialEndsAt} />
+        )}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           {children}
         </main>

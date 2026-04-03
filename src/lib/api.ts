@@ -2,7 +2,7 @@
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
-export type ApiErrorType = 'network' | 'auth' | 'client' | 'server';
+export type ApiErrorType = 'network' | 'auth' | 'client' | 'server' | 'subscription';
 
 export class ApiError extends Error {
   constructor(
@@ -29,6 +29,16 @@ interface User {
   phone?: string;
   nit?: string;
   avatarUrl?: string;
+}
+
+interface Subscription {
+  id: string;
+  propertyId: string;
+  status: 'TRIAL' | 'ACTIVE' | 'BLOCKED';
+  trialEndsAt: string;
+  activatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 class ApiClient {
@@ -75,11 +85,13 @@ class ApiClient {
       const body = await response.json().catch(() => ({}));
       const message = body?.message || `Error ${response.status}`;
       const type: ApiErrorType =
-        response.status === 401 || response.status === 403
-          ? 'auth'
-          : response.status >= 500
-            ? 'server'
-            : 'client';
+        response.status === 402
+          ? 'subscription'
+          : response.status === 401 || response.status === 403
+            ? 'auth'
+            : response.status >= 500
+              ? 'server'
+              : 'client';
       const error = new ApiError(message, type, response.status);
 
       // Token refresh interceptor: si el token expiró y no es un endpoint de
@@ -320,17 +332,39 @@ class ApiClient {
   }
 
   async createZone(zone: any): Promise<any> {
-    return this.request<any>('/zones', {
-      method: 'POST',
-      body: JSON.stringify(zone),
+    const formData = new FormData();
+    Object.entries(zone).forEach(([k, v]) => {
+      if (v instanceof File) formData.append(k, v);
+      else if (v !== undefined && v !== null) formData.append(k, String(v));
     });
+    const url = `${this.baseURL}/zones`;
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(url, { method: 'POST', headers, body: formData });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new ApiError(body?.message || `Error ${response.status}`, 'client', response.status);
+    }
+    return response.json();
   }
 
   async updateZone(id: string, zone: any): Promise<any> {
-    return this.request<any>(`/zones/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(zone),
+    const formData = new FormData();
+    Object.entries(zone).forEach(([k, v]) => {
+      if (v instanceof File) formData.append(k, v);
+      else if (v !== undefined && v !== null) formData.append(k, String(v));
     });
+    const url = `${this.baseURL}/zones/${id}`;
+    const token = this.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(url, { method: 'PUT', headers, body: formData });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new ApiError(body?.message || `Error ${response.status}`, 'client', response.status);
+    }
+    return response.json();
   }
 
   async deleteZone(id: string): Promise<void> {
@@ -454,6 +488,11 @@ class ApiClient {
     return result;
   }
 
+  // Subscription methods
+  async getMySubscription(): Promise<Subscription> {
+    return this.request<Subscription>('/subscriptions/me');
+  }
+
   // Generic CRUD methods
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint);
@@ -481,4 +520,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
-export type { AuthTokens, User };
+export type { AuthTokens, User, Subscription };

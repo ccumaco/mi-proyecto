@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Loader2 } from 'lucide-react';
+import { Building2, ImageIcon, Loader2, X } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import {
@@ -14,6 +14,168 @@ import { usePropertyId } from '@/features/admin/hooks/usePropertyId';
 import { useZones } from '@/features/admin/hooks/useZones';
 import { useReservations } from '@/features/admin/hooks/useReservations';
 import type { ReservationWithDetails } from '@/features/admin/hooks/useReservations';
+
+// ─── Modal Nueva Zona ─────────────────────────────────────────────────────────
+
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+
+interface ModalNuevaZonaProps {
+  onClose: () => void;
+  onCrear: (data: { name: string; description?: string; isActive: boolean; image?: File }) => Promise<void>;
+}
+
+function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [imagen, setImagen] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setImagen(file);
+    if (file) setPreview(URL.createObjectURL(file));
+    else setPreview(null);
+  }
+
+  async function handleCrear() {
+    if (!nombre.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await onCrear({
+        name: nombre.trim(),
+        description: descripcion.trim() || undefined,
+        isActive,
+        image: imagen ?? undefined,
+      });
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'No se pudo crear la zona');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-full max-w-md rounded-2xl bg-white shadow-xl dark:bg-zinc-900">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Nueva Zona</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-4 p-6">
+          {/* Foto */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Foto de la zona
+            </label>
+            <label className="group relative flex cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-zinc-200 transition-colors hover:border-blue-400 dark:border-zinc-700">
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              {preview ? (
+                <img src={preview} alt="Preview" className="h-36 w-full object-cover" />
+              ) : (
+                <div className="flex h-36 w-full flex-col items-center justify-center gap-2 text-zinc-400">
+                  <ImageIcon className="h-8 w-8" />
+                  <span className="text-xs">Haz clic para subir una foto</span>
+                </div>
+              )}
+              {preview && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="text-xs font-semibold text-white">Cambiar foto</span>
+                </div>
+              )}
+            </label>
+          </div>
+
+          {/* Nombre */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Nombre de la zona
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Salón de Eventos"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+            />
+          </div>
+
+          {/* Descripción */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Descripción / Detalle
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Capacidad: 50 personas"
+              value={descripcion}
+              onChange={e => setDescripcion(e.target.value)}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+            />
+          </div>
+
+          {/* Estado */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Estado
+            </label>
+            <select
+              value={isActive ? 'activo' : 'inactivo'}
+              onChange={e => setIsActive(e.target.value === 'activo')}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            >
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          {error && (
+            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/20 dark:text-red-400">
+              {error}
+            </div>
+          )}
+
+          {/* Botones */}
+          <div className="flex justify-end gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleCrear}
+              disabled={saving || !nombre.trim()}
+              className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-500/40 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              Crear Zona
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -70,12 +232,13 @@ const PAGE_SIZE = 10;
 
 export default function ReservationsPage() {
   const { propertyId, loading: loadingProperty } = usePropertyId();
-  const { zones, loading: loadingZones } = useZones(propertyId);
+  const { zones, loading: loadingZones, createZone } = useZones(propertyId);
   const { reservations, loading: loadingReservations, error, updateReservation, refetch } =
     useReservations(propertyId);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [modalZonaAbierto, setModalZonaAbierto] = useState(false);
 
   const loading = loadingProperty || loadingZones || loadingReservations;
 
@@ -148,6 +311,10 @@ export default function ReservationsPage() {
                   Disponibilidad de los espacios para los residentes.
                 </p>
               </div>
+              <Button variant="primary" size="md" onClick={() => setModalZonaAbierto(true)}>
+                <FontAwesomeIcon icon={faPlus} className="mr-2 h-3.5 w-3.5" />
+                Nueva Zona
+              </Button>
             </div>
 
             {zones.length === 0 ? (
@@ -156,35 +323,42 @@ export default function ReservationsPage() {
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {zones.map(zone => (
-                  <Card key={zone.id} padding="md" className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400">
-                        <Building2 className="h-5 w-5" />
+                {zones.map(zone => {
+                  const imgSrc = zone.imageUrl
+                    ? (zone.imageUrl.startsWith('http') ? zone.imageUrl : `${BACKEND_URL}${zone.imageUrl}`)
+                    : null;
+                  return (
+                    <Card key={zone.id} padding="none" className="flex flex-col overflow-hidden">
+                      {/* Imagen o placeholder */}
+                      {imgSrc ? (
+                        <img src={imgSrc} alt={zone.name} className="h-32 w-full object-cover" />
+                      ) : (
+                        <div className="flex h-32 w-full items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+                          <Building2 className="h-8 w-8 text-zinc-300 dark:text-zinc-600" />
+                        </div>
+                      )}
+                      {/* Info */}
+                      <div className="flex flex-col gap-2 p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-semibold leading-tight text-zinc-900 dark:text-white">
+                            {zone.name}
+                          </h3>
+                          <span
+                            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${ZONE_STATUS_STYLES[String(zone.isActive)]}`}
+                          >
+                            {zone.isActive ? 'Activa' : 'Inactiva'}
+                          </span>
+                        </div>
+                        {zone.description && (
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">{zone.description}</p>
+                        )}
+                        {zone.capacity != null && (
+                          <p className="text-xs text-zinc-400">Capacidad: {zone.capacity} personas</p>
+                        )}
                       </div>
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${ZONE_STATUS_STYLES[String(zone.isActive)]}`}
-                      >
-                        {zone.isActive ? 'Activa' : 'Inactiva'}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-zinc-900 dark:text-white">
-                        {zone.name}
-                      </h3>
-                      {zone.description && (
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {zone.description}
-                        </p>
-                      )}
-                      {zone.capacity != null && (
-                        <p className="mt-1 text-xs text-zinc-400">
-                          Capacidad: {zone.capacity} personas
-                        </p>
-                      )}
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </section>
@@ -435,6 +609,16 @@ export default function ReservationsPage() {
             </Card>
           </section>
         </>
+      )}
+
+      {modalZonaAbierto && (
+        <ModalNuevaZona
+          onClose={() => setModalZonaAbierto(false)}
+          onCrear={async ({ image, ...data }) => {
+            if (!propertyId) throw new Error('No hay propiedad asociada');
+            await createZone({ ...data, propertyId, image });
+          }}
+        />
       )}
     </div>
   );
