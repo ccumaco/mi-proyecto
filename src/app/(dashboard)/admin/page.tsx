@@ -12,8 +12,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@/components/ui/Button';
+import { useTranslations } from 'next-intl';
 
 export default function AdminPage() {
+  const t = useTranslations('dashboard');
   const user = useSelector(selectUser);
   const role = useSelector(selectUserRole);
 
@@ -22,12 +24,12 @@ export default function AdminPage() {
       {/* Header Section */}
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-          Panel de Administración
+          {t('pageTitle')}
         </h1>
         <p className="text-zinc-500 dark:text-zinc-400">
-          Bienvenido,{' '}
-          {user?.displayName || user?.email?.split('@')[0] || 'Administrador'}.
-          Gestiona tu comunidad de forma eficiente.
+          {t('welcomePrefix')}{' '}
+          {user?.displayName || user?.email?.split('@')[0] || t('defaultAdminName')}.{' '}
+          {t('welcomeSuffix')}
         </p>
       </div>
 
@@ -35,28 +37,28 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={faUsers}
-          label="Total Residentes"
+          label={t('statResidents')}
           value="124"
-          trend="+3 este mes"
+          trend={t('statResidentsTrend')}
         />
         <StatCard
           icon={faBuilding}
-          label="Unidades"
+          label={t('statUnits')}
           value="48"
-          trend="98% Ocupación"
+          trend={t('statUnitsTrend')}
         />
         <StatCard
           icon={faWallet}
-          label="Recaudación"
+          label={t('statCollection')}
           value="$12.4M"
-          trend="85% del total"
+          trend={t('statCollectionTrend')}
           color="green"
         />
         <StatCard
           icon={faChartLine}
-          label="Gastos"
+          label={t('statExpenses')}
           value="$4.2M"
-          trend="-5% vs mes anterior"
+          trend={t('statExpensesTrend')}
           color="red"
         />
       </div>
@@ -66,30 +68,30 @@ export default function AdminPage() {
         {/* Recent Activity */}
         <Card className="lg:col-span-2">
           <div className="mb-6 flex items-center justify-between">
-            <CardTitle>Actividad Reciente</CardTitle>
+            <CardTitle>{t('recentActivity')}</CardTitle>
             <Button variant="ghost" size="sm">
-              Ver todo
+              {t('viewAll')}
             </Button>
           </div>
           <div className="space-y-4">
             <ActivityItem
               icon={faWallet}
-              title="Pago recibido - Unidad 402"
-              time="Hace 15 min"
-              desc="El residente Juan Pérez ha pagado la cuota de administración."
+              title={t('activity1Title')}
+              time={t('activity1Time')}
+              desc={t('activity1Desc')}
             />
             <ActivityItem
               icon={faBell}
-              title="Nueva Solicitud de PQRS"
-              time="Hace 1 hora"
-              desc="Reparación de luminaria en el pasillo del piso 3."
+              title={t('activity2Title')}
+              time={t('activity2Time')}
+              desc={t('activity2Desc')}
               color="orange"
             />
             <ActivityItem
               icon={faUsers}
-              title="Nuevo Residente Registrado"
-              time="Ayer, 4:30 PM"
-              desc="Se ha completado el registro de María García en la Torre A."
+              title={t('activity3Title')}
+              time={t('activity3Time')}
+              desc={t('activity3Desc')}
               color="blue"
             />
           </div>
@@ -97,31 +99,31 @@ export default function AdminPage() {
 
         {/* Quick Actions */}
         <Card>
-          <CardTitle className="mb-6">Acciones Rápidas</CardTitle>
+          <CardTitle className="mb-6">{t('quickActions')}</CardTitle>
           <div className="space-y-3">
             <Button
               variant="outline"
               className="w-full justify-start gap-3"
               size="lg"
             >
-              <FontAwesomeIcon icon={faBell} /> Crear Comunicado
+              <FontAwesomeIcon icon={faBell} /> {t('createAnnouncement')}
             </Button>
             <Button
               variant="outline"
               className="w-full justify-start gap-3"
               size="lg"
             >
-              <FontAwesomeIcon icon={faWallet} /> Generar Recibos
+              <FontAwesomeIcon icon={faWallet} /> {t('generateReceipts')}
             </Button>
             <Button
               variant="outline"
               className="w-full justify-start gap-3"
               size="lg"
             >
-              <FontAwesomeIcon icon={faUsers} /> Registrar Residente
+              <FontAwesomeIcon icon={faUsers} /> {t('registerResident')}
             </Button>
             <Button variant="primary" className="mt-4 w-full" size="lg">
-              Descargar Reporte Mensual
+              {t('downloadReport')}
             </Button>
           </div>
         </Card>

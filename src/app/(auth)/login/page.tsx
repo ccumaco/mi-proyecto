@@ -24,6 +24,7 @@ import { AppDispatch } from '@/lib/redux/store';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 type Step = 1 | 2 | 3;
 type LoginMethod = 'otp' | 'password';
@@ -36,6 +37,8 @@ function maskEmail(email: string): string {
 }
 
 export default function LoginPage() {
+  const t = useTranslations('login');
+
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('admin@propadmin.local');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
@@ -69,7 +72,6 @@ export default function LoginPage() {
     setLocalError(null);
 
     if (loginMethod === 'otp') {
-      // Send OTP to email instead of phone
       dispatch(sendOtpToEmail(email)).then(result => {
         if (sendOtpToEmail.fulfilled.match(result)) {
           setMaskedPhone(result.payload.maskedPhone);
@@ -77,7 +79,7 @@ export default function LoginPage() {
           setOtpCode(['', '', '', '', '', '']);
         } else if (sendOtpToEmail.rejected.match(result)) {
           setLocalError(
-            (result.payload as string) ?? 'Error al enviar el código OTP'
+            (result.payload as string) ?? t('otpSendError')
           );
         }
       });
@@ -149,19 +151,18 @@ export default function LoginPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white">
             <FontAwesomeIcon icon={faBuilding} className="h-5 w-5" />
           </div>
-          <span className="text-lg font-bold text-white">Residencia PRO</span>
+          <span className="text-lg font-bold text-white">{t('brandName')}</span>
         </div>
         <div className="relative z-10 space-y-4">
           <h2 className="text-2xl leading-tight font-bold text-white lg:text-3xl">
-            Tu hogar, conectado y seguro
+            {t('brandTagline')}
           </h2>
           <p className="max-w-sm text-sm text-white/80">
-            Verificamos tu identidad para asegurar que solo tú tengas acceso a
-            la información de tu residencia.
+            {t('brandDescription')}
           </p>
         </div>
         <p className="relative z-10 text-xs text-white/60">
-          © 2024 Residencia Global Services. Todos los derechos reservados.
+          {t('brandFooter')}
         </p>
       </div>
 
@@ -173,18 +174,18 @@ export default function LoginPage() {
             <>
               <div className="space-y-2 text-center sm:text-left">
                 <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                  Bienvenido de nuevo
+                  {t('step1Title')}
                 </h1>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Ingresa tus datos para acceder a tu panel
+                  {t('step1Subtitle')}
                 </p>
               </div>
               <form onSubmit={handleStep1Next} className="space-y-5">
                 <Input
-                  label="Correo Electrónico"
+                  label={t('emailLabel')}
                   type="email"
                   autoComplete="true"
-                  placeholder="ejemplo@admin.com"
+                  placeholder={t('emailPlaceholder')}
                   leftIcon={faEnvelope}
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -194,7 +195,7 @@ export default function LoginPage() {
                   type="submit"
                   className="w-full py-3.5 text-base font-bold"
                 >
-                  Continuar
+                  {t('continueButton')}
                 </Button>
               </form>
               <div className="relative">
@@ -203,12 +204,12 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="bg-white px-3 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
-                    ¿Eres nuevo aquí?{' '}
+                    {t('newHere')}{' '}
                     <Link
                       href="/register"
                       className="text-primary font-bold hover:underline"
                     >
-                      Crea una cuenta de administrador
+                      {t('createAccount')}
                     </Link>
                   </span>
                 </div>
@@ -222,15 +223,15 @@ export default function LoginPage() {
               <div className="flex justify-center">
                 <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                   <FontAwesomeIcon icon={faLock} className="h-3.5 w-3.5" />
-                  SEGURIDAD DE CUENTA
+                  {t('accountSecurity')}
                 </span>
               </div>
               <div className="space-y-2">
                 <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                  Elige un método de ingreso
+                  {t('step2Title')}
                 </h1>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Estás ingresando con{' '}
+                  {t('step2Subtitle')}{' '}
                   <span className="text-primary font-medium">
                     {maskEmail(email)}
                   </span>
@@ -253,10 +254,10 @@ export default function LoginPage() {
                       </div>
                       <div>
                         <p className="font-bold text-zinc-900 dark:text-white">
-                          Código por SMS
+                          {t('otpMethodTitle')}
                         </p>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                          Lo enviaremos a tu celular registrado
+                          {t('otpMethodDesc')}
                         </p>
                       </div>
                     </div>
@@ -276,10 +277,10 @@ export default function LoginPage() {
                       </div>
                       <div>
                         <p className="font-bold text-zinc-900 dark:text-white">
-                          Contraseña
+                          {t('passwordMethodTitle')}
                         </p>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                          Ingresa con tu clave personal
+                          {t('passwordMethodDesc')}
                         </p>
                       </div>
                     </div>
@@ -295,7 +296,7 @@ export default function LoginPage() {
                   className="w-full py-3.5 text-base font-bold"
                   isLoading={isLoading}
                 >
-                  Siguiente
+                  {t('nextButton')}
                 </Button>
               </form>
               <button
@@ -304,7 +305,7 @@ export default function LoginPage() {
                 className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
-                Volver
+                {t('backButton')}
               </button>
             </>
           )}
@@ -316,10 +317,10 @@ export default function LoginPage() {
                 <>
                   <div className="space-y-2">
                     <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                      Contraseña
+                      {t('step3PasswordTitle')}
                     </h1>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      Para:{' '}
+                      {t('step3PasswordFor')}{' '}
                       <span className="text-primary font-medium">
                         {maskEmail(email)}
                       </span>
@@ -331,7 +332,7 @@ export default function LoginPage() {
                   >
                     <Input
                       type="password"
-                      placeholder="••••••••"
+                      placeholder={t('passwordPlaceholder')}
                       leftIcon={faLock}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
@@ -345,7 +346,7 @@ export default function LoginPage() {
                       className="w-full py-3.5"
                       isLoading={isLoading}
                     >
-                      Iniciar sesión
+                      {t('loginButton')}
                     </Button>
                   </form>
                 </>
@@ -353,10 +354,10 @@ export default function LoginPage() {
                 <>
                   <div className="space-y-2 text-center">
                     <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                      Verificación SMS
+                      {t('step3OtpTitle')}
                     </h1>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      Enviamos un código al celular{' '}
+                      {t('step3OtpSubtitle')}{' '}
                       <span className="text-primary font-medium">
                         {maskedPhone}
                       </span>
@@ -390,14 +391,14 @@ export default function LoginPage() {
                       className="w-full py-3.5"
                       isLoading={isLoading}
                     >
-                      Verificar e Ingresar
+                      {t('verifyButton')}
                     </Button>
                     <button
                       type="button"
                       onClick={handleResendOtp}
                       className="text-primary w-full text-center text-sm font-bold hover:underline"
                     >
-                      Reenviar código
+                      {t('resendCode')}
                     </button>
                   </form>
                 </>
@@ -407,7 +408,7 @@ export default function LoginPage() {
                 className="mt-6 flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />{' '}
-                Volver
+                {t('backButton')}
               </button>
             </>
           )}

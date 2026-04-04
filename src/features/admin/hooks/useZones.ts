@@ -10,6 +10,7 @@ export interface ZoneAPI {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  imageUrl?: string;
 }
 
 export function useZones(propertyId: string | null) {
@@ -37,7 +38,13 @@ export function useZones(propertyId: string | null) {
   }, [fetchZones]);
 
   const createZone = useCallback(
-    async (data: { name: string; description?: string; capacity?: number; propertyId: string }) => {
+    async (data: {
+      name: string;
+      description?: string;
+      capacity?: number;
+      propertyId: string;
+      image?: File;
+    }) => {
       const created = await apiClient.createZone(data);
       setZones(prev => [...prev, created]);
       return created;
@@ -46,7 +53,15 @@ export function useZones(propertyId: string | null) {
   );
 
   const updateZone = useCallback(
-    async (id: string, data: Partial<{ name: string; description: string; capacity: number; isActive: boolean }>) => {
+    async (
+      id: string,
+      data: Partial<{
+        name: string;
+        description: string;
+        capacity: number;
+        isActive: boolean;
+      }>
+    ) => {
       const updated = await apiClient.updateZone(id, data);
       setZones(prev => prev.map(z => (z.id === id ? updated : z)));
       return updated;
@@ -59,5 +74,13 @@ export function useZones(propertyId: string | null) {
     setZones(prev => prev.filter(z => z.id !== id));
   }, []);
 
-  return { zones, loading, error, refetch: fetchZones, createZone, updateZone, deleteZone };
+  return {
+    zones,
+    loading,
+    error,
+    refetch: fetchZones,
+    createZone,
+    updateZone,
+    deleteZone,
+  };
 }

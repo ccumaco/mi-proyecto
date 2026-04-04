@@ -7,6 +7,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '../shared/ThemeToggle';
+import { LanguageSwitcher } from '../shared/LanguageSwitcher';
 import type { User } from '@/lib/api';
 
 export const HeaderDashboard = ({
@@ -58,6 +59,7 @@ export const HeaderDashboard = ({
 
       {/* Derecha: acciones */}
       <div className="flex items-center gap-2 md:gap-3">
+        <LanguageSwitcher />
         <ThemeToggle />
 
         <div className="h-6 w-px bg-[#dbe0e6] dark:bg-zinc-800" />

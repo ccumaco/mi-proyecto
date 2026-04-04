@@ -6,6 +6,8 @@ import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { RootState } from '@/lib/redux/store';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
   description: 'Gestión moderna y eficiente de comunidades',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -36,16 +38,20 @@ export default function RootLayout({
     },
   };
 
+  const messages = await getMessages();
+
   return (
     <html lang="es" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-white text-zinc-900 antialiased transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100`}
       >
-        <ThemeProvider>
-          <ReduxProvider initialState={initialState}>
-            <AuthProvider>{children}</AuthProvider>
-          </ReduxProvider>
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <ReduxProvider initialState={initialState}>
+              <AuthProvider>{children}</AuthProvider>
+            </ReduxProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
