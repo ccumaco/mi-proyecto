@@ -17,6 +17,8 @@ import {
   faCheckCircle,
   faFileLines,
   faChevronDown,
+  faEye,
+  faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,6 +31,7 @@ import {
 import { AppDispatch } from '@/lib/redux/store';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { validarNIT, parseNIT } from '@/components/ui/NITInput';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
 
@@ -77,6 +80,9 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [nitError, setNitError] = useState<string>('');
 
   const [complexName, setComplexName] = useState('');
   const [nit, setNit] = useState('');
@@ -126,6 +132,13 @@ export default function RegisterPage() {
 
   const handleStep3 = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Validar NIT antes de proceder
+    const parsed = parseNIT(nit);
+    if (!parsed || !validarNIT(parsed.nit, parsed.dv)) {
+      setNitError('El NIT es inválido. Verifique el formato y dígito de verificación.');
+      return;
+    }
 
     if (!user) {
       setStep(4);
@@ -190,7 +203,7 @@ export default function RegisterPage() {
   };
 
   const selectClass =
-    'w-full rounded-xl border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-4 py-3 pl-11 text-sm text-zinc-900 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/10';
+    'w-full rounded-xl border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-4 py-3 pl-11 pr-10 text-sm text-zinc-900 dark:text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/10';
 
   return (
     <div className="flex min-h-screen">
@@ -269,26 +282,60 @@ export default function RegisterPage() {
                     Preferiblemente tu email de trabajo
                   </p>
                 </div>
-                <Input
-                  label="Contraseña"
-                  type="password"
-                  placeholder="Mínimo 8 caracteres"
-                  leftIcon={faLock}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  disabled={authStatus === 'loading'}
-                  required
-                />
-                <Input
-                  label="Confirmar Contraseña"
-                  type="password"
-                  placeholder="Repite tu contraseña"
-                  leftIcon={faLock}
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  disabled={authStatus === 'loading'}
-                  required
-                />
+                <div className="flex w-full flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                    Contraseña
+                  </label>
+                  <div className="group relative flex items-center">
+                    <div className="group-focus-within:text-primary pointer-events-none absolute left-3.5 text-zinc-400 transition-colors">
+                      <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Mínimo 8 caracteres"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      disabled={authStatus === 'loading'}
+                      required
+                      className="w-full rounded-xl border-2 border-zinc-300 bg-white px-4 py-3 pl-11 pr-11 text-sm text-zinc-900 transition-all duration-200 outline-none placeholder:text-zinc-400 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 dark:focus:border-primary/70 dark:focus:ring-primary/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex w-full flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                    Confirmar Contraseña
+                  </label>
+                  <div className="group relative flex items-center">
+                    <div className="group-focus-within:text-primary pointer-events-none absolute left-3.5 text-zinc-400 transition-colors">
+                      <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Repite tu contraseña"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      disabled={authStatus === 'loading'}
+                      required
+                      className="w-full rounded-xl border-2 border-zinc-300 bg-white px-4 py-3 pl-11 pr-11 text-sm text-zinc-900 transition-all duration-200 outline-none placeholder:text-zinc-400 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 dark:focus:border-primary/70 dark:focus:ring-primary/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+                      aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    >
+                      <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
                 <label className="flex cursor-pointer items-start gap-3">
                   <input
                     type="checkbox"
@@ -339,6 +386,15 @@ export default function RegisterPage() {
                 >
                   Comenzar Prueba Gratuita
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full py-3.5 text-base font-bold"
+                  leftIcon={faArrowLeft}
+                  onClick={() => router.push('/login')}
+                >
+                  Volver
+                </Button>
               </form>
               <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
                 ¿Ya tienes cuenta?{' '}
@@ -384,12 +440,38 @@ export default function RegisterPage() {
                   onChange={e => setComplexName(e.target.value)}
                   required
                 />
-                <Input
-                  label="NIT / ID Tributaria"
-                  placeholder="900.000.000-1"
-                  value={nit}
-                  onChange={e => setNit(e.target.value)}
-                />
+                <div className="flex w-full flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                    NIT / ID Tributaria
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="900000000-1"
+                    value={nit}
+                    onChange={e => setNit(e.target.value)}
+                    onBlur={() => {
+                      const parsed = parseNIT(nit);
+                      if (!parsed) {
+                        setNitError('Formato inválido. Debe ser 8-10 dígitos, opcionalmente con guion.');
+                      } else if (!validarNIT(parsed.nit, parsed.dv)) {
+                        setNitError('Dígito de verificación incorrecto.');
+                      } else {
+                        setNitError('');
+                      }
+                    }}
+                    required
+                    className={`w-full rounded-xl border-2 bg-white px-4 py-3 text-sm text-zinc-900 transition-all duration-200 outline-none placeholder:text-zinc-400 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 ${
+                      nitError
+                        ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100 dark:border-red-500 dark:focus:ring-red-900/30'
+                        : 'border-zinc-300 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-zinc-600 dark:focus:border-primary/70 dark:focus:ring-primary/10'
+                    }`}
+                  />
+                  {nitError && (
+                    <span className="animate-in fade-in slide-in-from-top-1 mt-1 text-xs font-medium text-red-500">
+                      {nitError}
+                    </span>
+                  )}
+                </div>
                 <Input
                   label="Número de Unidades / Apartamentos"
                   type="number"
