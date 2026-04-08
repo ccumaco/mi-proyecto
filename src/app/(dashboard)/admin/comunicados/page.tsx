@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Megaphone,
   Pin,
@@ -60,7 +60,8 @@ const TIPO_LABEL_KEYS: Record<TipoUI, string> = {
   INFO: 'labelInfo',
 };
 
-function TipoBadge({ tipo, t }: { tipo: TipoUI; t: (key: string) => string }) {
+function TipoBadge({ tipo }: { tipo: TipoUI }) {
+  const t = useTranslations('admin.comunicados');
   const icon =
     tipo === 'URGENT' ? (
       <AlertTriangle className="h-3.5 w-3.5" />
@@ -607,7 +608,7 @@ function StatCard({
   valor,
   colorIcono,
 }: {
-  icono: React.ReactNode;
+  icono: ReactNode;
   etiqueta: string;
   valor: string;
   colorIcono: string;
