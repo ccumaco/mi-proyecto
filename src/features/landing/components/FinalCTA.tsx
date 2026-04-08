@@ -1,4 +1,8 @@
-export default function FinalCTA() {
+import { getTranslations } from 'next-intl/server';
+
+export default async function FinalCTA() {
+  const t = await getTranslations('landing.cta');
+
   return (
     <section className="px-4 py-12 sm:px-6 lg:px-8" id="contacto">
       <div className="mx-auto max-w-7xl">
@@ -17,18 +21,17 @@ export default function FinalCTA() {
           </div>
           <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6">
             <h2 className="text-3xl font-black sm:text-5xl">
-              ¿Listo para modernizar tu conjunto?
+              {t('title')}
             </h2>
-            <p className="text-primary/10 rounded-xl bg-white/20 px-6 py-4 text-lg text-white backdrop-blur-md">
-              Únete a más de 500 conjuntos que ya confían en PropManagement para
-              su gestión diaria.
+            <p className="rounded-xl bg-white/20 px-6 py-4 text-lg text-white backdrop-blur-md">
+              {t('subtitle')}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <button className="text-primary h-14 rounded-xl bg-white px-10 text-base font-bold shadow-xl transition-all hover:bg-slate-100">
-                Solicitar asesoría gratuita
+                {t('requestAdvisory')}
               </button>
               <button className="h-14 rounded-xl border-2 border-white/40 bg-transparent px-10 text-base font-bold text-white transition-all hover:bg-white/10">
-                Hablar con un asesor
+                {t('talkToAdvisor')}
               </button>
             </div>
           </div>

@@ -7,8 +7,10 @@ import { faLock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useTranslations } from 'next-intl';
 
 function ResetPasswordForm() {
+  const t = useTranslations('resetPassword');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,11 +28,11 @@ function ResetPasswordForm() {
             <FontAwesomeIcon icon={faLock} className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-            Nueva Contraseña
+            {t('title')}
           </h1>
         </div>
         <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-500 dark:bg-red-900/20">
-          El enlace no es válido. Solicita uno nuevo.
+          {t('invalidLink')}
         </div>
       </div>
     );
@@ -43,7 +45,7 @@ function ResetPasswordForm() {
     setSuccess(null);
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError(t('passwordMismatch'));
       setLoading(false);
       return;
     }
@@ -55,7 +57,7 @@ function ResetPasswordForm() {
         router.push('/login');
       }, 3000);
     } catch (err: any) {
-      setError(err?.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.');
+      setError(err?.message ?? t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -69,18 +71,18 @@ function ResetPasswordForm() {
           <FontAwesomeIcon icon={faLock} className="h-6 w-6" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-          Nueva Contraseña
+          {t('title')}
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Ingresa y confirma tu nueva contraseña de acceso
+          {t('subtitle')}
         </p>
       </div>
 
       <form onSubmit={handleResetPassword} className="space-y-4">
         <Input
-          label="Nueva Contraseña"
+          label={t('newPasswordLabel')}
           type="password"
-          placeholder="Mínimo 8 caracteres"
+          placeholder={t('newPasswordPlaceholder')}
           leftIcon={faLock}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -89,9 +91,9 @@ function ResetPasswordForm() {
         />
 
         <Input
-          label="Confirmar Contraseña"
+          label={t('confirmPasswordLabel')}
           type="password"
-          placeholder="Repite tu contraseña"
+          placeholder={t('confirmPasswordPlaceholder')}
           leftIcon={faCheckCircle}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
@@ -116,7 +118,7 @@ function ResetPasswordForm() {
           className="w-full py-6 text-base"
           isLoading={loading}
         >
-          Restablecer Contraseña
+          {t('resetButton')}
         </Button>
       </form>
     </div>
@@ -129,7 +131,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <Suspense fallback={
           <div className="flex items-center justify-center py-12">
-            <p className="text-sm text-zinc-500">Cargando formulario...</p>
+            <p className="text-sm text-zinc-500">{/* t('loadingForm') — Suspense fallback no puede usar hooks, se mantiene estático */}Cargando formulario...</p>
           </div>
         }>
           <ResetPasswordForm />

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface TrialBannerProps {
   trialEndsAt: string;
@@ -16,6 +17,7 @@ function getDaysRemaining(trialEndsAt: string): number {
 }
 
 export function TrialBanner({ trialEndsAt }: TrialBannerProps) {
+  const t = useTranslations('subscription');
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -24,16 +26,20 @@ export function TrialBanner({ trialEndsAt }: TrialBannerProps) {
 
   const message =
     daysRemaining === 0
-      ? 'Tu período de prueba vence hoy.'
-      : `Tu período de prueba vence en ${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'}.`;
+      ? t('trialEndsToday')
+      : t('trialEndsInDays', {
+          days: daysRemaining,
+          unit:
+            daysRemaining === 1 ? t('trialDaysSingular') : t('trialDaysPlural'),
+        });
 
   return (
     <div className="flex items-center justify-between gap-4 bg-amber-400 px-4 py-2.5 text-amber-950 dark:bg-amber-500 dark:text-amber-950">
       <div className="flex-1 text-center text-sm font-medium">{message}</div>
       <button
         onClick={() => setDismissed(true)}
-        aria-label="Cerrar aviso"
-        className="flex-shrink-0 rounded p-0.5 transition-colors hover:bg-amber-500 dark:hover:bg-amber-600"
+        aria-label={t('closeNotice')}
+        className="shrink-0 rounded p-0.5 transition-colors hover:bg-amber-500 dark:hover:bg-amber-600"
       >
         <X className="h-4 w-4" />
       </button>

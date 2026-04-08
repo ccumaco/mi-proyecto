@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCreditCard,
@@ -7,44 +8,45 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
-const services: { title: string; desc: string; icon: IconDefinition }[] = [
-  {
-    title: 'Pagos Online',
-    desc: 'Recaudo automático y procesamiento seguro.',
-    icon: faCreditCard,
-  },
-  {
-    title: 'Comunicación',
-    desc: 'Muro de avisos y votaciones digitales.',
-    icon: faBullhorn,
-  },
-  {
-    title: 'Reportes',
-    desc: 'Dashboards financieros en tiempo real.',
-    icon: faChartColumn,
-  },
-  {
-    title: 'Soporte 24/7',
-    desc: 'Asistencia técnica y legal disponible.',
-    icon: faHeadset,
-  },
-];
+export default async function Services() {
+  const t = await getTranslations('landing.services');
 
-export default function Services() {
+  const services: { title: string; desc: string; icon: IconDefinition }[] = [
+    {
+      title: t('service1Title'),
+      desc: t('service1Desc'),
+      icon: faCreditCard,
+    },
+    {
+      title: t('service2Title'),
+      desc: t('service2Desc'),
+      icon: faBullhorn,
+    },
+    {
+      title: t('service3Title'),
+      desc: t('service3Desc'),
+      icon: faChartColumn,
+    },
+    {
+      title: t('service4Title'),
+      desc: t('service4Desc'),
+      icon: faHeadset,
+    },
+  ];
+
   return (
     <section id="servicios" className="bg-gray-50 py-24 dark:bg-white/5">
       <div className="mx-auto max-w-7xl px-4">
         <div className="px-4 pt-20 pb-4 sm:px-6 lg:px-8" id="servicios">
           <div className="mx-auto max-w-7xl text-center">
             <h2 className="text-primary mb-3 text-sm font-bold tracking-[0.2em] uppercase">
-              Nuestras Soluciones
+              {t('badge')}
             </h2>
             <h3 className="text-navy text-3xl font-black sm:text-4xl dark:text-white">
-              Servicios Principales
+              {t('title')}
             </h3>
             <p className="text-slate-gray mx-auto mt-4 max-w-2xl text-lg dark:text-slate-400">
-              Todo lo que necesitas para administrar tu conjunto residencial de
-              manera profesional y sin complicaciones.
+              {t('subtitle')}
             </p>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '../shared/ThemeToggle';
 import { LanguageSwitcher } from '../shared/LanguageSwitcher';
 import type { User } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 export const HeaderDashboard = ({
   user,
@@ -17,6 +18,7 @@ export const HeaderDashboard = ({
   user: User | null;
   onMenuToggle?: () => void;
 }) => {
+  const t = useTranslations('layout.header');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +40,7 @@ export const HeaderDashboard = ({
         <button
           onClick={onMenuToggle}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#617589] transition-colors hover:bg-[#f0f2f4] dark:hover:bg-zinc-800 lg:hidden"
-          aria-label="Abrir menú"
+          aria-label={t('openMenu')}
         >
           <FontAwesomeIcon icon={faBars} className="h-5 w-5" />
         </button>
@@ -51,7 +53,7 @@ export const HeaderDashboard = ({
           />
           <input
             className="w-full rounded-lg border-none bg-[#f0f2f4] py-2 pr-4 pl-10 text-sm transition-all placeholder:text-[#617589] focus:bg-white focus:ring-2 focus:ring-blue-500/30 dark:bg-zinc-800 dark:text-white dark:focus:bg-zinc-700"
-            placeholder="Buscar comunicados, pagos o documentos..."
+            placeholder={t('searchPlaceholder')}
             type="text"
           />
         </div>
@@ -69,7 +71,7 @@ export const HeaderDashboard = ({
           <button
             className="relative flex h-9 w-9 items-center justify-center rounded-lg text-[#617589] transition-colors hover:bg-[#f0f2f4] dark:hover:bg-zinc-800"
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            aria-label="Notificaciones"
+            aria-label={t('notifications')}
           >
             <FontAwesomeIcon icon={faBell} className="h-5 w-5" />
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2 border-white bg-red-500 dark:border-zinc-900" />
@@ -78,31 +80,31 @@ export const HeaderDashboard = ({
           {isNotificationsOpen && (
             <div className="absolute right-0 mt-2 w-80 rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
               <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-                <h3 className="font-semibold text-zinc-800 dark:text-white">Notificaciones</h3>
+                <h3 className="font-semibold text-zinc-800 dark:text-white">{t('notificationsTitle')}</h3>
               </div>
               <div className="max-h-72 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
                 <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                    <span className="font-semibold">Nueva asamblea</span> programada para el 25 de diciembre.
+                    <span className="font-semibold">{t('newAssembly')}</span> {t('notification1')}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-400">hace 5 minutos</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">{t('notification1Time')}</p>
                 </div>
                 <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                    Recordatorio de pago de administración.
+                    {t('notification2')}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-400">hace 1 hora</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">{t('notification2Time')}</p>
                 </div>
                 <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                    Mantenimiento de piscina programado.
+                    {t('notification3')}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-400">hace 3 horas</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">{t('notification3Time')}</p>
                 </div>
               </div>
               <div className="border-t border-zinc-100 p-2 text-center dark:border-zinc-800">
                 <a href="#" className="text-sm text-blue-500 hover:underline">
-                  Ver todas las notificaciones
+                  {t('viewAllNotifications')}
                 </a>
               </div>
             </div>

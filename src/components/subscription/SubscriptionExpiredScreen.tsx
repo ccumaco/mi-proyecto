@@ -5,6 +5,7 @@ import { Lock } from 'lucide-react';
 import { AppDispatch } from '@/lib/redux/store';
 import { logout } from '@/lib/redux/slices/authSlice';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface SubscriptionExpiredScreenProps {
   role: 'ADMIN' | 'RESIDENT';
@@ -13,6 +14,7 @@ interface SubscriptionExpiredScreenProps {
 export function SubscriptionExpiredScreen({
   role,
 }: SubscriptionExpiredScreenProps) {
+  const t = useTranslations('subscription');
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -31,19 +33,16 @@ export function SubscriptionExpiredScreen({
 
           <div className="flex flex-col gap-2">
             <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-              Suscripción vencida
+              {t('expiredTitle')}
             </h1>
 
             {role === 'ADMIN' ? (
               <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-                Tu período de prueba de 30 días ha finalizado. Contacta a
-                soporte para activar tu suscripción y continuar usando PropAdmin
-                PRO.
+                {t('expiredAdminDesc')}
               </p>
             ) : (
               <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-                El conjunto residencial no tiene una suscripción activa.
-                Comunícate con tu administrador.
+                {t('expiredResidentDesc')}
               </p>
             )}
           </div>
@@ -59,7 +58,7 @@ export function SubscriptionExpiredScreen({
             onClick={handleLogout}
             className="mt-2 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
           >
-            Cerrar sesión
+            {t('logoutButton')}
           </button>
         </div>
       </div>

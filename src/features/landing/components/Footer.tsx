@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBuilding,
@@ -9,7 +10,9 @@ import {
   faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function Footer() {
+export default async function Footer() {
+  const t = await getTranslations('landing.footer');
+
   return (
     <footer className="dark:bg-background-dark border-t border-slate-200 bg-white px-4 pt-16 pb-8 sm:px-6 lg:px-8 dark:border-slate-800">
       <div className="mx-auto max-w-7xl">
@@ -23,12 +26,11 @@ export default function Footer() {
                 />
               </div>
               <h2 className="text-navy text-lg font-bold dark:text-white">
-                PropManagement
+                {t('brand')}
               </h2>
             </div>
             <p className="text-slate-gray text-sm leading-relaxed dark:text-slate-400">
-              Líderes en el mercado de administración inmobiliaria digital en
-              Latinoamérica. Transformando comunidades desde 2014.
+              {t('brandDesc')}
             </p>
             <div className="flex gap-4">
               <a
@@ -52,14 +54,14 @@ export default function Footer() {
             </div>
           </div>
           <div className="flex flex-col gap-6">
-            <h4 className="text-navy font-bold dark:text-white">Compañía</h4>
+            <h4 className="text-navy font-bold dark:text-white">{t('companyTitle')}</h4>
             <ul className="flex flex-col gap-3">
               <li>
                 <a
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Sobre nosotros
+                  {t('aboutUs')}
                 </a>
               </li>
               <li>
@@ -67,7 +69,7 @@ export default function Footer() {
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Carreras
+                  {t('careers')}
                 </a>
               </li>
               <li>
@@ -75,7 +77,7 @@ export default function Footer() {
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Blog
+                  {t('blog')}
                 </a>
               </li>
               <li>
@@ -83,20 +85,20 @@ export default function Footer() {
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Prensa
+                  {t('press')}
                 </a>
               </li>
             </ul>
           </div>
           <div className="flex flex-col gap-6">
-            <h4 className="text-navy font-bold dark:text-white">Soporte</h4>
+            <h4 className="text-navy font-bold dark:text-white">{t('supportTitle')}</h4>
             <ul className="flex flex-col gap-3">
               <li>
                 <a
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Centro de ayuda
+                  {t('helpCenter')}
                 </a>
               </li>
               <li>
@@ -104,7 +106,7 @@ export default function Footer() {
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Términos de servicio
+                  {t('termsOfService')}
                 </a>
               </li>
               <li>
@@ -112,7 +114,7 @@ export default function Footer() {
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Privacidad
+                  {t('privacy')}
                 </a>
               </li>
               <li>
@@ -120,60 +122,60 @@ export default function Footer() {
                   className="text-slate-gray hover:text-primary text-sm transition-colors dark:text-slate-400"
                   href="#"
                 >
-                  Estado del sistema
+                  {t('systemStatus')}
                 </a>
               </li>
             </ul>
           </div>
           <div className="flex flex-col gap-6">
-            <h4 className="text-navy font-bold dark:text-white">Contacto</h4>
+            <h4 className="text-navy font-bold dark:text-white">{t('contactTitle')}</h4>
             <ul className="flex flex-col gap-4">
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
                 <FontAwesomeIcon
                   icon={faLocationDot}
                   className="text-primary text-xl"
                 />
-                <span>Calle 100 #15-32, Bogotá, Colombia</span>
+                <span>{t('address')}</span>
               </li>
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
                 <FontAwesomeIcon
                   icon={faPhone}
                   className="text-primary text-xl"
                 />
-                <span>+57 (601) 456-7890</span>
+                <span>{t('phone')}</span>
               </li>
               <li className="text-slate-gray flex gap-3 text-sm dark:text-slate-400">
                 <FontAwesomeIcon
                   icon={faEnvelope}
                   className="text-primary text-xl"
                 />
-                <span>contacto@propmanagement.com</span>
+                <span>{t('email')}</span>
               </li>
             </ul>
           </div>
         </div>
         <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-8 md:flex-row dark:border-slate-800">
           <p className="text-slate-gray text-center text-xs md:text-left dark:text-slate-500">
-            © 2024 PropManagement Inc. Todos los derechos reservados.
+            {t('copyright')}
           </p>
           <div className="flex gap-6">
             <a
               className="text-slate-gray text-xs hover:underline dark:text-slate-500"
               href="#"
             >
-              Privacidad
+              {t('privacyLink')}
             </a>
             <a
               className="text-slate-gray text-xs hover:underline dark:text-slate-500"
               href="#"
             >
-              Cookies
+              {t('cookiesLink')}
             </a>
             <a
               className="text-slate-gray text-xs hover:underline dark:text-slate-500"
               href="#"
             >
-              Seguridad
+              {t('securityLink')}
             </a>
           </div>
         </div>

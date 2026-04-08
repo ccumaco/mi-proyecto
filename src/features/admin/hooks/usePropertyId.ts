@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { selectUser } from '@/lib/redux/slices/authSlice';
+import { selectIsAuthenticated } from '@/lib/redux/slices/authSlice';
 import { apiClient } from '@/lib/api';
 
 /**
  * Obtiene el propertyId de la propiedad asociada al admin autenticado.
- * Llama a GET /properties y filtra por adminId === user.id.
+ * El backend filtra automáticamente por rol: ADMIN solo recibe su propiedad.
  */
 export function usePropertyId() {
-  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [propertyId, setPropertyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!isAuthenticated) {
       setLoading(false);
       return;
     }
@@ -24,12 +24,8 @@ export function usePropertyId() {
         setLoading(true);
         const properties = await apiClient.getProperties();
         const normalized = Array.isArray(properties) ? properties : [];
-        const myProperty = normalized.find((p: any) => p.adminId === user.id);
-        if (myProperty) {
-          setPropertyId(myProperty.id);
-        } else {
-          setPropertyId(null);
-        }
+        const myProperty = normalized[0] ?? null;
+        setPropertyId(myProperty?.id ?? null);
       } catch (err: any) {
         setError(err.message || 'Error al obtener la propiedad');
       } finally {
@@ -38,7 +34,7 @@ export function usePropertyId() {
     };
 
     fetchPropertyId();
-  }, [user]);
+  }, [isAuthenticated]);
 
   return { propertyId, loading, error };
 }

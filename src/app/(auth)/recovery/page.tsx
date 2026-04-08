@@ -7,8 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export default function RecoveryPage() {
+  const t = useTranslations('recovery');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +26,7 @@ export default function RecoveryPage() {
       const result = await apiClient.forgotPassword(email);
       setSuccess(result.message);
     } catch (err: any) {
-      setError(err?.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.');
+      setError(err?.message ?? t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -40,18 +42,18 @@ export default function RecoveryPage() {
           <FontAwesomeIcon icon={faUnlockKeyhole} className="h-6 w-6" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-          Recuperar acceso
+          {t('title')}
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Ingresa tu correo y te enviaremos las instrucciones
+          {t('subtitle')}
         </p>
       </div>
 
       <form onSubmit={handleRecovery} className="space-y-4">
         <Input
-          label="Correo Electrónico"
+          label={t('emailLabel')}
           type="email"
-          placeholder="tu@ejemplo.com"
+          placeholder={t('emailPlaceholder')}
           leftIcon={faEnvelope}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -76,7 +78,7 @@ export default function RecoveryPage() {
           className="w-full py-6 text-base"
           isLoading={loading}
         >
-          Enviar Instrucciones
+          {t('sendButton')}
         </Button>
       </form>
 
@@ -86,7 +88,7 @@ export default function RecoveryPage() {
           className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
         >
           <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
-          Volver al inicio de sesión
+          {t('backToLogin')}
         </Link>
       </div>
     </div>
