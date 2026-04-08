@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import type { AppDispatch } from '@/lib/redux/store';
+import { useTranslations } from 'next-intl';
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
@@ -38,6 +39,7 @@ function getInitials(name?: string, email?: string): string {
 }
 
 export default function ProfileEditPage() {
+  const t = useTranslations('profileEdit');
   const user = useSelector(selectUser);
   const dispatch = useDispatch<AppDispatch>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,13 +94,13 @@ export default function ProfileEditPage() {
       dispatch(setUser(updatedUser));
       setMessage({
         type: 'success',
-        text: '¡Perfil actualizado correctamente!',
+        text: t('successMessage'),
       });
     } catch (error: any) {
       setAvatarLoading(false);
       setMessage({
         type: 'error',
-        text: error.message || 'Error al actualizar el perfil',
+        text: error.message || t('errorProfile'),
       });
     }
     setLoading(false);
@@ -107,7 +109,7 @@ export default function ProfileEditPage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Las contraseñas no coinciden.' });
+      setMessage({ type: 'error', text: t('passwordMismatch') });
       return;
     }
 
@@ -118,14 +120,14 @@ export default function ProfileEditPage() {
       // TODO: Implementar endpoint de cambio de contraseña en el backend
       setMessage({
         type: 'success',
-        text: '¡Contraseña actualizada con éxito!',
+        text: t('successPassword'),
       });
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
       setMessage({
         type: 'error',
-        text: error.message || 'Error al cambiar la contraseña',
+        text: error.message || t('errorPassword'),
       });
     }
     setPasswordLoading(false);
@@ -141,13 +143,13 @@ export default function ProfileEditPage() {
             className="text-primary mb-2 flex items-center gap-2 text-sm font-bold hover:underline"
           >
             <FontAwesomeIcon icon={faArrowLeft} className="h-3 w-3" />
-            Volver a mi resumen
+            {t('backLink')}
           </Link>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-            Configuración del Perfil
+            {t('title')}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400">
-            Gestiona tu información personal y seguridad de la cuenta.
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -199,7 +201,7 @@ export default function ProfileEditPage() {
 
             {pendingAvatarFile && (
               <p className="mb-2 text-xs text-blue-600 dark:text-blue-400">
-                Nueva foto seleccionada — se subirá al guardar
+                {t('newPhotoSelected')}
               </p>
             )}
 
@@ -217,11 +219,11 @@ export default function ProfileEditPage() {
                 icon={faCheckCircle}
                 className="h-4 w-4 text-green-500"
               />
-              <span>Cuenta Verificada</span>
+              <span>{t('verifiedAccount')}</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
               <FontAwesomeIcon icon={faUser} className="text-primary h-4 w-4" />
-              <span>Miembro desde Ene 2023</span>
+              <span>{t('memberSince')}</span>
             </div>
           </Card>
         </div>
@@ -243,22 +245,22 @@ export default function ProfileEditPage() {
 
           {/* Personal Info Form */}
           <Card>
-            <CardTitle className="mb-1">Información Personal</CardTitle>
+            <CardTitle className="mb-1">{t('personalInfoTitle')}</CardTitle>
             <CardDescription className="mb-6">
-              Actualiza tus datos de contacto básicos.
+              {t('personalInfoSubtitle')}
             </CardDescription>
 
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               <Input
-                label="Nombre Completo"
-                placeholder="Ej. Juan Pérez"
+                label={t('fullNameLabel')}
+                placeholder={t('fullNamePlaceholder')}
                 leftIcon={faUser}
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
               />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Input
-                  label="Correo Electrónico"
+                  label={t('emailLabel')}
                   type="email"
                   value={user?.email || ''}
                   disabled
@@ -267,8 +269,8 @@ export default function ProfileEditPage() {
                   title="El email no puede ser cambiado directamente"
                 />
                 <Input
-                  label="Teléfono"
-                  placeholder="+34 600..."
+                  label={t('phoneLabel')}
+                  placeholder={t('phonePlaceholder')}
                   leftIcon={faPhone}
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
@@ -276,7 +278,7 @@ export default function ProfileEditPage() {
               </div>
               <div className="flex justify-end pt-2">
                 <Button type="submit" isLoading={loading}>
-                  Guardar Cambios
+                  {t('saveChangesButton')}
                 </Button>
               </div>
             </form>
@@ -284,26 +286,26 @@ export default function ProfileEditPage() {
 
           {/* Security Form */}
           <Card>
-            <CardTitle className="mb-1">Seguridad</CardTitle>
+            <CardTitle className="mb-1">{t('securityTitle')}</CardTitle>
             <CardDescription className="mb-6">
-              Cambia tu contraseña periódicamente para mayor seguridad.
+              {t('securitySubtitle')}
             </CardDescription>
 
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Input
-                  label="Nueva Contraseña"
+                  label={t('newPasswordLabel')}
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t('newPasswordPlaceholder')}
                   leftIcon={faLock}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   required
                 />
                 <Input
-                  label="Confirmar Nueva Contraseña"
+                  label={t('confirmPasswordLabel')}
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t('newPasswordPlaceholder')}
                   leftIcon={faCheckCircle}
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
@@ -316,7 +318,7 @@ export default function ProfileEditPage() {
                   variant="secondary"
                   isLoading={passwordLoading}
                 >
-                  Actualizar Contraseña
+                  {t('updatePasswordButton')}
                 </Button>
               </div>
             </form>

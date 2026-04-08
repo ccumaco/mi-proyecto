@@ -16,6 +16,7 @@ import { Loader2 } from 'lucide-react';
 import { usePropertyId } from '@/features/admin/hooks/usePropertyId';
 import { useZones } from '@/features/admin/hooks/useZones';
 import type { ZoneAPI } from '@/features/admin/hooks/useZones';
+import { useTranslations } from 'next-intl';
 
 // ─── Formulario ───────────────────────────────────────────────────────────────
 
@@ -30,6 +31,7 @@ const FORM_INICIAL: FormZona = { name: '', description: '', capacity: '' };
 // ─── Página ───────────────────────────────────────────────────────────────────
 
 export default function ZonesManagementPage() {
+  const t = useTranslations('admin.zonas');
   const { propertyId, loading: loadingProperty } = usePropertyId();
   const { zones, loading: loadingZones, error, createZone, updateZone, deleteZone } = useZones(propertyId);
 
@@ -89,18 +91,18 @@ export default function ZonesManagementPage() {
       }
       cerrarModal();
     } catch (err: any) {
-      setSubmitError(err.message || 'No se pudo guardar la zona');
+      setSubmitError(err.message || t('saveError'));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleEliminar(id: string) {
-    if (!confirm('¿Seguro que deseas eliminar esta zona?')) return;
+    if (!confirm(t('confirmDelete'))) return;
     try {
       await deleteZone(id);
     } catch (err: any) {
-      alert(err.message || 'No se pudo eliminar la zona');
+      alert(err.message || t('deleteError'));
     }
   }
 
@@ -109,10 +111,10 @@ export default function ZonesManagementPage() {
       <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-            Gestión de Zonas
+            {t('title')}
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Administra las zonas comunes del conjunto y revisa su disponibilidad.
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -125,11 +127,11 @@ export default function ZonesManagementPage() {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               className="w-full rounded-xl border border-zinc-200 bg-white py-2 pr-4 pl-10 text-sm text-zinc-700 shadow-sm focus:border-blue-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
-              placeholder="Buscar zona..."
+              placeholder={t('searchPlaceholder')}
             />
           </div>
           <Button variant="primary" size="lg" onClick={abrirModalNueva}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2" /> Nueva Zona
+            <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t('newZoneButton')}
           </Button>
         </div>
       </header>
@@ -144,7 +146,7 @@ export default function ZonesManagementPage() {
       {/* Error */}
       {!loading && error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
-          Error al cargar las zonas: {error}
+          {t('loadingError', { error })}
         </div>
       )}
 
@@ -158,10 +160,10 @@ export default function ZonesManagementPage() {
                 className="mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600"
               />
               <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                No hay zonas registradas
+                {t('emptyTitle')}
               </p>
               <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-                Crea una nueva zona usando el botón de arriba.
+                {t('emptySubtitle')}
               </p>
             </div>
           ) : (
@@ -191,7 +193,7 @@ export default function ZonesManagementPage() {
                     <div className="flex items-center gap-3">
                       {zone.capacity != null && (
                         <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-200">
-                          Capacidad: {zone.capacity}
+                          {t('capacity', { count: zone.capacity })}
                         </span>
                       )}
                       <span
@@ -201,20 +203,20 @@ export default function ZonesManagementPage() {
                             : 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300'
                         }`}
                       >
-                        {zone.isActive ? 'Activa' : 'Inactiva'}
+                        {zone.isActive ? t('statusActive') : t('statusInactive')}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => abrirModalEditar(zone)}
-                        title="Editar zona"
+                        title={t('editTitle')}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                       >
                         <FontAwesomeIcon icon={faPencil} className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleEliminar(zone.id)}
-                        title="Eliminar zona"
+                        title={t('deleteTitle')}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                       >
                         <FontAwesomeIcon icon={faTrashAlt} className="h-3.5 w-3.5" />
@@ -237,7 +239,7 @@ export default function ZonesManagementPage() {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                {editandoId ? 'Editar Zona' : 'Nueva Zona'}
+                {editandoId ? t('modalTitleEdit') : t('modalTitleNew')}
               </h2>
               <button
                 onClick={cerrarModal}
@@ -251,40 +253,40 @@ export default function ZonesManagementPage() {
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Nombre de la zona <span className="text-red-500">*</span>
+                  {t('fieldNameRequired')}
                 </label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ej: Salón Social"
+                  placeholder={t('fieldNamePlaceholder')}
                   className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
                 />
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Descripción
+                  {t('fieldDescription')}
                 </label>
                 <input
                   type="text"
                   value={form.description}
                   onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Ej: Espacio para eventos y reuniones"
+                  placeholder={t('fieldDescriptionPlaceholder')}
                   className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
                 />
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Capacidad (personas)
+                  {t('fieldCapacity')}
                 </label>
                 <input
                   type="number"
                   min={1}
                   value={form.capacity}
                   onChange={e => setForm(prev => ({ ...prev, capacity: e.target.value }))}
-                  placeholder="Ej: 50"
+                  placeholder={t('fieldCapacityPlaceholder')}
                   className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
                 />
               </div>
@@ -303,7 +305,7 @@ export default function ZonesManagementPage() {
                 onClick={cerrarModal}
                 className="border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
-                Cancelar
+                {t('cancelButton')}
               </Button>
               <button
                 onClick={handleGuardar}
@@ -311,7 +313,7 @@ export default function ZonesManagementPage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-60"
               >
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editandoId ? 'Guardar cambios' : 'Crear Zona'}
+                {editandoId ? t('saveButton') : t('createButton')}
               </button>
             </div>
           </div>

@@ -13,6 +13,7 @@ import { getRoleLabel } from '@/lib/roles';
 import { Card } from '@/components/ui/Card';
 import { useState, useRef } from 'react';
 import type { AppDispatch } from '@/lib/redux/store';
+import { useTranslations } from 'next-intl';
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
@@ -31,6 +32,7 @@ function getInitials(name?: string, email?: string): string {
 }
 
 export default function Profile() {
+  const t = useTranslations('profile');
   const user = useSelector(selectUser);
   const dispatch = useDispatch<AppDispatch>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,7 +76,7 @@ export default function Profile() {
       {/* Header */}
       <header>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-          Configuración de Perfil
+          {t('title')}
         </h1>
       </header>
 
@@ -96,7 +98,7 @@ export default function Profile() {
               {avatarSrc ? (
                 <img
                   src={avatarSrc}
-                  alt="Foto de perfil"
+                  alt={t('profilePicAlt')}
                   className="h-32 w-32 rounded-full border-4 border-zinc-200 object-cover shadow-lg dark:border-zinc-700"
                 />
               ) : (
@@ -130,7 +132,7 @@ export default function Profile() {
 
             <div className="text-center">
               <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                {user?.displayName || user?.email || 'Usuario'}
+                {user?.displayName || user?.email || t('defaultUser')}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 {getRoleLabel(user?.role)}
@@ -143,14 +145,14 @@ export default function Profile() {
               className="mt-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-200 disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
             >
               <FontAwesomeIcon icon={faCamera} className="mr-2" />
-              {avatarLoading ? 'Subiendo...' : 'Editar Foto'}
+              {avatarLoading ? t('uploadingPhoto') : t('editPhoto')}
             </button>
           </div>
 
           <div className="space-y-4 border-t border-zinc-200 pt-6 dark:border-zinc-700">
             <div>
               <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
-                Email
+                {t('emailLabel')}
               </label>
               <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
                 {user?.email || 'correo@example.com'}
@@ -159,7 +161,7 @@ export default function Profile() {
 
             <div>
               <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
-                Teléfono
+                {t('phoneLabel')}
               </label>
               <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
                 {user?.phone || '+57 300 000 0000'}
@@ -168,7 +170,7 @@ export default function Profile() {
 
             <div>
               <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
-                Ciudad
+                {t('cityLabel')}
               </label>
               <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
                 Madrid, España
@@ -185,14 +187,14 @@ export default function Profile() {
                 <FontAwesomeIcon icon={faLock} className="h-5 w-5" />
               </div>
               <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
-                Seguridad
+                {t('securityTitle')}
               </h3>
             </div>
 
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                  Contraseña Actual
+                  {t('currentPasswordLabel')}
                 </label>
                 <input
                   type="password"
@@ -205,7 +207,7 @@ export default function Profile() {
 
               <div>
                 <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                  Nueva Contraseña
+                  {t('newPasswordLabel')}
                 </label>
                 <input
                   type="password"
@@ -218,14 +220,14 @@ export default function Profile() {
 
               <div className="flex gap-3 pt-4">
                 <button className="rounded-lg border border-zinc-200 px-6 py-2 font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
-                  Descartar
+                  {t('discardButton')}
                 </button>
                 <button
                   onClick={handleSavePassword}
                   disabled={isSaving}
                   className="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700 disabled:bg-zinc-300 dark:bg-blue-600 dark:hover:bg-blue-700"
                 >
-                  {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                  {isSaving ? t('savingButton') : t('saveChangesButton')}
                 </button>
               </div>
             </div>

@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { usePropertyId } from '@/features/admin/hooks/usePropertyId';
 import { useDocuments } from '@/features/admin/hooks/useDocuments';
 import type { DocumentAPI } from '@/features/admin/hooks/useDocuments';
+import { useTranslations } from 'next-intl';
 
 // ─── Tipos y configuración ────────────────────────────────────────────────────
 
@@ -140,6 +141,7 @@ const FORM_INICIAL: FormSubida = {
 // ─── Página principal ─────────────────────────────────────────────────────────
 
 export default function DocumentosPage() {
+  const t = useTranslations('admin.documentos');
   const { propertyId, loading: loadingProperty } = usePropertyId();
   const { documents, loading: loadingDocs, error, uploadDocument, deleteDocument } =
     useDocuments(propertyId);
@@ -182,18 +184,18 @@ export default function DocumentosPage() {
       await uploadDocument(formData);
       cerrarModal();
     } catch (err: any) {
-      setSubmitError(err.message || 'No se pudo subir el documento');
+      setSubmitError(err.message || t('uploadError'));
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleEliminar(id: string) {
-    if (!confirm('¿Seguro que deseas eliminar este documento?')) return;
+    if (!confirm(t('confirmDelete'))) return;
     try {
       await deleteDocument(id);
     } catch (err: any) {
-      alert(err.message || 'No se pudo eliminar el documento');
+      alert(err.message || t('deleteError'));
     }
   }
 
@@ -218,15 +220,15 @@ export default function DocumentosPage() {
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb">
         <ol className="flex items-center gap-2 text-sm text-zinc-400">
-          <li><span className="cursor-default hover:text-zinc-600 dark:hover:text-zinc-300">Inicio</span></li>
+          <li><span className="cursor-default hover:text-zinc-600 dark:hover:text-zinc-300">{t('breadcrumbHome')}</span></li>
           <li><span className="select-none">/</span></li>
-          <li className="font-semibold text-zinc-700 dark:text-zinc-200">Documentos</li>
+          <li className="font-semibold text-zinc-700 dark:text-zinc-200">{t('breadcrumbDocuments')}</li>
         </ol>
       </nav>
 
       <div>
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-          Gestión de Documentos
+          {t('title')}
         </h1>
       </div>
 
@@ -248,7 +250,7 @@ export default function DocumentosPage() {
           />
           <input
             type="text"
-            placeholder="Buscar documento..."
+            placeholder={t('searchPlaceholder')}
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
@@ -256,7 +258,7 @@ export default function DocumentosPage() {
         </div>
         <Button variant="primary" size="md" onClick={abrirModal}>
           <FontAwesomeIcon icon={faCloudUploadAlt} className="mr-2 h-4 w-4" />
-          Subir Documento
+          {t('uploadButton')}
         </Button>
       </div>
 
@@ -270,7 +272,7 @@ export default function DocumentosPage() {
       {/* Error */}
       {!loading && error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
-          Error al cargar los documentos: {error}
+          {t('loadingError', { error })}
         </div>
       )}
 
@@ -282,16 +284,16 @@ export default function DocumentosPage() {
               <thead>
                 <tr className="bg-zinc-50 dark:bg-zinc-800/50">
                   <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Documento
+                    {t('tableHeaderDocument')}
                   </th>
                   <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Categoría
+                    {t('tableHeaderCategory')}
                   </th>
                   <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Fecha
+                    {t('tableHeaderDate')}
                   </th>
                   <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Acciones
+                    {t('tableHeaderActions')}
                   </th>
                 </tr>
               </thead>
@@ -300,8 +302,8 @@ export default function DocumentosPage() {
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center text-sm text-zinc-400">
                       {documents.length === 0
-                        ? 'No hay documentos subidos aún.'
-                        : 'No se encontraron documentos que coincidan con la búsqueda.'}
+                        ? t('emptyNoDocuments')
+                        : t('emptyNoResults')}
                     </td>
                   </tr>
                 ) : (
@@ -347,7 +349,7 @@ export default function DocumentosPage() {
                               href={fileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              title="Ver documento"
+                              title={t('viewDocument')}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                             >
                               <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
@@ -355,14 +357,14 @@ export default function DocumentosPage() {
                             <a
                               href={fileUrl}
                               download
-                              title="Descargar documento"
+                              title={t('downloadDocument')}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
                             >
                               <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
                             </a>
                             <button
                               type="button"
-                              title="Eliminar documento"
+                              title={t('deleteDocument')}
                               onClick={() => handleEliminar(doc.id)}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                             >
@@ -389,7 +391,7 @@ export default function DocumentosPage() {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                Subir Documento
+                {t('modalTitle')}
               </h2>
               <button
                 type="button"
@@ -419,9 +421,9 @@ export default function DocumentosPage() {
               ) : (
                 <>
                   <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-                    Arrastra un archivo o haz clic para seleccionar
+                    {t('dragOrClick')}
                   </p>
-                  <p className="text-xs text-zinc-400">PDF, XLSX, DOC hasta 5MB</p>
+                  <p className="text-xs text-zinc-400">{t('fileTypes')}</p>
                 </>
               )}
             </label>
@@ -429,11 +431,11 @@ export default function DocumentosPage() {
             {/* Nombre */}
             <div className="mb-4">
               <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Nombre del documento <span className="text-red-500">*</span>
+                {t('fieldNameRequired')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                placeholder="Nombre descriptivo"
+                placeholder={t('fieldNamePlaceholder')}
                 value={form.nombre}
                 onChange={e => setForm(prev => ({ ...prev, nombre: e.target.value }))}
                 className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
@@ -443,11 +445,11 @@ export default function DocumentosPage() {
             {/* Descripción */}
             <div className="mb-4">
               <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Descripción
+                {t('fieldDescription')}
               </label>
               <input
                 type="text"
-                placeholder="Descripción opcional"
+                placeholder={t('fieldDescriptionPlaceholder')}
                 value={form.descripcion}
                 onChange={e => setForm(prev => ({ ...prev, descripcion: e.target.value }))}
                 className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
@@ -457,18 +459,18 @@ export default function DocumentosPage() {
             {/* Categoría */}
             <div className="mb-6">
               <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Categoría
+                {t('fieldCategory')}
               </label>
               <select
                 value={form.categoria}
                 onChange={e => setForm(prev => ({ ...prev, categoria: e.target.value }))}
                 className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
               >
-                <option value="Actas">Actas</option>
-                <option value="Reglamentos">Reglamentos</option>
-                <option value="Informes">Informes</option>
-                <option value="Contratos">Contratos</option>
-                <option value="Otros">Otros</option>
+                <option value="Actas">{t('categoryAcatas')}</option>
+                <option value="Reglamentos">{t('categoryReglamentos')}</option>
+                <option value="Informes">{t('categoryInformes')}</option>
+                <option value="Contratos">{t('categoryContratos')}</option>
+                <option value="Otros">{t('categoryOtros')}</option>
               </select>
             </div>
 
@@ -486,7 +488,7 @@ export default function DocumentosPage() {
                 disabled={submitting}
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
-                Cancelar
+                {t('cancelButton')}
               </button>
               <button
                 type="button"
@@ -495,7 +497,7 @@ export default function DocumentosPage() {
                 className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-60"
               >
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Subir
+                {t('uploadActionButton')}
               </button>
             </div>
           </div>

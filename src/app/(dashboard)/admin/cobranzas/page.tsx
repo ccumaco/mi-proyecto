@@ -8,44 +8,46 @@ import {
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useTranslations } from 'next-intl';
 
 export default function CollectionsPage() {
+  const t = useTranslations('admin.cobranzas');
   return (
     <div className="space-y-8">
       <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-            Gestión de Cobranzas
+            {t('title')}
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Revisa pagos, genera reportes y gestiona morosidad.
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm">
-            <FontAwesomeIcon icon={faFilter} className="mr-2" /> Filtrar
+            <FontAwesomeIcon icon={faFilter} className="mr-2" /> {t('filterButton')}
           </Button>
           <Button variant="primary" size="lg">
-            <FontAwesomeIcon icon={faDownload} className="mr-2" /> Exportar
+            <FontAwesomeIcon icon={faDownload} className="mr-2" /> {t('exportButton')}
           </Button>
         </div>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <SummaryCard
-          title="Total Recaudado"
+          title={t('totalCollected')}
           value="$12,500"
           description="Mes de Octubre 2023"
           variant="green"
         />
         <SummaryCard
-          title="Cartera Morosa"
+          title={t('delinquentPortfolio')}
           value="$1,250"
           description="1.4% vs. mes pasado"
           variant="red"
         />
         <SummaryCard
-          title="Pagos Pendientes"
+          title={t('pendingPayments')}
           value="24"
           description="Solicitudes por revisar"
           variant="orange"
@@ -55,10 +57,10 @@ export default function CollectionsPage() {
       <Card>
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            Listado de Pagos
+            {t('paymentListTitle')}
           </h2>
           <Button variant="outline" size="sm">
-            Ver todos
+            {t('viewAll')}
           </Button>
         </div>
 
@@ -66,11 +68,11 @@ export default function CollectionsPage() {
           <table className="min-w-full text-left text-sm text-zinc-600 dark:text-zinc-300">
             <thead className="border-b border-zinc-200 text-xs tracking-wider uppercase dark:border-zinc-700">
               <tr>
-                <th className="px-4 py-3">Residente / Unidad</th>
-                <th className="px-4 py-3">Concepto</th>
-                <th className="px-4 py-3">Monto</th>
-                <th className="px-4 py-3">Fecha</th>
-                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3">{t('tableHeaderResident')}</th>
+                <th className="px-4 py-3">{t('tableHeaderConcept')}</th>
+                <th className="px-4 py-3">{t('tableHeaderAmount')}</th>
+                <th className="px-4 py-3">{t('tableHeaderDate')}</th>
+                <th className="px-4 py-3">{t('tableHeaderStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">

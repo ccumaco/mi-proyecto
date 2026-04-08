@@ -15,18 +15,20 @@ import {
 } from 'lucide-react';
 import { useAdminAnnouncements } from '@/features/admin/hooks/useAdminAnnouncements';
 import type { AnnouncementAPI } from '@/features/admin/hooks/useAdminAnnouncements';
+import { useTranslations } from 'next-intl';
 
 // ─── Tipos UI ─────────────────────────────────────────────────────────────────
 
 type TipoUI = 'GENERAL' | 'URGENT' | 'INFO';
 type TabValue = TipoUI | 'Todos';
 
-const TABS: { label: string; value: TabValue }[] = [
-  { label: 'Todos', value: 'Todos' },
-  { label: 'General', value: 'GENERAL' },
-  { label: 'Urgente', value: 'URGENT' },
-  { label: 'Informativo', value: 'INFO' },
-];
+const TAB_VALUES: TabValue[] = ['Todos', 'GENERAL', 'URGENT', 'INFO'];
+const TAB_KEYS: Record<TabValue, string> = {
+  Todos: 'tabAll',
+  GENERAL: 'tabGeneral',
+  URGENT: 'tabUrgent',
+  INFO: 'tabInfo',
+};
 
 // ─── Helpers de estilo ────────────────────────────────────────────────────────
 
@@ -52,18 +54,13 @@ function borderLeftClass(tipo: TipoUI): string {
   }
 }
 
-function tipoLabel(tipo: TipoUI): string {
-  switch (tipo) {
-    case 'URGENT':
-      return 'Urgente';
-    case 'GENERAL':
-      return 'General';
-    case 'INFO':
-      return 'Informativo';
-  }
-}
+const TIPO_LABEL_KEYS: Record<TipoUI, string> = {
+  URGENT: 'labelUrgent',
+  GENERAL: 'labelGeneral',
+  INFO: 'labelInfo',
+};
 
-function TipoBadge({ tipo }: { tipo: TipoUI }) {
+function TipoBadge({ tipo, t }: { tipo: TipoUI; t: (key: string) => string }) {
   const icon =
     tipo === 'URGENT' ? (
       <AlertTriangle className="h-3.5 w-3.5" />
@@ -77,7 +74,7 @@ function TipoBadge({ tipo }: { tipo: TipoUI }) {
       className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClasses(tipo)}`}
     >
       {icon}
-      {tipoLabel(tipo)}
+      {t(TIPO_LABEL_KEYS[tipo])}
     </span>
   );
 }
@@ -101,6 +98,7 @@ const FORM_INICIAL = {
 // ─── Página principal ─────────────────────────────────────────────────────────
 
 export default function ComunicadosPage() {
+  const t = useTranslations('admin.comunicados');
   const {
     announcements,
     loading,
@@ -109,6 +107,8 @@ export default function ComunicadosPage() {
     updateAnnouncement,
     deleteAnnouncement,
   } = useAdminAnnouncements();
+
+  const TABS = TAB_VALUES.map(v => ({ value: v, label: t(TAB_KEYS[v]) }));
 
   const [tabActivo, setTabActivo] = useState<TabValue>('Todos');
   const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set());
@@ -139,7 +139,7 @@ export default function ComunicadosPage() {
         return next;
       });
     } catch (err: any) {
-      alert(err.message || 'No se pudo eliminar el comunicado');
+      alert(err.message || t('deleteError'));
     }
   };
 
@@ -189,7 +189,7 @@ export default function ComunicadosPage() {
       }
       cerrarModal();
     } catch (err: any) {
-      setSubmitError(err.message || 'No se pudo guardar el comunicado');
+      setSubmitError(err.message || t('saveError'));
     } finally {
       setSubmitting(false);
     }
@@ -212,15 +212,15 @@ export default function ComunicadosPage() {
       <div>
         <nav className="mb-1 flex items-center gap-1.5 text-xs text-zinc-400">
           <span className="cursor-default hover:text-zinc-600 dark:hover:text-zinc-300">
-            Inicio
+            {t('breadcrumbHome')}
           </span>
           <span>/</span>
           <span className="font-medium text-zinc-600 dark:text-zinc-300">
-            Comunicados
+            {t('breadcrumbAnnouncements')}
           </span>
         </nav>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-          Comunicados y Avisos
+          {t('title')}
         </h1>
       </div>
 
@@ -228,25 +228,25 @@ export default function ComunicadosPage() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatCard
           icono={<Megaphone className="h-5 w-5" />}
-          etiqueta="Total Comunicados"
+          etiqueta={t('statTotal')}
           valor={String(announcements.length)}
           colorIcono="bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
         />
         <StatCard
           icono={<Megaphone className="h-5 w-5" />}
-          etiqueta="Generales"
+          etiqueta={t('statGeneral')}
           valor={String(announcements.filter(c => c.type === 'GENERAL').length)}
           colorIcono="bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400"
         />
         <StatCard
           icono={<AlertTriangle className="h-5 w-5" />}
-          etiqueta="Urgentes"
+          etiqueta={t('statUrgent')}
           valor={String(announcements.filter(c => c.type === 'URGENT').length)}
           colorIcono="bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400"
         />
         <StatCard
           icono={<Pin className="h-5 w-5" />}
-          etiqueta="Fijados"
+          etiqueta={t('statPinned')}
           valor={String(totalFijados)}
           colorIcono="bg-purple-100 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400"
         />
@@ -274,7 +274,7 @@ export default function ComunicadosPage() {
           className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 active:bg-blue-800"
         >
           <Plus className="h-4 w-4" />
-          Nuevo Comunicado
+          {t('newButton')}
         </button>
       </div>
 
@@ -288,7 +288,7 @@ export default function ComunicadosPage() {
       {/* Estado de error */}
       {!loading && error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
-          Error al cargar los comunicados: {error}
+          {t('loadingError', { error })}
         </div>
       )}
 
@@ -296,7 +296,7 @@ export default function ComunicadosPage() {
       {!loading && !error && fijados.length > 0 && (
         <section className="space-y-3">
           <p className="text-xs font-semibold tracking-wider text-zinc-400 uppercase dark:text-zinc-500">
-            Fijados
+            {t('pinnedSection')}
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             {fijados.map(comunicado => (
@@ -306,6 +306,9 @@ export default function ComunicadosPage() {
                 onTogglePin={handleTogglePin}
                 onEliminar={handleEliminar}
                 onEditar={abrirModalEditar}
+                editLabel={t('editButton')}
+                unpinLabel={t('unpinButton')}
+                deleteLabel={t('deleteButton')}
               />
             ))}
           </div>
@@ -317,7 +320,7 @@ export default function ComunicadosPage() {
         <section className="space-y-3">
           {fijados.length > 0 && (
             <p className="text-xs font-semibold tracking-wider text-zinc-400 uppercase dark:text-zinc-500">
-              Otros comunicados
+              {t('otherSection')}
             </p>
           )}
           <div className="space-y-3">
@@ -328,6 +331,9 @@ export default function ComunicadosPage() {
                 onTogglePin={handleTogglePin}
                 onEliminar={handleEliminar}
                 onEditar={abrirModalEditar}
+                editLabel={t('editButton')}
+                pinLabel={t('pinButton')}
+                deleteLabel={t('deleteButton')}
               />
             ))}
           </div>
@@ -339,10 +345,10 @@ export default function ComunicadosPage() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-16 text-center dark:border-zinc-700 dark:bg-zinc-800/30">
           <Megaphone className="mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600" />
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            No hay comunicados para esta categoría
+            {t('emptyTitle')}
           </p>
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            Crea un nuevo comunicado usando el botón de arriba.
+            {t('emptySubtitle')}
           </p>
         </div>
       )}
@@ -358,7 +364,7 @@ export default function ComunicadosPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                {editandoId ? 'Editar Comunicado' : 'Nuevo Comunicado'}
+                {editandoId ? t('modalTitleEdit') : t('modalTitleNew')}
               </h2>
               <button
                 onClick={cerrarModal}
@@ -375,7 +381,7 @@ export default function ComunicadosPage() {
                   htmlFor="modal-titulo"
                   className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                 >
-                  Título
+                  {t('fieldTitle')}
                 </label>
                 <input
                   id="modal-titulo"
@@ -384,7 +390,7 @@ export default function ComunicadosPage() {
                   onChange={e =>
                     setForm(prev => ({ ...prev, title: e.target.value }))
                   }
-                  placeholder="Título del comunicado"
+                  placeholder={t('fieldTitlePlaceholder')}
                   className="w-full rounded-xl border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 transition-colors outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
                 />
               </div>
@@ -394,7 +400,7 @@ export default function ComunicadosPage() {
                   htmlFor="modal-contenido"
                   className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                 >
-                  Contenido
+                  {t('fieldContent')}
                 </label>
                 <textarea
                   id="modal-contenido"
@@ -403,7 +409,7 @@ export default function ComunicadosPage() {
                   onChange={e =>
                     setForm(prev => ({ ...prev, content: e.target.value }))
                   }
-                  placeholder="Escribe el comunicado..."
+                  placeholder={t('fieldContentPlaceholder')}
                   className="w-full resize-none rounded-xl border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 transition-colors outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
                 />
               </div>
@@ -413,7 +419,7 @@ export default function ComunicadosPage() {
                   htmlFor="modal-tipo"
                   className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                 >
-                  Tipo
+                  {t('fieldType')}
                 </label>
                 <select
                   id="modal-tipo"
@@ -426,9 +432,9 @@ export default function ComunicadosPage() {
                   }
                   className="w-full rounded-xl border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 transition-colors outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                 >
-                  <option value="GENERAL">General</option>
-                  <option value="URGENT">Urgente</option>
-                  <option value="INFO">Informativo</option>
+                  <option value="GENERAL">{t('typeGeneral')}</option>
+                  <option value="URGENT">{t('typeUrgent')}</option>
+                  <option value="INFO">{t('typeInfo')}</option>
                 </select>
               </div>
             </div>
@@ -445,7 +451,7 @@ export default function ComunicadosPage() {
                 disabled={submitting}
                 className="rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 active:bg-zinc-100 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
               >
-                Cancelar
+                {t('cancelButton')}
               </button>
               <button
                 onClick={handlePublicar}
@@ -459,7 +465,7 @@ export default function ComunicadosPage() {
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
-                {editandoId ? 'Guardar cambios' : 'Publicar'}
+                {editandoId ? t('saveChangesButton') : t('publishButton')}
               </button>
             </div>
           </div>
@@ -476,11 +482,17 @@ function CardFijado({
   onTogglePin,
   onEliminar,
   onEditar,
+  editLabel,
+  unpinLabel,
+  deleteLabel,
 }: {
   comunicado: AnnouncementAPI;
   onTogglePin: (id: string) => void;
   onEliminar: (id: string) => void;
   onEditar: (comunicado: AnnouncementAPI) => void;
+  editLabel: string;
+  unpinLabel: string;
+  deleteLabel: string;
 }) {
   return (
     <div
@@ -489,21 +501,21 @@ function CardFijado({
       <div className="absolute top-4 right-4 flex items-center gap-1">
         <button
           onClick={() => onEditar(comunicado)}
-          title="Editar comunicado"
+          title={editLabel}
           className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
         >
           <Pencil className="h-4 w-4" />
         </button>
         <button
           onClick={() => onTogglePin(comunicado.id)}
-          title="Desfijar comunicado"
+          title={unpinLabel}
           className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
         >
           <Pin className="h-4 w-4 fill-current text-purple-500" />
         </button>
         <button
           onClick={() => onEliminar(comunicado.id)}
-          title="Eliminar comunicado"
+          title={deleteLabel}
           className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
         >
           <Trash2 className="h-4 w-4" />
@@ -531,11 +543,17 @@ function CardComunicado({
   onTogglePin,
   onEliminar,
   onEditar,
+  editLabel,
+  pinLabel,
+  deleteLabel,
 }: {
   comunicado: AnnouncementAPI;
   onTogglePin: (id: string) => void;
   onEliminar: (id: string) => void;
   onEditar: (comunicado: AnnouncementAPI) => void;
+  editLabel: string;
+  pinLabel: string;
+  deleteLabel: string;
 }) {
   return (
     <div className="flex items-start gap-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900">
@@ -557,21 +575,21 @@ function CardComunicado({
       <div className="flex shrink-0 items-center gap-1">
         <button
           onClick={() => onEditar(comunicado)}
-          title="Editar comunicado"
+          title={editLabel}
           className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800"
         >
           <Pencil className="h-4 w-4" />
         </button>
         <button
           onClick={() => onTogglePin(comunicado.id)}
-          title="Fijar comunicado"
+          title={pinLabel}
           className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-purple-500 dark:hover:bg-zinc-800"
         >
           <Pin className="h-4 w-4" />
         </button>
         <button
           onClick={() => onEliminar(comunicado.id)}
-          title="Eliminar comunicado"
+          title={deleteLabel}
           className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
         >
           <Trash2 className="h-4 w-4" />

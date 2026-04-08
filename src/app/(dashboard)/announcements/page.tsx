@@ -16,6 +16,7 @@ import { Card, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
 import { useAnnouncements } from '@/features/announcements/hooks/useAnnouncements';
+import { useTranslations } from 'next-intl';
 // comment tests
 const CATEGORIES = [
   'Todos',
@@ -66,6 +67,7 @@ const formatDate = (dateString: string) => {
 };
 
 export default function AnnouncementsPage() {
+  const t = useTranslations('announcements');
   const { announcements, loading, error } = useAnnouncements();
   const [activeTab, setActiveTab] = useState('Todos');
 
@@ -104,8 +106,8 @@ export default function AnnouncementsPage() {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <p className="mb-4 text-red-500">Error al cargar anuncios: {error}</p>
-          <Button onClick={() => window.location.reload()}>Reintentar</Button>
+          <p className="mb-4 text-red-500">{t('loadingError', { error: error ?? '' })}</p>
+          <Button onClick={() => window.location.reload()}>{t('retryButton')}</Button>
         </div>
       </div>
     );
@@ -117,7 +119,7 @@ export default function AnnouncementsPage() {
       <main className="flex-1 space-y-6">
         <header className="flex flex-col gap-4">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-            Anuncios y Comunicados
+            {t('title')}
           </h1>
           <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto pb-2">
             {CATEGORIES.map(category => (
@@ -171,7 +173,7 @@ export default function AnnouncementsPage() {
                   </p>
                   <div className="pt-2">
                     <button className="text-primary group flex items-center gap-1 text-sm font-bold hover:underline">
-                      Leer más completo
+                      {t('readMore')}
                       <FontAwesomeIcon
                         icon={faArrowRight}
                         className="h-3 w-3 transition-transform group-hover:translate-x-1"
@@ -186,7 +188,7 @@ export default function AnnouncementsPage() {
 
         {filteredAnnouncements.length === 0 && (
           <div className="py-12 text-center">
-            <p className="text-zinc-500">No hay anuncios en esta categoría.</p>
+            <p className="text-zinc-500">{t('noAnnouncements')}</p>
           </div>
         )}
       </main>
@@ -196,10 +198,10 @@ export default function AnnouncementsPage() {
         <Card padding="md">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-sm font-bold tracking-wider text-zinc-500 uppercase">
-              Próximos Eventos
+              {t('upcomingEvents')}
             </h3>
             <Button variant="ghost" size="sm" className="text-primary">
-              Ver todo
+              {t('viewAll')}
             </Button>
           </div>
           <div className="space-y-4">
@@ -227,7 +229,7 @@ export default function AnnouncementsPage() {
 
         <Card padding="md">
           <h3 className="mb-6 text-sm font-bold tracking-wider text-zinc-500 uppercase">
-            Contactos de Emergencia
+            {t('emergencyContacts')}
           </h3>
           <div className="space-y-3">
             <EmergencyContact

@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -70,6 +71,7 @@ function generateUnitPreview(floors: number, unitsPerFloor: number): string[] {
 }
 
 export default function RegisterPage() {
+  const t = useTranslations('register');
   const [step, setStep] = useState<Step>(1);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -201,19 +203,18 @@ export default function RegisterPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white">
             <FontAwesomeIcon icon={faBuilding} className="h-5 w-5" />
           </div>
-          <span className="text-lg font-bold text-white">PropAdmin PRO</span>
+          <span className="text-lg font-bold text-white">{t('brandName')}</span>
         </div>
         <div className="relative z-10 space-y-4">
           <h2 className="text-2xl leading-tight font-bold text-white lg:text-3xl">
-            La gestión de propiedad horizontal, redefinida.
+            {t('brandTagline')}
           </h2>
           <p className="max-w-sm text-sm text-white/80">
-            Únase a los administradores líderes que optimizan sus edificios con
-            nuestra plataforma de alto rendimiento.
+            {t('brandDescription')}
           </p>
         </div>
         <p className="relative z-10 text-xs text-white/60">
-          © 2024 PropAdmin PRO. Excelencia en administración.
+          {t('brandFooter')}
         </p>
       </div>
 
@@ -225,30 +226,30 @@ export default function RegisterPage() {
             <>
               <div className="flex justify-center">
                 <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-                  ACCESO ADMINISTRATIVO
+                  {t('accessBadge')}
                 </span>
               </div>
               <div className="space-y-2">
                 <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                  Crea tu cuenta
+                  {t('step1Title')}
                 </h1>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Empieza a gestionar tus copropiedades con eficiencia.
+                  {t('step1Subtitle')}
                 </p>
               </div>
               <form onSubmit={handleStep1} className="space-y-4">
                 <Input
-                  label="Nombre Completo"
-                  placeholder="Ej. Juan Pérez"
+                  label={t('fullNameLabel')}
+                  placeholder={t('fullNamePlaceholder')}
                   leftIcon={faUser}
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   required
                 />
                 <Input
-                  label="Teléfono de Contacto"
+                  label={t('phoneLabel')}
                   type="tel"
-                  placeholder="+57 300 000 0000"
+                  placeholder={t('phonePlaceholder')}
                   leftIcon={faPhone}
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
@@ -256,9 +257,9 @@ export default function RegisterPage() {
                 />
                 <div>
                   <Input
-                    label="Correo Electrónico Corporativo"
+                    label={t('emailLabel')}
                     type="email"
-                    placeholder="email@empresa.com"
+                    placeholder={t('emailPlaceholder')}
                     leftIcon={faEnvelope}
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -266,13 +267,13 @@ export default function RegisterPage() {
                     required
                   />
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    Preferiblemente tu email de trabajo
+                    {t('emailHint')}
                   </p>
                 </div>
                 <Input
-                  label="Contraseña"
+                  label={t('passwordLabel')}
                   type="password"
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder={t('passwordPlaceholder')}
                   leftIcon={faLock}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -280,9 +281,9 @@ export default function RegisterPage() {
                   required
                 />
                 <Input
-                  label="Confirmar Contraseña"
+                  label={t('confirmPasswordLabel')}
                   type="password"
-                  placeholder="Repite tu contraseña"
+                  placeholder={t('confirmPasswordPlaceholder')}
                   leftIcon={faLock}
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
@@ -297,19 +298,19 @@ export default function RegisterPage() {
                     className="text-primary focus:ring-primary mt-1 h-4 w-4 rounded border-zinc-300"
                   />
                   <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Acepto los{' '}
+                    {t('acceptTerms')}{' '}
                     <Link
                       href="/terminos"
                       className="text-primary font-medium hover:underline"
                     >
-                      Términos de Servicio
+                      {t('termsLink')}
                     </Link>{' '}
-                    y la{' '}
+                    {t('andThe')}{' '}
                     <Link
                       href="/privacidad"
                       className="text-primary font-medium hover:underline"
                     >
-                      Política de Privacidad
+                      {t('privacyLink')}
                     </Link>
                     .
                   </span>
@@ -321,14 +322,13 @@ export default function RegisterPage() {
                 )}
                 {password !== confirmPassword && confirmPassword && (
                   <p className="text-sm text-red-500">
-                    Las contraseñas no coinciden.
+                    {t('passwordMismatch')}
                   </p>
                 )}
                 <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
                   <FontAwesomeIcon icon={faCheckCircle} className="mt-0.5" />
                   <p>
-                    Te enviaremos un correo de confirmación para validar tu
-                    cuenta antes de continuar.
+                    {t('confirmationNotice')}
                   </p>
                 </div>
                 <Button
@@ -337,16 +337,16 @@ export default function RegisterPage() {
                   isLoading={authStatus === 'loading'}
                   rightIcon={faArrowRight}
                 >
-                  Comenzar Prueba Gratuita
+                  {t('startTrialButton')}
                 </Button>
               </form>
               <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-                ¿Ya tienes cuenta?{' '}
+                {t('alreadyHaveAccount')}{' '}
                 <Link
                   href="/login"
                   className="text-primary font-bold hover:underline"
                 >
-                  Inicia Sesión
+                  {t('signIn')}
                 </Link>
               </p>
             </>
@@ -357,41 +357,40 @@ export default function RegisterPage() {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-primary text-xs font-bold uppercase">
-                  Paso 2 de 3
+                  {t('step2Of3')}
                 </span>
                 <div className="h-1.5 w-24 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
                   <div className="bg-primary h-full w-2/3" />
                 </div>
               </div>
               <p className="text-xs font-medium tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
-                Registra tu propiedad
+                {t('registerPropertyBadge')}
               </p>
               <div className="space-y-2">
                 <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                  Registra tu Copropiedad
+                  {t('step2Title')}
                 </h1>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Completa los datos básicos para iniciar la gestión
-                  administrativa.
+                  {t('step2Subtitle')}
                 </p>
               </div>
               <form onSubmit={handleStep2} className="space-y-4">
                 <Input
-                  label="Nombre del Conjunto Residencial"
-                  placeholder="Ej. Bosques de San Ángel"
+                  label={t('complexNameLabel')}
+                  placeholder={t('complexNamePlaceholder')}
                   leftIcon={faBuilding}
                   value={complexName}
                   onChange={e => setComplexName(e.target.value)}
                   required
                 />
                 <Input
-                  label="NIT / ID Tributaria"
-                  placeholder="900.000.000-1"
+                  label={t('nitLabel')}
+                  placeholder={t('nitPlaceholder')}
                   value={nit}
                   onChange={e => setNit(e.target.value)}
                 />
                 <Input
-                  label="Número de Unidades / Apartamentos"
+                  label={t('unitsCountLabel')}
                   type="number"
                   min={0}
                   placeholder="0"
@@ -399,8 +398,8 @@ export default function RegisterPage() {
                   onChange={e => setUnitsCount(e.target.value)}
                 />
                 <Input
-                  label="Dirección Completa"
-                  placeholder="Calle 100 # 45 - 23"
+                  label={t('addressLabel')}
+                  placeholder={t('addressPlaceholder')}
                   leftIcon={faMapMarkerAlt}
                   value={address}
                   onChange={e => setAddress(e.target.value)}
@@ -409,7 +408,7 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                      País
+                      {t('countryLabel')}
                     </label>
                     <div className="relative">
                       <div className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-zinc-400">
@@ -437,7 +436,7 @@ export default function RegisterPage() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                      Ciudad
+                      {t('cityLabel')}
                     </label>
                     <div className="relative">
                       <div className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-zinc-400">
@@ -468,14 +467,14 @@ export default function RegisterPage() {
                     className="flex-1"
                     leftIcon={faArrowLeft}
                   >
-                    Atrás
+                    {t('backButton')}
                   </Button>
                   <Button
                     type="submit"
                     className="flex-1"
                     rightIcon={faArrowRight}
                   >
-                    Guardar y continuar →
+                    {t('saveAndContinue')}
                   </Button>
                 </div>
               </form>
@@ -487,22 +486,21 @@ export default function RegisterPage() {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-primary text-xs font-bold uppercase">
-                  Paso 3 de 3
+                  {t('step3Of3')}
                 </span>
                 <div className="h-1.5 w-24 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
                   <div className="bg-primary h-full w-full" />
                 </div>
               </div>
               <p className="text-xs font-medium tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
-                Estructura Física
+                {t('physicalStructureBadge')}
               </p>
               <div className="space-y-2">
                 <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                  ¿Cómo está organizado tu conjunto?
+                  {t('step3Title')}
                 </h1>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Configura las torres y unidades de tu propiedad manualmente o
-                  sube tu base de datos existente.
+                  {t('step3Subtitle')}
                 </p>
               </div>
               <div className="border-primary/20 bg-primary/5 flex items-start gap-2 rounded-lg border p-3 text-sm text-zinc-700 dark:text-zinc-300">
@@ -511,8 +509,7 @@ export default function RegisterPage() {
                   className="text-primary mt-0.5 h-4 w-4 shrink-0"
                 />
                 <span>
-                  No te preocupes por los correos ahora. Puedes invitar
-                  residentes más tarde.
+                  {t('inviteResidentsLater')}
                 </span>
               </div>
               <form onSubmit={handleStep3} className="space-y-6">
@@ -538,7 +535,7 @@ export default function RegisterPage() {
                           {tower.name}
                         </span>
                         <span className="text-primary text-xs font-medium">
-                          Configuración Manual
+                          {t('manualConfig')}
                         </span>
                         <FontAwesomeIcon
                           icon={faChevronDown}
@@ -550,7 +547,7 @@ export default function RegisterPage() {
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                Número de Pisos
+                                {t('floorsLabel')}
                               </label>
                               <input
                                 type="number"
@@ -568,7 +565,7 @@ export default function RegisterPage() {
                             </div>
                             <div>
                               <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                Unidades por Piso
+                                {t('unitsPerFloorLabel')}
                               </label>
                               <input
                                 type="number"
@@ -588,11 +585,10 @@ export default function RegisterPage() {
                           <div>
                             <div className="mb-2 flex items-center justify-between">
                               <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                Vista Previa de Unidades ({preview.length}{' '}
-                                Total)
+                                {t('unitsPreview', { count: preview.length })}
                               </span>
                               <Button type="button" variant="ghost" size="sm">
-                                Regenerar
+                                {t('regenerate')}
                               </Button>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
@@ -606,7 +602,7 @@ export default function RegisterPage() {
                               ))}
                               {preview.length > 24 && (
                                 <span className="inline-flex h-8 items-center px-2 text-xs text-zinc-500 dark:text-zinc-400">
-                                  +{preview.length - 24} más
+                                  {t('moreUnits', { count: preview.length - 24 })}
                                 </span>
                               )}
                             </div>
@@ -622,7 +618,7 @@ export default function RegisterPage() {
                   className="hover:border-primary hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-200 py-4 text-sm font-medium text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"
                 >
                   <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-                  Agregar otra torre
+                  {t('addAnotherTower')}
                 </button>
 
                 <div className="rounded-xl border-2 border-dashed border-zinc-200 p-6 text-center dark:border-zinc-700">
@@ -631,21 +627,20 @@ export default function RegisterPage() {
                     className="mb-2 h-10 w-10 text-zinc-400"
                   />
                   <p className="font-semibold text-zinc-900 dark:text-white">
-                    ¿Tienes muchas unidades? Ahorra tiempo
+                    {t('manyUnitsTitle')}
                   </p>
                   <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Arrastra tu archivo Excel aquí o haz clic para buscar en tu
-                    equipo.
+                    {t('manyUnitsSubtitle')}
                   </p>
                   <div className="mt-4 flex items-center justify-center gap-3">
                     <Button type="button" variant="outline" size="sm">
-                      Seleccionar Archivo
+                      {t('selectFile')}
                     </Button>
                     <button
                       type="button"
                       className="text-primary text-sm font-medium hover:underline"
                     >
-                      Descargar plantilla
+                      {t('downloadTemplate')}
                     </button>
                   </div>
                 </div>
@@ -658,14 +653,14 @@ export default function RegisterPage() {
                     className="flex-1"
                     leftIcon={faArrowLeft}
                   >
-                    Atrás
+                    {t('backButton')}
                   </Button>
                   <Button
                     type="submit"
                     className="flex-1"
                     rightIcon={faArrowRight}
                   >
-                    Siguiente →
+                    {t('nextButton')}
                   </Button>
                 </div>
               </form>
@@ -689,10 +684,10 @@ export default function RegisterPage() {
                 </div>
               </div>
               <h1 className="text-center text-2xl font-bold text-zinc-900 dark:text-white">
-                ¡Todo listo!
+                {t('step4Title')}
               </h1>
               <p className="mt-2 text-center text-zinc-500 dark:text-zinc-400">
-                Tu comunidad ya está en línea y lista para ser administrada.
+                {t('step4Subtitle')}
               </p>
               <div className="mt-6 space-y-4">
                 <Button
@@ -700,14 +695,14 @@ export default function RegisterPage() {
                   rightIcon={faArrowRight}
                   onClick={() => router.push('/profile')}
                 >
-                  Ir al Panel de Control →
+                  {t('goToDashboard')}
                 </Button>
                 <button
                   type="button"
                   className="flex w-full items-center justify-center gap-2 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                 >
                   <FontAwesomeIcon icon={faFileLines} className="h-4 w-4" />
-                  Ver resumen de configuración
+                  {t('viewConfigSummary')}
                 </button>
               </div>
               <div className="mt-6 flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
@@ -717,11 +712,10 @@ export default function RegisterPage() {
                 />
                 <div className="text-sm">
                   <p className="font-semibold text-emerald-800 dark:text-emerald-300">
-                    Prueba gratuita de 60 días iniciada
+                    {t('trialStarted')}
                   </p>
                   <p className="mt-0.5 text-emerald-700 dark:text-emerald-400">
-                    Tu cuenta Premium está activa sin costo hasta el 24 de
-                    Diciembre.
+                    {t('trialDescription')}
                   </p>
                 </div>
               </div>

@@ -14,6 +14,7 @@ import { usePropertyId } from '@/features/admin/hooks/usePropertyId';
 import { useZones } from '@/features/admin/hooks/useZones';
 import { useReservations } from '@/features/admin/hooks/useReservations';
 import type { ReservationWithDetails } from '@/features/admin/hooks/useReservations';
+import { useTranslations } from 'next-intl';
 
 // ─── Modal Nueva Zona ─────────────────────────────────────────────────────────
 
@@ -23,9 +24,10 @@ const BACKEND_URL =
 interface ModalNuevaZonaProps {
   onClose: () => void;
   onCrear: (data: { name: string; description?: string; isActive: boolean; image?: File }) => Promise<void>;
+  t: (key: string) => string;
 }
 
-function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
+function ModalNuevaZona({ onClose, onCrear, t }: ModalNuevaZonaProps) {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -54,7 +56,7 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
       });
       onClose();
     } catch (err: any) {
-      setError(err.message || 'No se pudo crear la zona');
+      setError(err.message || t('modalCreateError'));
     } finally {
       setSaving(false);
     }
@@ -68,7 +70,7 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
       <div className="w-full max-w-md rounded-2xl bg-white shadow-xl dark:bg-zinc-900">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
-          <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Nueva Zona</h2>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white">{t('modalNewZoneTitle')}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -82,7 +84,7 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
           {/* Foto */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Foto de la zona
+              {t('modalFieldPhoto')}
             </label>
             <label className="group relative flex cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-zinc-200 transition-colors hover:border-blue-400 dark:border-zinc-700">
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
@@ -91,12 +93,12 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
               ) : (
                 <div className="flex h-36 w-full flex-col items-center justify-center gap-2 text-zinc-400">
                   <ImageIcon className="h-8 w-8" />
-                  <span className="text-xs">Haz clic para subir una foto</span>
+                  <span className="text-xs">{t('modalClickToUpload')}</span>
                 </div>
               )}
               {preview && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="text-xs font-semibold text-white">Cambiar foto</span>
+                  <span className="text-xs font-semibold text-white">{t('modalChangePhoto')}</span>
                 </div>
               )}
             </label>
@@ -105,11 +107,11 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
           {/* Nombre */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Nombre de la zona
+              {t('modalFieldName')}
             </label>
             <input
               type="text"
-              placeholder="Ej: Salón de Eventos"
+              placeholder={t('modalNamePlaceholder')}
               value={nombre}
               onChange={e => setNombre(e.target.value)}
               className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
@@ -119,11 +121,11 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
           {/* Descripción */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Descripción / Detalle
+              {t('modalFieldDescription')}
             </label>
             <input
               type="text"
-              placeholder="Ej: Capacidad: 50 personas"
+              placeholder={t('modalDescriptionPlaceholder')}
               value={descripcion}
               onChange={e => setDescripcion(e.target.value)}
               className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
@@ -133,15 +135,15 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
           {/* Estado */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Estado
+              {t('modalFieldStatus')}
             </label>
             <select
               value={isActive ? 'activo' : 'inactivo'}
               onChange={e => setIsActive(e.target.value === 'activo')}
               className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
             >
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
+              <option value="activo">{t('modalStatusActive')}</option>
+              <option value="inactivo">{t('modalStatusInactive')}</option>
             </select>
           </div>
 
@@ -159,7 +161,7 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
               disabled={saving}
               className="rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
             >
-              Cancelar
+              {t('modalCancelButton')}
             </button>
             <button
               type="button"
@@ -168,7 +170,7 @@ function ModalNuevaZona({ onClose, onCrear }: ModalNuevaZonaProps) {
               className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-500/40 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
             >
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              Crear Zona
+              {t('modalCreateButton')}
             </button>
           </div>
         </div>
@@ -209,10 +211,10 @@ function avatarGradient(id: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Pendiente',
-  CONFIRMED: 'Confirmada',
-  CANCELLED: 'Cancelada',
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  PENDING: 'statusPending',
+  CONFIRMED: 'statusConfirmed',
+  CANCELLED: 'statusCancelled',
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -231,6 +233,7 @@ const ZONE_STATUS_STYLES: Record<string, string> = {
 const PAGE_SIZE = 10;
 
 export default function ReservationsPage() {
+  const t = useTranslations('admin.reservas');
   const { propertyId, loading: loadingProperty } = usePropertyId();
   const { zones, loading: loadingZones, createZone } = useZones(propertyId);
   const { reservations, loading: loadingReservations, error, updateReservation, refetch } =
@@ -251,7 +254,7 @@ export default function ReservationsPage() {
     try {
       await updateReservation(id, { status: 'CONFIRMED' });
     } catch (err: any) {
-      alert(err.message || 'No se pudo confirmar la reserva');
+      alert(err.message || t('approveError'));
     } finally {
       setUpdatingId(null);
     }
@@ -262,7 +265,7 @@ export default function ReservationsPage() {
     try {
       await updateReservation(id, { status: 'CANCELLED' });
     } catch (err: any) {
-      alert(err.message || 'No se pudo cancelar la reserva');
+      alert(err.message || t('rejectError'));
     } finally {
       setUpdatingId(null);
     }
@@ -273,14 +276,14 @@ export default function ReservationsPage() {
       {/* Header */}
       <header>
         <nav className="mb-1 flex items-center gap-1 text-xs text-zinc-400">
-          <span>Inicio</span>
+          <span>{t('breadcrumbHome')}</span>
           <span>/</span>
           <span className="text-zinc-500 dark:text-zinc-300">
-            Gestión de Zonas y Reservas
+            {t('breadcrumbReservations')}
           </span>
         </nav>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-          Gestión de Zonas y Reservas
+          {t('title')}
         </h1>
       </header>
 
@@ -294,7 +297,7 @@ export default function ReservationsPage() {
       {/* Error */}
       {!loading && error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
-          Error al cargar los datos: {error}
+          {t('loadingError', { error })}
         </div>
       )}
 
@@ -305,21 +308,21 @@ export default function ReservationsPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                  Estado de Zonas Comunes
+                  {t('zonesTitle')}
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Disponibilidad de los espacios para los residentes.
+                  {t('zonesSubtitle')}
                 </p>
               </div>
               <Button variant="primary" size="md" onClick={() => setModalZonaAbierto(true)}>
                 <FontAwesomeIcon icon={faPlus} className="mr-2 h-3.5 w-3.5" />
-                Nueva Zona
+                {t('newZoneButton')}
               </Button>
             </div>
 
             {zones.length === 0 ? (
               <p className="text-sm text-zinc-400 dark:text-zinc-500">
-                No hay zonas registradas para esta propiedad.
+                {t('noZones')}
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -346,14 +349,14 @@ export default function ReservationsPage() {
                           <span
                             className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${ZONE_STATUS_STYLES[String(zone.isActive)]}`}
                           >
-                            {zone.isActive ? 'Activa' : 'Inactiva'}
+                            {zone.isActive ? t('statusActive') : t('statusInactive')}
                           </span>
                         </div>
                         {zone.description && (
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">{zone.description}</p>
                         )}
                         {zone.capacity != null && (
-                          <p className="text-xs text-zinc-400">Capacidad: {zone.capacity} personas</p>
+                          <p className="text-xs text-zinc-400">{t('capacityLabel', { count: zone.capacity })}</p>
                         )}
                       </div>
                     </Card>
@@ -367,10 +370,10 @@ export default function ReservationsPage() {
           <section className="space-y-4">
             <div>
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                Reservas Pendientes de Aprobación
+                {t('pendingReservationsTitle')}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Solicitudes recientes que requieren tu validación.
+                {t('pendingReservationsSubtitle')}
               </p>
             </div>
 
@@ -380,19 +383,19 @@ export default function ReservationsPage() {
                   <thead className="border-b border-zinc-100 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Residente
+                        {t('tableHeaderResident')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Zona
+                        {t('tableHeaderZone')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Fecha y Hora
+                        {t('tableHeaderDateTime')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Estado
+                        {t('tableHeaderStatus')}
                       </th>
                       <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Acciones
+                        {t('tableHeaderActions')}
                       </th>
                     </tr>
                   </thead>
@@ -401,13 +404,13 @@ export default function ReservationsPage() {
                     {paginated.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-6 py-10 text-center text-sm text-zinc-400">
-                          No hay solicitudes pendientes de aprobación.
+                          {t('noPendingRequests')}
                         </td>
                       </tr>
                     ) : (
                       paginated.map((res: ReservationWithDetails) => {
                         const residente = res.unit?.resident;
-                        const nombre = residente?.fullName || residente?.displayName || residente?.email || 'Residente';
+                        const nombre = residente?.fullName || residente?.displayName || residente?.email || t('defaultResident');
                         const unidad = res.unit
                           ? `${res.unit.block ? res.unit.block + ' - ' : ''}Unidad ${res.unit.unitNumber}`
                           : '—';
@@ -454,7 +457,7 @@ export default function ReservationsPage() {
                               <span
                                 className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[res.status] || ''}`}
                               >
-                                {STATUS_LABELS[res.status] || res.status}
+                                {STATUS_LABEL_KEYS[res.status] ? t(STATUS_LABEL_KEYS[res.status]) : res.status}
                               </span>
                             </td>
 
@@ -470,7 +473,7 @@ export default function ReservationsPage() {
                                   {updatingId === res.id ? (
                                     <Loader2 className="h-3 w-3 animate-spin" />
                                   ) : (
-                                    'Rechazar'
+                                    t('rejectButton')
                                   )}
                                 </Button>
                                 <Button
@@ -483,7 +486,7 @@ export default function ReservationsPage() {
                                   {updatingId === res.id ? (
                                     <Loader2 className="h-3 w-3 animate-spin" />
                                   ) : (
-                                    'Aprobar'
+                                    t('approveButton')
                                   )}
                                 </Button>
                               </div>
@@ -499,13 +502,13 @@ export default function ReservationsPage() {
               {/* Footer: paginación */}
               <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-800/50">
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Mostrando {paginated.length} de {pendientes.length} solicitudes pendientes
+                  {t('showingOf', { shown: paginated.length, total: pendientes.length })}
                 </p>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    aria-label="Página anterior"
+                    aria-label={t('prevPage')}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
                   >
                     <FontAwesomeIcon icon={faChevronLeft} className="h-3 w-3" />
@@ -516,7 +519,7 @@ export default function ReservationsPage() {
                   <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    aria-label="Página siguiente"
+                    aria-label={t('nextPage')}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
                   >
                     <FontAwesomeIcon icon={faChevronRight} className="h-3 w-3" />
@@ -530,10 +533,10 @@ export default function ReservationsPage() {
           <section className="space-y-4">
             <div>
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                Historial de Reservas
+                {t('historyTitle')}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Todas las reservas de la propiedad.
+                {t('historySubtitle')}
               </p>
             </div>
 
@@ -543,16 +546,16 @@ export default function ReservationsPage() {
                   <thead className="border-b border-zinc-100 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Residente
+                        {t('tableHeaderResident')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Zona
+                        {t('tableHeaderZone')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Fecha y Hora
+                        {t('tableHeaderDateTime')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Estado
+                        {t('tableHeaderStatus')}
                       </th>
                     </tr>
                   </thead>
@@ -560,13 +563,13 @@ export default function ReservationsPage() {
                     {reservations.length === 0 ? (
                       <tr>
                         <td colSpan={4} className="px-6 py-10 text-center text-sm text-zinc-400">
-                          No hay reservas registradas.
+                          {t('noReservations')}
                         </td>
                       </tr>
                     ) : (
                       reservations.map((res: ReservationWithDetails) => {
                         const residente = res.unit?.resident;
-                        const nombre = residente?.fullName || residente?.displayName || residente?.email || 'Residente';
+                        const nombre = residente?.fullName || residente?.displayName || residente?.email || t('defaultResident');
                         const unidad = res.unit
                           ? `${res.unit.block ? res.unit.block + ' - ' : ''}Unidad ${res.unit.unitNumber}`
                           : '—';
@@ -596,7 +599,7 @@ export default function ReservationsPage() {
                               <span
                                 className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[res.status] || ''}`}
                               >
-                                {STATUS_LABELS[res.status] || res.status}
+                                {STATUS_LABEL_KEYS[res.status] ? t(STATUS_LABEL_KEYS[res.status]) : res.status}
                               </span>
                             </td>
                           </tr>
@@ -613,9 +616,10 @@ export default function ReservationsPage() {
 
       {modalZonaAbierto && (
         <ModalNuevaZona
+          t={t}
           onClose={() => setModalZonaAbierto(false)}
           onCrear={async ({ image, ...data }) => {
-            if (!propertyId) throw new Error('No hay propiedad asociada');
+            if (!propertyId) throw new Error(t('noPropertyError'));
             await createZone({ ...data, propertyId, image });
           }}
         />

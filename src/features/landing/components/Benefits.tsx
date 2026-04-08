@@ -1,19 +1,22 @@
+import { getTranslations } from 'next-intl/server';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-export default function Benefits() {
+export default async function Benefits() {
+  const t = await getTranslations('landing.benefits');
+
   const benefits = [
     {
-      title: 'Tranquilidad absoluta',
-      detail: 'Control total de quién ingresa a tu conjunto residencial.',
+      title: t('benefit1Title'),
+      detail: t('benefit1Desc'),
     },
     {
-      title: 'Ahorro de recursos',
-      detail: 'Optimización de gastos comunes mediante auditorías digitales.',
+      title: t('benefit2Title'),
+      detail: t('benefit2Desc'),
     },
     {
-      title: 'Valorización garantizada',
-      detail: 'Una administración eficiente aumenta el valor de tu inmueble.',
+      title: t('benefit3Title'),
+      detail: t('benefit3Desc'),
     },
   ];
 
@@ -57,56 +60,28 @@ export default function Benefits() {
           <div className="order-1 flex flex-col gap-8 lg:order-2">
             <div>
               <h2 className="text-navy mb-4 text-3xl font-black sm:text-4xl dark:text-white">
-                Beneficios pensados para tu bienestar
+                {t('title')}
               </h2>
               <p className="text-slate-gray text-lg dark:text-slate-400">
-                Entendemos los retos de vivir en comunidad. Nuestra solución
-                está diseñada para eliminar la fricción y mejorar la
-                convivencia.
+                {t('subtitle')}
               </p>
             </div>
             <ul className="flex flex-col gap-6">
-              <li className="flex gap-4">
-                <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
-                </div>
-                <div>
-                  <h5 className="text-navy font-bold dark:text-white">
-                    Tranquilidad absoluta
-                  </h5>
-                  <p className="text-slate-gray text-sm dark:text-slate-400">
-                    Control total de quién ingresa a tu conjunto residencial.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
-                </div>
-                <div>
-                  <h5 className="text-navy font-bold dark:text-white">
-                    Ahorro de recursos
-                  </h5>
-                  <p className="text-slate-gray text-sm dark:text-slate-400">
-                    Optimización de gastos comunes mediante auditorías
-                    digitales.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
-                </div>
-                <div>
-                  <h5 className="text-navy font-bold dark:text-white">
-                    Valorización garantizada
-                  </h5>
-                  <p className="text-slate-gray text-sm dark:text-slate-400">
-                    Una administración eficiente aumenta el valor de tu
-                    inmueble.
-                  </p>
-                </div>
-              </li>
+              {benefits.map((b, i) => (
+                <li key={i} className="flex gap-4">
+                  <div className="bg-emerald-green/20 text-emerald-green flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                    <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
+                  </div>
+                  <div>
+                    <h5 className="text-navy font-bold dark:text-white">
+                      {b.title}
+                    </h5>
+                    <p className="text-slate-gray text-sm dark:text-slate-400">
+                      {b.detail}
+                    </p>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

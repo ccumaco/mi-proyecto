@@ -12,6 +12,7 @@ import { AppDispatch } from '@/lib/redux/store';
 import { logout, selectUserRole } from '@/lib/redux/slices/authSlice';
 import type { User } from '@/lib/api';
 import { MENU_ITEMS } from '@/config/menu-items';
+import { useTranslations } from 'next-intl';
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
@@ -46,6 +47,7 @@ function SidebarContent({
   const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
   const currentRole = useSelector(selectUserRole);
+  const t = useTranslations('layout.sidebar');
 
   const filteredNavItems = MENU_ITEMS.filter(item => item.roles.includes(currentRole));
 
@@ -72,16 +74,16 @@ function SidebarContent({
           </div>
           <div className="flex flex-col">
             <h1 className="text-base leading-tight font-bold text-[#111418] dark:text-white">
-              PropManagement
+              {t('brandName')}
             </h1>
-            <p className="text-xs font-normal text-[#617589]">Gestión Residencial</p>
+            <p className="text-xs font-normal text-[#617589]">{t('brandSubtitle')}</p>
           </div>
           {/* Botón cerrar — solo visible en mobile */}
           {onClose && (
             <button
               onClick={onClose}
               className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 lg:hidden"
-              aria-label="Cerrar menú"
+              aria-label={t('closeMenu')}
             >
               <FontAwesomeIcon icon={faTimes} className="h-4 w-4" />
             </button>
@@ -118,14 +120,14 @@ function SidebarContent({
             <p className="truncate text-sm font-bold text-zinc-900 dark:text-white">
               {user?.displayName ||
                 user?.email?.slice(0, user?.email?.indexOf('@') || 0) ||
-                'Usuario'}
+                t('defaultUser')}
             </p>
             <p className="text-xs capitalize text-zinc-500 dark:text-zinc-400">{currentRole}</p>
           </div>
           <button
             className="ml-auto shrink-0 cursor-pointer text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
             onClick={handleLogout}
-            aria-label="Cerrar sesión"
+            aria-label={t('logout')}
           >
             <FontAwesomeIcon icon={faArrowRightFromBracket} className="h-5 w-5 rotate-180" />
           </button>
