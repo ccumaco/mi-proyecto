@@ -9,6 +9,8 @@ import {
   faArrowLeft,
   faKey,
   faPhone,
+  faEye,
+  faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,6 +48,7 @@ export default function LoginPage() {
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [maskedPhone, setMaskedPhone] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -78,9 +81,7 @@ export default function LoginPage() {
           setStep(3);
           setOtpCode(['', '', '', '', '', '']);
         } else if (sendOtpToEmail.rejected.match(result)) {
-          setLocalError(
-            (result.payload as string) ?? t('otpSendError')
-          );
+          setLocalError((result.payload as string) ?? t('otpSendError'));
         }
       });
     } else {
@@ -330,14 +331,39 @@ export default function LoginPage() {
                     onSubmit={handleLoginWithPassword}
                     className="mt-6 space-y-4"
                   >
-                    <Input
-                      type="password"
-                      placeholder={t('passwordPlaceholder')}
-                      leftIcon={faLock}
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                    />
+                    <div className="flex w-full flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                        {t('passwordLabel')}
+                      </label>
+                      <div className="group relative flex items-center">
+                        <div className="group-focus-within:text-primary pointer-events-none absolute left-3.5 text-zinc-400 transition-colors">
+                          <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
+                        </div>
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder={t('passwordPlaceholder')}
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          required
+                          className="focus:border-primary focus:ring-primary/10 dark:focus:border-primary/70 dark:focus:ring-primary/10 w-full rounded-xl border-2 border-zinc-300 bg-white px-4 py-3 pr-11 pl-11 text-sm text-zinc-900 transition-all duration-200 outline-none placeholder:text-zinc-400 focus:ring-4 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3.5 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+                          aria-label={
+                            showPassword
+                              ? 'Ocultar contraseña'
+                              : 'Mostrar contraseña'
+                          }
+                        >
+                          <FontAwesomeIcon
+                            icon={showPassword ? faEyeSlash : faEye}
+                            className="h-4 w-4"
+                          />
+                        </button>
+                      </div>
+                    </div>
                     {authError && (
                       <p className="text-sm text-red-500">{authError}</p>
                     )}

@@ -6,6 +6,8 @@ import {
   faLock,
   faCheckCircle,
   faSpinner,
+  faEye,
+  faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser, uploadUserAvatar } from '@/lib/redux/slices/authSlice';
@@ -39,6 +41,8 @@ export default function Profile() {
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -196,26 +200,52 @@ export default function Profile() {
                 <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                   {t('currentPasswordLabel')}
                 </label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  placeholder="Mínimo 8 caracteres"
-                  className="focus:border-primary mt-2 w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
-                />
+                <div className="group relative mt-2">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="Mínimo 8 caracteres"
+                    className="focus:border-primary w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-11 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+                    aria-label={showCurrentPassword ? 'Ocultar contraseña actual' : 'Mostrar contraseña actual'}
+                  >
+                    <FontAwesomeIcon
+                      icon={showCurrentPassword ? faEyeSlash : faEye}
+                      className="h-5 w-5"
+                    />
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                   {t('newPasswordLabel')}
                 </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 8 caracteres"
-                  className="focus:border-primary mt-2 w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
-                />
+                <div className="group relative mt-2">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="Mínimo 8 caracteres"
+                    className="focus:border-primary w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-11 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+                    aria-label={showNewPassword ? 'Ocultar nueva contraseña' : 'Mostrar nueva contraseña'}
+                  >
+                    <FontAwesomeIcon
+                      icon={showNewPassword ? faEyeSlash : faEye}
+                      className="h-5 w-5"
+                    />
+                  </button>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">
