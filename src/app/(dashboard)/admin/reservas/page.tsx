@@ -235,7 +235,7 @@ const PAGE_SIZE = 10;
 export default function ReservationsPage() {
   const t = useTranslations('admin.reservas');
   const { propertyId, loading: loadingProperty } = usePropertyId();
-  const { zones, loading: loadingZones, createZone } = useZones(propertyId);
+  const { zones, loading: loadingZones, createZone, updateZone } = useZones(propertyId);
   const { reservations, loading: loadingReservations, error, updateReservation, refetch } =
     useReservations(propertyId);
 
@@ -330,36 +330,62 @@ export default function ReservationsPage() {
                   const imgSrc = zone.imageUrl
                     ? (zone.imageUrl.startsWith('http') ? zone.imageUrl : `${BACKEND_URL}${zone.imageUrl}`)
                     : null;
+                  const isActive = zone.isActive;
                   return (
-                    <Card key={zone.id} padding="none" className="flex flex-col overflow-hidden">
-                      {/* Imagen o placeholder */}
-                      {imgSrc ? (
-                        <img src={imgSrc} alt={zone.name} className="h-32 w-full object-cover" />
-                      ) : (
-                        <div className="flex h-32 w-full items-center justify-center bg-zinc-100 dark:bg-zinc-800">
-                          <Building2 className="h-8 w-8 text-zinc-300 dark:text-zinc-600" />
+                    <div
+                      key={zone.id}
+                      className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+                    >
+                      {/* Ícono + Badge */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                          {imgSrc ? (
+                            <img src={imgSrc} alt={zone.name} className="h-11 w-11 rounded-xl object-cover" />
+                          ) : (
+                            <Building2 className="h-5 w-5 text-zinc-500 dark:text-zinc-400" />
+                          )}
                         </div>
-                      )}
-                      {/* Info */}
-                      <div className="flex flex-col gap-2 p-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold leading-tight text-zinc-900 dark:text-white">
-                            {zone.name}
-                          </h3>
-                          <span
-                            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${ZONE_STATUS_STYLES[String(zone.isActive)]}`}
-                          >
-                            {zone.isActive ? t('statusActive') : t('statusInactive')}
-                          </span>
-                        </div>
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${ZONE_STATUS_STYLES[String(isActive)]}`}
+                        >
+                          {isActive ? t('statusActive') : t('statusInactive')}
+                        </span>
+                      </div>
+
+                      {/* Nombre + subtítulo */}
+                      <div className="flex flex-col gap-1">
+                        <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+                          {zone.name}
+                        </h3>
                         {zone.description && (
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400">{zone.description}</p>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400">{zone.description}</p>
                         )}
                         {zone.capacity != null && (
                           <p className="text-xs text-zinc-400">{t('capacityLabel', { count: zone.capacity })}</p>
                         )}
                       </div>
-                    </Card>
+
+                      {/* Footer: toggle Habilitar Reservas */}
+                      <div className="flex items-center justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+                        <span className={`text-sm font-medium ${isActive ? 'text-primary' : 'text-zinc-400'}`}>
+                          {t('enableReservations')}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateZone(zone.id, { isActive: !isActive })}
+                          aria-label={isActive ? t('statusActive') : t('statusInactive')}
+                          className={`relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+                            isActive ? 'bg-primary' : 'bg-zinc-300 dark:bg-zinc-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-[18px] w-[18px] transform rounded-full bg-white shadow transition-transform ${
+                              isActive ? 'translate-x-[18px]' : 'translate-x-[2px]'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

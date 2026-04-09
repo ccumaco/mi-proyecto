@@ -350,19 +350,30 @@ class ApiClient {
   }
 
   async updateZone(id: string, zone: any): Promise<any> {
-    const formData = new FormData();
-    Object.entries(zone).forEach(([k, v]) => {
-      if (v instanceof File) formData.append(k, v);
-      else if (v !== undefined && v !== null) formData.append(k, String(v));
-    });
     const url = `${this.baseURL}/zones/${id}`;
     const token = this.getAccessToken();
-    const headers: Record<string, string> = {};
+    const hasFile = Object.values(zone).some(v => v instanceof File);
+
+    let headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    const response = await fetch(url, { method: 'PUT', headers, body: formData });
+
+    let body: BodyInit;
+    if (hasFile) {
+      const formData = new FormData();
+      Object.entries(zone).forEach(([k, v]) => {
+        if (v instanceof File) formData.append(k, v);
+        else if (v !== undefined && v !== null) formData.append(k, String(v));
+      });
+      body = formData;
+    } else {
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(zone);
+    }
+
+    const response = await fetch(url, { method: 'PUT', headers, body });
     if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new ApiError(body?.message || `Error ${response.status}`, 'client', response.status);
+      const resBody = await response.json().catch(() => ({}));
+      throw new ApiError(resBody?.message || `Error ${response.status}`, 'client', response.status);
     }
     return response.json();
   }

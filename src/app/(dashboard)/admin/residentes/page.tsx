@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/Card';
 import {
   Search,
@@ -12,6 +12,8 @@ import {
   X,
   ChevronDown,
   Loader2,
+  Upload,
+  FileText,
 } from 'lucide-react';
 import { usePropertyId } from '@/features/admin/hooks/usePropertyId';
 import { useUnitsWithResidents } from '@/features/admin/hooks/useUnitsWithResidents';
@@ -205,6 +207,243 @@ function ModalDetalleUnidad({
 }
 
 // ---------------------------------------------------------------------------
+// Modal: Invitar Residente
+// ---------------------------------------------------------------------------
+
+type TabInvitacion = 'individual' | 'masiva';
+
+function InputField({
+  label,
+  type = 'text',
+  value,
+  onChange,
+  placeholder,
+  required,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        {label}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:border-blue-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500"
+      />
+    </div>
+  );
+}
+
+function ModalInvitarResidente({
+  onCerrar,
+  t,
+}: {
+  onCerrar: () => void;
+  t: (key: string, values?: Record<string, string | number>) => string;
+}) {
+  const [tab, setTab] = useState<TabInvitacion>('individual');
+  const [nombre, setNombre] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [celular, setCelular] = useState('');
+  const [torre, setTorre] = useState('');
+  const [apartamento, setApartamento] = useState('');
+  const [archivo, setArchivo] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) setArchivo(file);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setArchivo(file);
+  };
+
+  const tabBase =
+    'flex-1 rounded-lg py-2 text-sm font-semibold transition-colors';
+  const tabActive = 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-white';
+  const tabInactive = 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-zinc-900">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+            {t('modalInviteTitle')}
+          </h2>
+          <button
+            onClick={onCerrar}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="px-6 pt-4">
+          <div className="flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800/60">
+            <button
+              type="button"
+              onClick={() => setTab('individual')}
+              className={`${tabBase} ${tab === 'individual' ? tabActive : tabInactive}`}
+            >
+              {t('modalTabSingle')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab('masiva')}
+              className={`${tabBase} ${tab === 'masiva' ? tabActive : tabInactive}`}
+            >
+              {t('modalTabBulk')}
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5">
+          {tab === 'individual' ? (
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <InputField
+                    label={t('modalFieldName')}
+                    value={nombre}
+                    onChange={setNombre}
+                    placeholder={t('modalFieldNamePlaceholder')}
+                    required
+                  />
+                </div>
+                <div className="col-span-2">
+                  <InputField
+                    label={t('modalFieldEmail')}
+                    type="email"
+                    value={correo}
+                    onChange={setCorreo}
+                    placeholder={t('modalFieldEmailPlaceholder')}
+                    required
+                  />
+                </div>
+                <div className="col-span-2">
+                  <InputField
+                    label={t('modalFieldPhone')}
+                    type="tel"
+                    value={celular}
+                    onChange={setCelular}
+                    placeholder={t('modalFieldPhonePlaceholder')}
+                  />
+                </div>
+                <InputField
+                  label={t('modalFieldTower')}
+                  value={torre}
+                  onChange={setTorre}
+                  placeholder={t('modalFieldTowerPlaceholder')}
+                />
+                <InputField
+                  label={t('modalFieldApartment')}
+                  value={apartamento}
+                  onChange={setApartamento}
+                  placeholder={t('modalFieldApartmentPlaceholder')}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {t('modalBulkDesc')}
+              </p>
+              <div
+                onDragOver={e => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 transition-colors ${
+                  dragging
+                    ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/20'
+                    : archivo
+                      ? 'border-green-400 bg-green-50 dark:bg-green-950/20'
+                      : 'border-zinc-300 bg-zinc-50 hover:border-blue-300 hover:bg-blue-50/40 dark:border-zinc-700 dark:bg-zinc-800/40 dark:hover:border-blue-600'
+                }`}
+              >
+                {archivo ? (
+                  <>
+                    <FileText className="h-8 w-8 text-green-500" />
+                    <p className="text-sm font-semibold text-green-700 dark:text-green-400">
+                      {archivo.name}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); setArchivo(null); }}
+                      className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                    >
+                      {t('modalCancel')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-zinc-400" />
+                    <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+                      {t('modalBulkDropzone')}
+                    </p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                      {t('modalBulkFormats')}
+                    </p>
+                  </>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,.xls,.xlsx"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
+              <button
+                type="button"
+                className="self-start text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
+              >
+                {t('modalBulkDownloadTemplate')}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-zinc-100 px-6 py-4 dark:border-zinc-800">
+          <button
+            type="button"
+            onClick={onCerrar}
+            className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            {t('modalCancel')}
+          </button>
+          <button
+            type="button"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+          >
+            {tab === 'individual' ? t('modalSend') : t('modalBulkSend')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Página principal
 // ---------------------------------------------------------------------------
 
@@ -215,7 +454,10 @@ export default function DirectorioResidentesPage() {
 
   const [busqueda, setBusqueda] = useState('');
   const [filtroBloque, setFiltroBloque] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('');
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<UnitWithResident | null>(null);
+  const [modalInvitarAbierto, setModalInvitarAbierto] = useState(false);
 
   const loading = loadingProperty || loadingUnits;
 
@@ -224,6 +466,9 @@ export default function DirectorioResidentesPage() {
 
   // Bloques únicos
   const bloquesUnicos = Array.from(new Set(units.map(u => u.block).filter(Boolean))) as string[];
+
+  // Tipos únicos de unidad
+  const tiposUnicos = Array.from(new Set(units.map(u => (u as any).type).filter(Boolean))) as string[];
 
   // Filtrado
   const filtradas = units.filter(u => {
@@ -239,8 +484,14 @@ export default function DirectorioResidentesPage() {
       u.unitNumber.includes(busqueda);
 
     const coincideBloque = filtroBloque === '' || u.block === filtroBloque;
+    const coincideTipo = filtroTipo === '' || (u as any).type === filtroTipo;
+    const tieneResidente = u.resident != null;
+    const coincideEstado =
+      filtroEstado === '' ||
+      (filtroEstado === 'ocupada' && tieneResidente) ||
+      (filtroEstado === 'libre' && !tieneResidente);
 
-    return coincideBusqueda && coincideBloque;
+    return coincideBusqueda && coincideBloque && coincideTipo && coincideEstado;
   });
 
   return (
@@ -290,7 +541,7 @@ export default function DirectorioResidentesPage() {
       </div>
 
       {/* Barra de filtros */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           {/* Buscador */}
           <div className="relative">
@@ -300,20 +551,47 @@ export default function DirectorioResidentesPage() {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              className="w-64 rounded-xl border border-zinc-200 bg-white py-2 pr-4 pl-9 text-sm text-zinc-700 shadow-sm focus:border-blue-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder-zinc-500"
+              className="w-56 rounded-lg border border-zinc-200 bg-white py-2 pr-4 pl-9 text-sm text-zinc-700 shadow-sm focus:border-blue-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder-zinc-500"
             />
           </div>
 
           {/* Filtro bloque */}
-          {bloquesUnicos.length > 0 && (
-            <SelectFiltro
-              valor={filtroBloque}
-              onChange={setFiltroBloque}
-              placeholder={t('allBlocksFilter')}
-              opciones={bloquesUnicos.map(b => ({ label: b, value: b }))}
-            />
-          )}
+          <SelectFiltro
+            valor={filtroBloque}
+            onChange={setFiltroBloque}
+            placeholder={t('allBlocksFilter')}
+            opciones={bloquesUnicos.map(b => ({ label: b, value: b }))}
+          />
+
+          {/* Filtro tipo */}
+          <SelectFiltro
+            valor={filtroTipo}
+            onChange={setFiltroTipo}
+            placeholder={t('allTypesFilter')}
+            opciones={tiposUnicos.map(tp => ({ label: tp, value: tp }))}
+          />
+
+          {/* Filtro estado */}
+          <SelectFiltro
+            valor={filtroEstado}
+            onChange={setFiltroEstado}
+            placeholder={t('allStatusFilter')}
+            opciones={[
+              { label: t('statusOccupied'), value: 'ocupada' },
+              { label: t('statusFree'), value: 'libre' },
+            ]}
+          />
         </div>
+
+        {/* Botón Invitar Residente */}
+        <button
+          type="button"
+          onClick={() => setModalInvitarAbierto(true)}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+        >
+          <span className="text-base leading-none">+</span>
+          {t('inviteResidentButton')}
+        </button>
       </div>
 
       {/* Estado de carga */}
@@ -447,6 +725,14 @@ export default function DirectorioResidentesPage() {
         onCerrar={() => setUnidadSeleccionada(null)}
         t={t}
       />
+
+      {/* Modal Invitar Residente */}
+      {modalInvitarAbierto && (
+        <ModalInvitarResidente
+          onCerrar={() => setModalInvitarAbierto(false)}
+          t={t}
+        />
+      )}
     </div>
   );
 }
