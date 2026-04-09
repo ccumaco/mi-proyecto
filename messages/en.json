@@ -22,6 +22,7 @@
     "backButton": "Back",
     "step3PasswordTitle": "Password",
     "step3PasswordFor": "For:",
+    "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
     "loginButton": "Sign in",
     "step3OtpTitle": "SMS Verification",

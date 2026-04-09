@@ -22,6 +22,7 @@
     "backButton": "Volver",
     "step3PasswordTitle": "Contraseña",
     "step3PasswordFor": "Para:",
+    "passwordLabel": "Contraseña",
     "passwordPlaceholder": "••••••••",
     "loginButton": "Iniciar sesión",
     "step3OtpTitle": "Verificación SMS",
