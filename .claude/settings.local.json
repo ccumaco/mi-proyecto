@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(node -e \"const {execSync}=require\\('child_process'\\); try{execSync\\('npx tsc --noEmit',{stdio:'pipe'}\\); console.log\\('OK'\\)}catch\\(e\\){console.log\\(e.stdout?.toString\\(\\)\\); console.log\\(e.stderr?.toString\\(\\)\\)}\")",
+      "Bash(node -e \"const {execSync}=require\\('child_process'\\); try{execSync\\('npx tsc --noEmit',{stdio:'pipe',timeout:30000}\\); console.log\\('OK'\\)}catch\\(e\\){console.log\\(e.stdout?.toString\\(\\)\\); console.log\\(e.stderr?.toString\\(\\)\\)}\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(cmd /c \"taskkill /F /PID 39864\")",
+      "Bash(cmd /c \"taskkill /F /PID 39864 2>&1\")",
+      "Bash(powershell -Command \"Stop-Process -Id 39864 -Force -ErrorAction SilentlyContinue; Write-Host 'done'\")",
+      "Bash(rm -rf .next/dev/lock)",
+      "Bash(npm run:*)",
+      "Bash(node -e ':*)"
+    ]
+  }
+}

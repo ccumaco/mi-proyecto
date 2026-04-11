@@ -1,14 +1,17 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import { selectUser, selectUserRole } from '@/lib/redux/slices/authSlice';
-import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
+import { selectUser } from '@/lib/redux/slices/authSlice';
+import { Card, CardTitle } from '@/components/ui/Card';
 import {
   faUsers,
   faBuilding,
   faWallet,
   faChartLine,
   faBell,
+  faBullhorn,
+  faUpload,
+  faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +20,6 @@ import { useTranslations } from 'next-intl';
 export default function AdminPage() {
   const t = useTranslations('dashboard');
   const user = useSelector(selectUser);
-  const role = useSelector(selectUserRole);
 
   return (
     <div className="space-y-8">
@@ -28,8 +30,10 @@ export default function AdminPage() {
         </h1>
         <p className="text-zinc-500 dark:text-zinc-400">
           {t('welcomePrefix')}{' '}
-          {user?.displayName || user?.email?.split('@')[0] || t('defaultAdminName')}.{' '}
-          {t('welcomeSuffix')}
+          {user?.displayName ||
+            user?.email?.split('@')[0] ||
+            t('defaultAdminName')}
+          . {t('welcomeSuffix')}
         </p>
       </div>
 
@@ -99,32 +103,65 @@ export default function AdminPage() {
 
         {/* Quick Actions */}
         <Card>
-          <CardTitle className="mb-6">{t('quickActions')}</CardTitle>
-          <div className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3"
-              size="lg"
+          <CardTitle className="mb-5">{t('quickActions')}</CardTitle>
+          <div className="flex flex-col gap-3">
+            {/* Invitar Residente — acción primaria */}
+            <button
+              type="button"
+              className="bg-primary flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left transition hover:opacity-90"
             >
-              <FontAwesomeIcon icon={faBell} /> {t('createAnnouncement')}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3"
-              size="lg"
-            >
-              <FontAwesomeIcon icon={faWallet} /> {t('generateReceipts')}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3"
-              size="lg"
-            >
-              <FontAwesomeIcon icon={faUsers} /> {t('registerResident')}
-            </Button>
-            <Button variant="primary" className="mt-4 w-full" size="lg">
-              {t('downloadReport')}
-            </Button>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20">
+                <FontAwesomeIcon icon={faUserPlus} className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">{t('inviteResident')}</p>
+                <p className="text-xs text-white/70">{t('inviteResidentDescription')}</p>
+              </div>
+            </button>
+
+            {/* Nuevo Comunicado */}
+            <ActionCard
+              icon={faBullhorn}
+              title={t('createAnnouncement')}
+              description={t('createAnnouncementDescription')}
+            />
+
+            {/* Subir Documento */}
+            <ActionCard
+              icon={faUpload}
+              title={t('uploadDocument')}
+              description={t('uploadDocumentDescription')}
+            />
+
+            {/* Próximas Tareas */}
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-sm font-bold text-zinc-900 dark:text-white">
+                  {t('upcomingTasks')}
+                </p>
+                <FontAwesomeIcon
+                  icon={faChartLine}
+                  className="h-4 w-4 text-zinc-400"
+                />
+              </div>
+              <div className="space-y-3">
+                <TaskItem
+                  title={t('taskElevator')}
+                  status={t('taskTomorrowTime')}
+                  color="blue"
+                />
+                <TaskItem
+                  title={t('taskAssembly')}
+                  status={t('taskAssemblyTime')}
+                  color="orange"
+                />
+                <TaskItem
+                  title={t('taskLawn')}
+                  status={t('taskCompleted')}
+                  completed
+                />
+              </div>
+            </div>
           </div>
         </Card>
       </div>
@@ -205,6 +242,70 @@ function ActivityItem({
         </div>
         <p className="line-clamp-1 text-xs text-zinc-500">{desc}</p>
       </div>
+    </div>
+  );
+}
+
+function ActionCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: any;
+  title: string;
+  description: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="flex w-full items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-4 text-left transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+    >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+        <FontAwesomeIcon icon={icon} className="h-4 w-4" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-zinc-900 dark:text-white">{title}</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>
+      </div>
+    </button>
+  );
+}
+
+function TaskItem({
+  title,
+  status,
+  color = 'blue',
+  completed = false,
+}: {
+  title: string;
+  status: string;
+  color?: 'blue' | 'orange';
+  completed?: boolean;
+}) {
+  const colorMap: any = {
+    blue: 'bg-blue-500',
+    orange: 'bg-orange-500',
+  };
+
+  return (
+    <div
+      className={`flex items-center justify-between rounded-3xl px-4 py-3 ${
+        completed
+          ? 'bg-zinc-100 text-zinc-400 dark:bg-zinc-950/50 dark:text-zinc-500'
+          : 'bg-white dark:bg-zinc-900'
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <span
+          className={`h-2.5 w-2.5 rounded-full ${
+            completed ? 'bg-zinc-400' : colorMap[color]
+          }`}
+        />
+        <p className={`text-sm font-medium ${completed ? 'line-through' : ''}`}>
+          {title}
+        </p>
+      </div>
+      <span className="text-xs text-zinc-500 dark:text-zinc-400">{status}</span>
     </div>
   );
 }

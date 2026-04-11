@@ -1,7 +1,7 @@
 'use client';
 import {
   faArrowRightFromBracket,
-  faCampground,
+  faBuilding,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -57,20 +57,20 @@ function SidebarContent({
   };
 
   const inactiveLinkClasses =
-    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[#617589] transition-colors hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100';
+    'flex h-10 items-center gap-2.5 rounded-lg px-3 text-[#617589] transition-colors hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100';
   const activeLinkClasses =
-    'bg-primary/10 text-primary flex items-center gap-3 rounded-lg px-3 py-2.5 dark:bg-primary/20';
+    'bg-primary/10 text-primary flex h-10 items-center gap-2.5 rounded-lg px-3 dark:bg-primary/20';
 
   const src = getAvatarUrl(user?.avatarUrl);
   const initials = getInitials(user?.displayName || user?.fullName, user?.email);
 
   return (
-    <div className="flex h-full flex-col justify-between p-6">
+    <div className="flex h-full flex-col justify-between px-4 py-6">
       <div className="flex flex-col gap-8">
         {/* Logo / Brand */}
         <div className="flex items-center gap-3">
-          <div className="bg-primary rounded-lg p-2 text-white">
-            <FontAwesomeIcon icon={faCampground} className="h-5 w-5" />
+          <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-lg text-white">
+            <FontAwesomeIcon icon={faBuilding} className="h-[18px] w-[18px]" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-base leading-tight font-bold text-[#111418] dark:text-white">
@@ -91,23 +91,28 @@ function SidebarContent({
         </div>
 
         {/* Nav Links */}
-        <nav className="flex flex-col gap-1">
-          {filteredNavItems.map(item => (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={onClose}
-              className={pathname === item.href ? activeLinkClasses : inactiveLinkClasses}
-            >
-              <FontAwesomeIcon icon={item.icon} className="h-5 w-5 shrink-0" />
-              <span className="text-sm font-semibold">{item.label}</span>
-            </Link>
-          ))}
+        <nav className="flex flex-col gap-0.5">
+          {filteredNavItems.map(item => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={onClose}
+                className={isActive ? activeLinkClasses : inactiveLinkClasses}
+              >
+                <FontAwesomeIcon icon={item.icon} className="h-4 w-4 shrink-0" />
+                <span className={`text-[13px] ${isActive ? 'font-bold' : 'font-semibold'}`}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
       {/* Bottom User */}
-      <div className="border-t border-[#dbe0e6] pt-6 dark:border-zinc-800">
+      <div className="border-t border-[#dbe0e6] pt-4 dark:border-zinc-800">
         <div className="flex items-center gap-3">
           {src ? (
             <img src={src} alt="Avatar" className="h-9 w-9 rounded-full object-cover shrink-0" />
@@ -129,7 +134,7 @@ function SidebarContent({
             onClick={handleLogout}
             aria-label={t('logout')}
           >
-            <FontAwesomeIcon icon={faArrowRightFromBracket} className="h-5 w-5 rotate-180" />
+            <FontAwesomeIcon icon={faArrowRightFromBracket} className="h-[18px] w-[18px]" />
           </button>
         </div>
       </div>
