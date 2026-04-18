@@ -612,13 +612,23 @@
   },
   "subscription": {
     "expiredTitle": "Assinatura vencida",
-    "expiredAdminDesc": "Seu período de teste de 30 dias terminou. Entre em contato com o suporte para ativar sua assinatura e continuar usando o PropAdmin PRO.",
+    "expiredAdminDesc": "Seu período de teste de 30 dias terminou. Ative seu plano para continuar usando o PropAdmin PRO.",
     "expiredResidentDesc": "O condomínio não possui uma assinatura ativa. Entre em contato com seu administrador.",
+    "activatePlan": "Ativar Plano",
+    "processing": "Processando...",
+    "managePlan": "Gerenciar Plano",
     "logoutButton": "Sair",
     "trialEndsToday": "Seu período de teste vence hoje.",
     "trialEndsInDays": "Seu período de teste vence em {days} {unit}.",
     "trialDaysSingular": "dia",
     "trialDaysPlural": "dias",
-    "closeNotice": "Fechar aviso"
+    "closeNotice": "Fechar aviso",
+    "successTitle": "Pagamento realizado!",
+    "successDesc": "Sua assinatura foi ativada. Agora você pode usar todos os recursos do PropAdmin PRO.",
+    "successButton": "Ir ao painel",
+    "cancelTitle": "Pagamento cancelado",
+    "cancelDesc": "O processo de pagamento foi cancelado. Você pode tentar novamente quando quiser.",
+    "cancelRetry": "Tentar novamente",
+    "cancelBack": "Voltar ao início"
   }
 }

@@ -457,6 +457,92 @@ class ApiClient {
     return this.request<any[]>('/payments');
   }
 
+  // Invitations methods
+  async getInvitations(status?: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED' | 'ALL'): Promise<any[]> {
+    const qs = status && status !== 'ALL' ? `?status=${status}` : '';
+    const res = await this.request<any>(`/invitations${qs}`);
+    return res?.data ?? res ?? [];
+  }
+
+  async createInvitation(invitation: {
+    email: string;
+    fullName?: string;
+    phone?: string;
+    unitNumber?: string;
+    block?: string;
+  }): Promise<any> {
+    const res = await this.request<any>('/invitations', {
+      method: 'POST',
+      body: JSON.stringify(invitation),
+    });
+    return res?.data ?? res;
+  }
+
+  async createBulkInvitations(invitations: Array<{
+    email: string;
+    fullName?: string;
+    phone?: string;
+    unitNumber?: string;
+    block?: string;
+  }>): Promise<{
+    succeeded: any[];
+    failed: { row: number; email: string; reason: string }[];
+    total: number;
+    sent: number;
+    failedCount: number;
+  }> {
+    const res = await this.request<any>('/invitations/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ invitations }),
+    });
+    return res?.data ?? res;
+  }
+
+  async resendInvitation(id: string): Promise<any> {
+    const res = await this.request<any>(`/invitations/${id}/resend`, { method: 'POST' });
+    return res?.data ?? res;
+  }
+
+  async cancelInvitation(id: string): Promise<void> {
+    return this.request<void>(`/invitations/${id}`, { method: 'DELETE' });
+  }
+
+  // Invitation acceptance (public — for residents coming from email link)
+  async getInvitationByToken(token: string): Promise<{
+    email: string;
+    fullName: string | null;
+    phone: string | null;
+    propertyId: string;
+    propertyName: string;
+    towers: { name: string; units: { id: string; unitNumber: string; occupied: boolean }[] }[];
+    expiresAt: string;
+  }> {
+    const res = await this.request<any>(`/auth/invitation/${token}`);
+    return res?.data ?? res;
+  }
+
+  async acceptInvitation(payload: {
+    token: string;
+    fullName: string;
+    phone: string;
+    password: string;
+    unitId: string;
+    dataAuthorization: boolean;
+    vehicles?: Array<{ plate: string; brand?: string; color?: string }>;
+    pets?: Array<{ type: 'DOG' | 'CAT' | 'BIRD' | 'FISH' | 'OTHER'; name: string }>;
+    emergencyContact?: { name: string; phone: string };
+  }): Promise<{ user: User; tokens: AuthTokens }> {
+    const result = await this.request<{ user: User; tokens: AuthTokens }>(
+      '/auth/accept-invitation',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
+    this.setTokens(result.tokens);
+    return result;
+  }
+
   async createPayment(payment: any): Promise<any> {
     return this.request<any>('/payments', {
       method: 'POST',
@@ -502,6 +588,18 @@ class ApiClient {
   // Subscription methods
   async getMySubscription(): Promise<Subscription> {
     return this.request<Subscription>('/subscriptions/me');
+  }
+
+  async createCheckoutSession(): Promise<{ url: string }> {
+    return this.request<{ url: string }>('/subscriptions/checkout', {
+      method: 'POST',
+    });
+  }
+
+  async createPortalSession(): Promise<{ url: string }> {
+    return this.request<{ url: string }>('/subscriptions/portal', {
+      method: 'POST',
+    });
   }
 
   // Generic CRUD methods

@@ -16,6 +16,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@/components/ui/Button';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function AdminPage() {
   const t = useTranslations('dashboard');
@@ -106,8 +107,8 @@ export default function AdminPage() {
           <CardTitle className="mb-5">{t('quickActions')}</CardTitle>
           <div className="flex flex-col gap-3">
             {/* Invitar Residente — acción primaria */}
-            <button
-              type="button"
+            <Link
+              href="/admin/residentes/invitaciones"
               className="bg-primary flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left transition hover:opacity-90"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20">
@@ -117,7 +118,7 @@ export default function AdminPage() {
                 <p className="text-sm font-bold text-white">{t('inviteResident')}</p>
                 <p className="text-xs text-white/70">{t('inviteResidentDescription')}</p>
               </div>
-            </button>
+            </Link>
 
             {/* Nuevo Comunicado */}
             <ActionCard

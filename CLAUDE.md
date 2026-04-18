@@ -80,9 +80,10 @@ Auth state shape:
 El frontend integra con el backend API (Railway) vía `src/lib/api.ts`. La URL base se configura con `NEXT_PUBLIC_API_URL`:
 
 - **Auth Endpoints:** Register, login, refresh, logout, me, forgot-password, reset-password, OTP request/verify
-- **Data Endpoints:** Properties, units, announcements, payments, uploads
+- **Data Endpoints:** Properties, units, announcements, payments, uploads, zones, reservations
 - **Token Management:** JWT tokens stored in localStorage with auto-refresh
 - **Error Handling:** `ApiError` class with typed `kind`: `network | auth | client | server`
+- **Imágenes:** Los campos `imageUrl` en zonas y documentos contienen `secure_url` de Cloudinary — nunca rutas locales `/api/uploads/...` para recursos nuevos
 
 ## Environment Variables
 

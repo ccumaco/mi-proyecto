@@ -1,9 +1,5 @@
 'use client';
-import {
-  faSearch,
-  faBell,
-  faBars,
-} from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faBell, faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '../shared/ThemeToggle';
@@ -24,7 +20,10 @@ export const HeaderDashboard = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         setIsNotificationsOpen(false);
       }
     };
@@ -33,30 +32,17 @@ export const HeaderDashboard = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-[#dbe0e6] bg-white px-4 transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900 md:px-6 lg:px-8">
+    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-[#dbe0e6] bg-white px-4 transition-colors duration-300 md:px-6 lg:px-8 dark:border-zinc-800 dark:bg-zinc-900">
       {/* Izquierda: botón hamburguesa (mobile) + buscador */}
       <div className="flex flex-1 items-center gap-3">
         {/* Hamburguesa — solo visible en mobile */}
         <button
           onClick={onMenuToggle}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#617589] transition-colors hover:bg-[#f0f2f4] dark:hover:bg-zinc-800 lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#617589] transition-colors hover:bg-[#f0f2f4] lg:hidden dark:hover:bg-zinc-800"
           aria-label={t('openMenu')}
         >
           <FontAwesomeIcon icon={faBars} className="h-5 w-5" />
         </button>
-
-        {/* Buscador — oculto en mobile muy pequeño */}
-        <div className="relative hidden w-full max-w-xl sm:block">
-          <FontAwesomeIcon
-            icon={faSearch}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-[#617589]"
-          />
-          <input
-            className="w-full rounded-lg border-none bg-[#f0f2f4] py-2 pr-4 pl-10 text-sm transition-all placeholder:text-[#617589] focus:bg-white focus:ring-2 focus:ring-blue-500/30 dark:bg-zinc-800 dark:text-white dark:focus:bg-zinc-700"
-            placeholder={t('searchPlaceholder')}
-            type="text"
-          />
-        </div>
       </div>
 
       {/* Derecha: acciones */}
@@ -80,26 +66,35 @@ export const HeaderDashboard = ({
           {isNotificationsOpen && (
             <div className="absolute right-0 mt-2 w-80 rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
               <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-                <h3 className="font-semibold text-zinc-800 dark:text-white">{t('notificationsTitle')}</h3>
+                <h3 className="font-semibold text-zinc-800 dark:text-white">
+                  {t('notificationsTitle')}
+                </h3>
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
+              <div className="max-h-72 divide-y divide-zinc-100 overflow-y-auto dark:divide-zinc-800">
                 <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                    <span className="font-semibold">{t('newAssembly')}</span> {t('notification1')}
+                    <span className="font-semibold">{t('newAssembly')}</span>{' '}
+                    {t('notification1')}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-400">{t('notification1Time')}</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">
+                    {t('notification1Time')}
+                  </p>
                 </div>
                 <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {t('notification2')}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-400">{t('notification2Time')}</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">
+                    {t('notification2Time')}
+                  </p>
                 </div>
                 <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {t('notification3')}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-400">{t('notification3Time')}</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">
+                    {t('notification3Time')}
+                  </p>
                 </div>
               </div>
               <div className="border-t border-zinc-100 p-2 text-center dark:border-zinc-800">

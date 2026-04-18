@@ -612,13 +612,23 @@
   },
   "subscription": {
     "expiredTitle": "Subscription expired",
-    "expiredAdminDesc": "Your 30-day trial period has ended. Contact support to activate your subscription and continue using PropAdmin PRO.",
+    "expiredAdminDesc": "Your 30-day trial period has ended. Activate your plan to continue using PropAdmin PRO.",
     "expiredResidentDesc": "The residential complex does not have an active subscription. Please contact your administrator.",
+    "activatePlan": "Activate Plan",
+    "processing": "Processing...",
+    "managePlan": "Manage Plan",
     "logoutButton": "Sign out",
     "trialEndsToday": "Your trial period ends today.",
     "trialEndsInDays": "Your trial period ends in {days} {unit}.",
     "trialDaysSingular": "day",
     "trialDaysPlural": "days",
-    "closeNotice": "Close notice"
+    "closeNotice": "Close notice",
+    "successTitle": "Payment successful!",
+    "successDesc": "Your subscription has been activated. You can now use all PropAdmin PRO features.",
+    "successButton": "Go to dashboard",
+    "cancelTitle": "Payment cancelled",
+    "cancelDesc": "The payment process was cancelled. You can try again whenever you want.",
+    "cancelRetry": "Try again",
+    "cancelBack": "Back to home"
   }
 }
