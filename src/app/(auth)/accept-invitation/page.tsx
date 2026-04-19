@@ -109,6 +109,16 @@ export default function AcceptInvitationPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [touched, setTouched] = useState({
+    tower: false,
+    unit: false,
+    fullName: false,
+    phone: false,
+    password: false,
+    confirmPassword: false,
+    dataAuthorization: false,
+  });
+
   useEffect(() => {
     if (!token) {
       setLoadingInv(false);
@@ -146,7 +156,37 @@ export default function AcceptInvitationPage() {
     return null;
   };
 
+  const isStep1Valid = useMemo(() => validateStep1() === null, [
+    towerName,
+    unitId,
+    fullName,
+    phone,
+    password,
+    confirmPassword,
+    dataAuthorization,
+  ]);
+
+  const getFieldErrors = useMemo(
+    () => ({
+      tower: touched.tower && !towerName ? 'Selecciona la torre o bloque.' : null,
+      unit: touched.unit && !unitId ? 'Selecciona el apartamento.' : null,
+      fullName: touched.fullName && !fullName.trim() ? 'Ingresa tu nombre completo.' : null,
+      phone: touched.phone && !phone.trim() ? 'Ingresa tu teléfono.' : null,
+      password:
+        touched.password && password.length > 0 && password.length < 8
+          ? 'La contraseña debe tener al menos 8 caracteres.'
+          : null,
+      confirmPassword:
+        touched.confirmPassword && confirmPassword.length > 0 && password !== confirmPassword
+          ? 'Las contraseñas no coinciden.'
+          : null,
+      dataAuthorization: touched.dataAuthorization && !dataAuthorization ? 'Debes autorizar el tratamiento de datos.' : null,
+    }),
+    [towerName, unitId, fullName, phone, password, confirmPassword, dataAuthorization, touched]
+  );
+
   const goToStep2 = () => {
+    setTouched({ tower: true, unit: true, fullName: true, phone: true, password: true, confirmPassword: true, dataAuthorization: true });
     const err = validateStep1();
     if (err) {
       setSubmitError(err);
@@ -324,8 +364,14 @@ export default function AcceptInvitationPage() {
                       onChange={e => {
                         setTowerName(e.target.value);
                         setUnitId('');
+                        setTouched(prev => ({ ...prev, tower: true }));
                       }}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+                      onBlur={() => setTouched(prev => ({ ...prev, tower: true }))}
+                      className={`w-full rounded-lg border px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-white ${
+                        getFieldErrors.tower
+                          ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500'
+                          : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-zinc-700'
+                      } bg-white dark:bg-zinc-950`}
                     >
                       <option value="">Selecciona una torre</option>
                       {invitation.towers.map(t => (
@@ -334,6 +380,9 @@ export default function AcceptInvitationPage() {
                         </option>
                       ))}
                     </select>
+                    {getFieldErrors.tower && (
+                      <p className="mt-1 text-xs font-medium text-red-500">{getFieldErrors.tower}</p>
+                    )}
                   </div>
                   <div>
                     <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-zinc-300">
@@ -341,9 +390,17 @@ export default function AcceptInvitationPage() {
                     </label>
                     <select
                       value={unitId}
-                      onChange={e => setUnitId(e.target.value)}
+                      onChange={e => {
+                        setUnitId(e.target.value);
+                        setTouched(prev => ({ ...prev, unit: true }));
+                      }}
+                      onBlur={() => setTouched(prev => ({ ...prev, unit: true }))}
                       disabled={!towerName}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+                      className={`w-full rounded-lg border px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 disabled:opacity-50 dark:text-white ${
+                        getFieldErrors.unit
+                          ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500'
+                          : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-zinc-700'
+                      } bg-white dark:bg-zinc-950`}
                     >
                       <option value="">
                         {towerName ? 'Selecciona un apartamento' : 'Selecciona la torre primero'}
@@ -354,6 +411,9 @@ export default function AcceptInvitationPage() {
                         </option>
                       ))}
                     </select>
+                    {getFieldErrors.unit && (
+                      <p className="mt-1 text-xs font-medium text-red-500">{getFieldErrors.unit}</p>
+                    )}
                     {towerName && availableUnits.length === 0 && (
                       <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
                         No hay apartamentos disponibles en esta torre.
@@ -371,17 +431,27 @@ export default function AcceptInvitationPage() {
                   </h2>
                 </div>
                 <div className="space-y-3">
+                  <input
+                    type="email"
+                    value={invitation?.email || ''}
+                    disabled
+                    className="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-900 cursor-not-allowed dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
+                  />
                   <Input
                     leftIcon={faUser}
                     placeholder="Nombre completo"
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
+                    onBlur={() => setTouched(prev => ({ ...prev, fullName: true }))}
+                    error={getFieldErrors.fullName}
                   />
                   <Input
                     leftIcon={faPhone}
                     placeholder="Teléfono"
                     value={phone}
-                    onChange={e => setPhone(e.target.value)}
+                    onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
+                    onBlur={() => setTouched(prev => ({ ...prev, phone: true }))}
+                    error={getFieldErrors.phone}
                   />
                   <div className="relative">
                     <Input
@@ -390,11 +460,14 @@ export default function AcceptInvitationPage() {
                       placeholder="Crea una contraseña (mín. 8 caracteres)"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
+                      onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
+                      error={getFieldErrors.password}
+                      className="pr-11"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
                     >
                       <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                     </button>
@@ -406,11 +479,14 @@ export default function AcceptInvitationPage() {
                       placeholder="Confirma tu contraseña"
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
+                      onBlur={() => setTouched(prev => ({ ...prev, confirmPassword: true }))}
+                      error={getFieldErrors.confirmPassword}
+                      className="pr-11"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
                     >
                       <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
                     </button>
@@ -418,21 +494,37 @@ export default function AcceptInvitationPage() {
                 </div>
               </section>
 
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-zinc-800 dark:bg-zinc-950">
-                <input
-                  type="checkbox"
-                  checked={dataAuthorization}
-                  onChange={e => setDataAuthorization(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-xs text-gray-700 dark:text-zinc-300">
-                  Autorizo el tratamiento de mis datos personales según la política de privacidad de{' '}
-                  <strong>{invitation.propertyName}</strong>.
-                </span>
-              </label>
+              <div>
+                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+                  getFieldErrors.dataAuthorization
+                    ? 'border-red-400 bg-red-50 dark:border-red-500 dark:bg-red-900/20'
+                    : 'border-gray-200 bg-gray-50 dark:border-zinc-800 dark:bg-zinc-950'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={dataAuthorization}
+                    onChange={e => {
+                      setDataAuthorization(e.target.checked);
+                      setTouched(prev => ({ ...prev, dataAuthorization: true }));
+                    }}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className={`text-xs ${
+                    getFieldErrors.dataAuthorization
+                      ? 'text-red-700 dark:text-red-300'
+                      : 'text-gray-700 dark:text-zinc-300'
+                  }`}>
+                    Autorizo el tratamiento de mis datos personales según la política de privacidad de{' '}
+                    <strong>{invitation.propertyName}</strong>.
+                  </span>
+                </label>
+                {getFieldErrors.dataAuthorization && (
+                  <p className="mt-1 text-xs font-medium text-red-500">{getFieldErrors.dataAuthorization}</p>
+                )}
+              </div>
 
               <div className="flex justify-end">
-                <Button onClick={goToStep2}>
+                <Button onClick={goToStep2} disabled={!isStep1Valid}>
                   Siguiente
                   <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
                 </Button>
