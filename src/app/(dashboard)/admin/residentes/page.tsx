@@ -171,7 +171,7 @@ function ModalDetalleUnidad({
               <div>
                 <p className="font-bold text-zinc-900 dark:text-white">{nombre}</p>
                 <p className="text-sm text-zinc-400">
-                  {unit.block ? `${unit.block} - ` : ''}Unidad {unit.unitNumber}
+                  {unit.block ? `${unit.block} - ` : ''}{t('modalUnit', { number: unit.unitNumber })}
                 </p>
               </div>
             </div>

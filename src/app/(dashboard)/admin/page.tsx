@@ -120,6 +120,24 @@ export default function AdminPage() {
               </div>
             </Link>
 
+            {/* Torres y apartamentos */}
+            <Link
+              href="/admin/propiedad/torres"
+              className="flex w-full items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-4 text-left transition hover:border-primary/40 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                <FontAwesomeIcon icon={faBuilding} className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-zinc-900 dark:text-white">
+                  Torres y apartamentos
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Consulta ocupación por torre
+                </p>
+              </div>
+            </Link>
+
             {/* Nuevo Comunicado */}
             <ActionCard
               icon={faBullhorn}

@@ -174,9 +174,10 @@ const authSlice = createSlice({
         state.status = 'loading';
         state.error = null;
       })
-      .addCase(signUpWithPassword.fulfilled, state => {
+      .addCase(signUpWithPassword.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // User is set on login; registration does not auto-login.
+        state.user = action.payload;
+        state.isAuthenticated = true;
       })
       .addCase(signUpWithPassword.rejected, (state, action) => {
         state.status = 'failed';

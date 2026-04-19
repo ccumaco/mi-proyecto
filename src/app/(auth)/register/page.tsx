@@ -149,7 +149,7 @@ export default function RegisterPage() {
 
     try {
       // Create property
-      const property = await apiClient.createProperty({
+      const propertyRes = await apiClient.createProperty({
         name: complexName,
         nit,
         address,
@@ -158,6 +158,11 @@ export default function RegisterPage() {
         unitsCount: parseInt(unitsCount, 10) || 0,
         adminId: user.id,
       });
+      const property = propertyRes?.data ?? propertyRes;
+
+      if (!property?.id) {
+        throw new Error('No se pudo crear la propiedad (respuesta sin id)');
+      }
 
       // Create units for each tower
       const allUnits = towers.flatMap(tower => {
@@ -176,6 +181,7 @@ export default function RegisterPage() {
       setStep(4);
     } catch (error: any) {
       console.error('Error saving registration data:', error.message);
+      alert(error?.message || 'No se pudo completar el registro.');
     }
   };
 

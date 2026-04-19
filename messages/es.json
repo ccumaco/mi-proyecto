@@ -545,7 +545,47 @@
     "accessAuditButton": "Auditoría de Accesos",
     "roleManagerButton": "Gestor de Roles",
     "maintenanceButton": "Mantenimiento Programado",
-    "editButton": "Editar"
+    "editButton": "Editar",
+    "complexes": {
+      "title": "Gestión de Conjuntos",
+      "description": "Directorio global de copropiedades registradas.",
+      "searchPlaceholder": "Buscar por nombre, NIT o ciudad...",
+      "filterButton": "Filtrar",
+      "cardUnits": "Unidades",
+      "cardPlan": "Plan",
+      "cardAdmin": "Admin"
+    },
+    "users": {
+      "title": "Usuarios Globales",
+      "description": "Administra todos los usuarios con roles de gestión en la plataforma.",
+      "statSuperAdmins": "Super Admins",
+      "statAdmins": "Administradores",
+      "statNewMonth": "Nuevos (Mes)",
+      "searchPlaceholder": "Buscar por nombre o email...",
+      "exportButton": "Exportar Lista",
+      "tableUser": "Usuario",
+      "tableRole": "Rol",
+      "tableComplex": "Copropiedad",
+      "tableStatus": "Estado",
+      "tableActions": "Acciones"
+    },
+    "subscriptions": {
+      "title": "Suscripciones y Pagos",
+      "description": "Control de ingresos por suscripciones de copropiedades.",
+      "reportButton": "Reporte Mensual",
+      "statMRR": "MRR (Ingresos Mensuales)",
+      "statPending": "Pagos Pendientes",
+      "statPendingCount": "{count} conjuntos",
+      "statARR": "Total Anual (ARR)",
+      "historyTitle": "Últimos Pagos Recibidos",
+      "tableComplex": "Conjunto",
+      "tablePlan": "Plan",
+      "tableDate": "Fecha",
+      "tableAmount": "Monto",
+      "tableStatus": "Estado",
+      "statusCompleted": "Completado",
+      "statusPending": "Pendiente"
+    }
   },
   "common": {
     "loading": "Cargando...",
@@ -561,7 +601,25 @@
       "brandSubtitle": "Gestión Residencial",
       "closeMenu": "Cerrar menú",
       "logout": "Cerrar sesión",
-      "defaultUser": "Usuario"
+      "defaultUser": "Usuario",
+      "menu": {
+        "payments": "Mis Pagos",
+        "announcements": "Anuncios",
+        "dashboard": "Dashboard",
+        "reservations": "Zonas y Reservas",
+        "collections": "Cobranzas",
+        "announcements_admin": "Comunicados",
+        "towers": "Torres y apartamentos",
+        "residents": "Residentes",
+        "documents": "Documentos",
+        "access_history": "Auditoría de Acceso",
+        "global_panel": "Panel de Control Global",
+        "complexes": "Gestión de Conjuntos",
+        "global_users": "Usuarios Globales",
+        "platform_subscriptions": "Suscripciones y Pagos",
+        "settings": "Configuración de Sistema",
+        "profile": "Mi Perfil"
+      }
     },
     "header": {
       "searchPlaceholder": "Buscar comunicados, pagos o documentos...",

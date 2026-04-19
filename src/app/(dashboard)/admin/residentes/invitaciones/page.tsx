@@ -87,10 +87,10 @@ function formatRelativeDate(iso: string, t: (k: string, values?: Record<string, 
   yesterday.setDate(yesterday.getDate() - 1);
   const isYesterday = date.toDateString() === yesterday.toDateString();
 
-  const time = date.toLocaleTimeString('es', { hour: 'numeric', minute: '2-digit' });
+  const time = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   if (sameDay) return t('today', { time });
   if (isYesterday) return t('yesterday', { time });
-  return date.toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function parseCsv(text: string): BulkRow[] {

@@ -96,14 +96,14 @@ function SidebarContent({
             const isActive = pathname === item.href;
             return (
               <Link
-                key={item.label}
+                key={item.labelKey}
                 href={item.href}
                 onClick={onClose}
                 className={isActive ? activeLinkClasses : inactiveLinkClasses}
               >
                 <FontAwesomeIcon icon={item.icon} className="h-4 w-4 shrink-0" />
                 <span className={`text-[13px] ${isActive ? 'font-bold' : 'font-semibold'}`}>
-                  {item.label}
+                  {t(`menu.${item.labelKey}`)}
                 </span>
               </Link>
             );

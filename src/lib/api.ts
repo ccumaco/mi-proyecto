@@ -275,12 +275,11 @@ class ApiClient {
   }
 
   async createUnits(units: any[]): Promise<any[]> {
-    const createdUnits = [];
-    for (const unit of units) {
-      const created = await this.createUnit(unit);
-      createdUnits.push(created);
-    }
-    return createdUnits;
+    const res = await this.request<any>('/units/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ units }),
+    });
+    return res?.data ?? res ?? [];
   }
 
   async getUnit(id: string): Promise<any> {
