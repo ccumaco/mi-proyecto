@@ -17,7 +17,7 @@ export default function EditProfilePage() {
     fullname: 'Alejandro Torres',
     email: 'admin@propadmin.test',
     phone: '+57 300 000 0000',
-    nit: '900123456-7',
+    nit: '900218578-7',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);

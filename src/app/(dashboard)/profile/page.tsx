@@ -8,14 +8,18 @@ import {
   faSpinner,
   faEye,
   faEyeSlash,
+  faBuilding,
+  faMapMarkerAlt,
+  faFileLines,
 } from '@fortawesome/free-solid-svg-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser, uploadUserAvatar } from '@/lib/redux/slices/authSlice';
 import { getRoleLabel } from '@/lib/roles';
 import { Card } from '@/components/ui/Card';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { AppDispatch } from '@/lib/redux/store';
 import { useTranslations } from 'next-intl';
+import { apiClient } from '@/lib/api';
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
@@ -33,6 +37,15 @@ function getInitials(name?: string, email?: string): string {
   return source.slice(0, 2).toUpperCase();
 }
 
+interface Property {
+  id: string;
+  name: string;
+  nit: string;
+  address: string;
+  country: string;
+  city: string;
+}
+
 export default function Profile() {
   const t = useTranslations('profile');
   const user = useSelector(selectUser);
@@ -46,6 +59,28 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [property, setProperty] = useState<Property | null>(null);
+  const [propertyLoading, setPropertyLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+      if (user?.role !== 'ADMIN') return;
+      setPropertyLoading(true);
+      try {
+        const response = await apiClient.getProperties();
+        const properties = Array.isArray(response) ? response : response?.data || [];
+        if (properties.length > 0) {
+          setProperty(properties[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching property:', error);
+      } finally {
+        setPropertyLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [user?.role]);
 
   const handleSavePassword = async () => {
     setIsSaving(true);
@@ -159,7 +194,7 @@ export default function Profile() {
                 {t('emailLabel')}
               </label>
               <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
-                {user?.email || 'correo@example.com'}
+                {user?.email}
               </p>
             </div>
 
@@ -168,23 +203,100 @@ export default function Profile() {
                 {t('phoneLabel')}
               </label>
               <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
-                {user?.phone || '+57 300 000 0000'}
+                {user?.phone || '—'}
               </p>
             </div>
 
-            <div>
-              <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
-                {t('cityLabel')}
-              </label>
-              <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
-                Madrid, España
-              </p>
-            </div>
+            {user?.nit && (
+              <div>
+                <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+                  NIT / ID Tributaria
+                </label>
+                <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
+                  {user.nit}
+                </p>
+              </div>
+            )}
           </div>
         </Card>
 
-        {/* Right Panel - Security Settings */}
-        <div className="lg:col-span-2">
+        {/* Right Panel - Property Info + Security Settings */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Property Information - Only for ADMIN */}
+          {user?.role === 'ADMIN' && (
+            <Card className="space-y-6">
+              <div className="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-950/30 dark:text-green-400">
+                  <FontAwesomeIcon icon={faBuilding} className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
+                  Información de la Copropiedad
+                </h3>
+              </div>
+
+              {propertyLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    className="h-6 w-6 animate-spin text-zinc-400"
+                  />
+                </div>
+              ) : property ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+                      Nombre de la Copropiedad
+                    </label>
+                    <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
+                      {property.name}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+                      NIT Tributario
+                    </label>
+                    <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white font-mono">
+                      {property.nit}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+                      Dirección
+                    </label>
+                    <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
+                      {property.address}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+                        País
+                      </label>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white capitalize">
+                        {property.country}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+                        Ciudad
+                      </label>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
+                        {property.city}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 py-4">
+                  No hay información de copropiedad disponible
+                </p>
+              )}
+            </Card>
+          )}
+
           <Card className="space-y-6">
             <div className="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400">

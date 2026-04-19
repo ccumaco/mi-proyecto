@@ -12,15 +12,55 @@ import {
   faBullhorn,
   faUpload,
   faUserPlus,
+  faClock,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@/components/ui/Button';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
+
+interface Analytics {
+  totalUnits: number;
+  activeResidents: number;
+  totalPayments: number;
+  paidPayments: number;
+  trialEndsAt: string | null;
+  subscriptionStatus: string | null;
+}
 
 export default function AdminPage() {
   const t = useTranslations('dashboard');
   const user = useSelector(selectUser);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      try {
+        const data = await apiClient.get('/analytics/me');
+        setAnalytics(data);
+
+        if (data.trialEndsAt) {
+          const trialDate = new Date(data.trialEndsAt);
+          const today = new Date();
+          const diff = Math.ceil(
+            (trialDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          setDaysRemaining(Math.max(0, diff));
+        }
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -43,28 +83,38 @@ export default function AdminPage() {
         <StatCard
           icon={faUsers}
           label={t('statResidents')}
-          value="124"
+          value={loading ? '—' : String(analytics?.activeResidents ?? 0)}
           trend={t('statResidentsTrend')}
         />
         <StatCard
           icon={faBuilding}
           label={t('statUnits')}
-          value="48"
+          value={loading ? '—' : String(analytics?.totalUnits ?? 0)}
           trend={t('statUnitsTrend')}
         />
         <StatCard
           icon={faWallet}
           label={t('statCollection')}
-          value="$12.4M"
+          value={
+            loading
+              ? '—'
+              : `$${((analytics?.paidPayments ?? 0) / 1000000).toFixed(1)}M`
+          }
           trend={t('statCollectionTrend')}
           color="green"
         />
         <StatCard
-          icon={faChartLine}
-          label={t('statExpenses')}
-          value="$4.2M"
-          trend={t('statExpensesTrend')}
-          color="red"
+          icon={faClock}
+          label="TRIAL"
+          value={daysRemaining !== null ? `${daysRemaining} días` : '—'}
+          trend={
+            daysRemaining !== null && daysRemaining <= 7
+              ? '⚠️ Próximo a vencer'
+              : 'Suscripción activa'
+          }
+          color={
+            daysRemaining !== null && daysRemaining <= 7 ? 'red' : 'primary'
+          }
         />
       </div>
 
@@ -106,50 +156,33 @@ export default function AdminPage() {
         <Card>
           <CardTitle className="mb-5">{t('quickActions')}</CardTitle>
           <div className="flex flex-col gap-3">
-            {/* Invitar Residente — acción primaria */}
-            <Link
+            <ActionCard
+              icon={faUserPlus}
+              title={t('inviteResident')}
+              description={t('inviteResidentDescription')}
               href="/admin/residentes/invitaciones"
-              className="bg-primary flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left transition hover:opacity-90"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20">
-                <FontAwesomeIcon icon={faUserPlus} className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-white">{t('inviteResident')}</p>
-                <p className="text-xs text-white/70">{t('inviteResidentDescription')}</p>
-              </div>
-            </Link>
+              variant="primary"
+            />
 
-            {/* Torres y apartamentos */}
-            <Link
+            <ActionCard
+              icon={faBuilding}
+              title="Torres y apartamentos"
+              description="Consulta ocupación por torre"
               href="/admin/propiedad/torres"
-              className="flex w-full items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-4 text-left transition hover:border-primary/40 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                <FontAwesomeIcon icon={faBuilding} className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-zinc-900 dark:text-white">
-                  Torres y apartamentos
-                </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Consulta ocupación por torre
-                </p>
-              </div>
-            </Link>
+            />
 
-            {/* Nuevo Comunicado */}
             <ActionCard
               icon={faBullhorn}
               title={t('createAnnouncement')}
               description={t('createAnnouncementDescription')}
+              href="/admin/comunicados"
             />
 
-            {/* Subir Documento */}
             <ActionCard
               icon={faUpload}
               title={t('uploadDocument')}
               description={t('uploadDocumentDescription')}
+              href="/admin/propiedad/documentos"
             />
 
             {/* Próximas Tareas */}
@@ -269,23 +302,68 @@ function ActionCard({
   icon,
   title,
   description,
+  href,
+  variant = 'default',
 }: {
   icon: any;
   title: string;
   description: string;
+  href?: string;
+  variant?: 'default' | 'primary';
 }) {
-  return (
-    <button
-      type="button"
-      className="flex w-full items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-4 text-left transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
-    >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-        <FontAwesomeIcon icon={icon} className="h-4 w-4" />
+  const isPrimary = variant === 'primary';
+  const baseClasses = 'flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left transition';
+  const variantClasses = isPrimary
+    ? 'bg-primary hover:opacity-90'
+    : 'border border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900';
+  const className = `${baseClasses} ${variantClasses}`;
+
+  const content = (
+    <>
+      <div
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+          isPrimary
+            ? 'bg-white/20'
+            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
+        }`}
+      >
+        <FontAwesomeIcon
+          icon={icon}
+          className={`h-4 w-4 ${isPrimary ? 'text-white' : ''}`}
+        />
       </div>
       <div>
-        <p className="text-sm font-bold text-zinc-900 dark:text-white">{title}</p>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>
+        <p
+          className={`text-sm font-bold ${
+            isPrimary ? 'text-white' : 'text-zinc-900 dark:text-white'
+          }`}
+        >
+          {title}
+        </p>
+        <p
+          className={`text-xs ${
+            isPrimary
+              ? 'text-white/70'
+              : 'text-zinc-500 dark:text-zinc-400'
+          }`}
+        >
+          {description}
+        </p>
       </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" className={className}>
+      {content}
     </button>
   );
 }
