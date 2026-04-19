@@ -41,7 +41,7 @@ export default function AdminPage() {
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        const data = await apiClient.get('/analytics/me');
+        const data = await apiClient.get<Analytics>('/analytics/me');
         setAnalytics(data);
 
         if (data.trialEndsAt) {
@@ -103,19 +103,21 @@ export default function AdminPage() {
           trend={t('statCollectionTrend')}
           color="green"
         />
-        <StatCard
-          icon={faClock}
-          label="TRIAL"
-          value={daysRemaining !== null ? `${daysRemaining} días` : '—'}
-          trend={
-            daysRemaining !== null && daysRemaining <= 7
-              ? '⚠️ Próximo a vencer'
-              : 'Suscripción activa'
-          }
-          color={
-            daysRemaining !== null && daysRemaining <= 7 ? 'red' : 'primary'
-          }
-        />
+        {analytics?.subscriptionStatus === 'TRIAL' && (
+          <StatCard
+            icon={faClock}
+            label="TRIAL"
+            value={daysRemaining !== null ? `${daysRemaining} días` : '—'}
+            trend={
+              daysRemaining !== null && daysRemaining <= 7
+                ? '⚠️ Próximo a vencer'
+                : 'Suscripción activa'
+            }
+            color={
+              daysRemaining !== null && daysRemaining <= 7 ? 'red' : 'primary'
+            }
+          />
+        )}
       </div>
 
       {/* Main Grid */}

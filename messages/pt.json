@@ -726,6 +726,7 @@
     "processing": "Processando...",
     "managePlan": "Gerenciar Plano",
     "logoutButton": "Sair",
+    "trialExpired": "Seu período de teste expirou.",
     "trialEndsToday": "Seu período de teste vence hoje.",
     "trialEndsInDays": "Seu período de teste vence em {days} {unit}.",
     "trialDaysSingular": "dia",

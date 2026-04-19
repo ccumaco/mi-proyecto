@@ -112,6 +112,11 @@ class ApiClient {
         }
       }
 
+      // Broadcast subscription expiry so the dashboard layout can react
+      if (type === 'subscription' && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('subscription:expired'));
+      }
+
       throw error;
     }
 

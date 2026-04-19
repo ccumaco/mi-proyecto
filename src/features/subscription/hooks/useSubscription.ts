@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { apiClient, Subscription } from '@/lib/api';
 import {
@@ -12,6 +12,7 @@ interface UseSubscriptionResult {
   subscription: Subscription | null;
   loading: boolean;
   error: string | null;
+  refetch: () => void;
 }
 
 export function useSubscription(): UseSubscriptionResult {
@@ -21,9 +22,12 @@ export function useSubscription(): UseSubscriptionResult {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
   const shouldFetch =
     isAuthenticated && role !== 'SUPER_ADMIN' && role !== null;
+
+  const refetch = useCallback(() => setFetchTrigger(n => n + 1), []);
 
   useEffect(() => {
     if (!shouldFetch) return;
@@ -58,7 +62,7 @@ export function useSubscription(): UseSubscriptionResult {
     return () => {
       cancelled = true;
     };
-  }, [shouldFetch]);
+  }, [shouldFetch, fetchTrigger]);
 
-  return { subscription, loading, error };
+  return { subscription, loading, error, refetch };
 }

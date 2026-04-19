@@ -726,6 +726,7 @@
     "processing": "Processing...",
     "managePlan": "Manage Plan",
     "logoutButton": "Sign out",
+    "trialExpired": "Your trial period has expired.",
     "trialEndsToday": "Your trial period ends today.",
     "trialEndsInDays": "Your trial period ends in {days} {unit}.",
     "trialDaysSingular": "day",

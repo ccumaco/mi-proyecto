@@ -68,7 +68,7 @@ export default function Profile() {
       setPropertyLoading(true);
       try {
         const response = await apiClient.getProperties();
-        const properties = Array.isArray(response) ? response : response?.data || [];
+        const properties = Array.isArray(response) ? response : [];
         if (properties.length > 0) {
           setProperty(properties[0]);
         }

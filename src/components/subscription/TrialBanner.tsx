@@ -16,22 +16,37 @@ function getDaysRemaining(trialEndsAt: string): number {
   return Math.max(0, diffDays);
 }
 
+function getTrialMessage(
+  isExpired: boolean,
+  daysRemaining: number,
+  t: (key: string, options?: any) => string
+): string {
+  if (isExpired) {
+    return t('trialExpired');
+  }
+
+  if (daysRemaining === 0) {
+    return t('trialEndsToday');
+  }
+
+  return t('trialEndsInDays', {
+    days: daysRemaining,
+    unit:
+      daysRemaining === 1 ? t('trialDaysSingular') : t('trialDaysPlural'),
+  });
+}
+
 export function TrialBanner({ trialEndsAt }: TrialBannerProps) {
   const t = useTranslations('subscription');
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
 
+  const now = new Date();
+  const end = new Date(trialEndsAt);
+  const isExpired = end < now;
   const daysRemaining = getDaysRemaining(trialEndsAt);
-
-  const message =
-    daysRemaining === 0
-      ? t('trialEndsToday')
-      : t('trialEndsInDays', {
-          days: daysRemaining,
-          unit:
-            daysRemaining === 1 ? t('trialDaysSingular') : t('trialDaysPlural'),
-        });
+  const message = getTrialMessage(isExpired, daysRemaining, t);
 
   return (
     <div className="flex items-center justify-between gap-4 bg-amber-400 px-4 py-2.5 text-amber-950 dark:bg-amber-500 dark:text-amber-950">

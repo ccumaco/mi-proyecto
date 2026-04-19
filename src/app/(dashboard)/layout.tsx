@@ -28,7 +28,7 @@ export default function DashboardLayout({
   const user = useSelector(selectUser);
   const userRole = useSelector(selectUserRole);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { subscription } = useSubscription();
+  const { subscription, refetch } = useSubscription();
   // Track whether auth has resolved at least once so that background operations
   // (refreshAuth, fetchUser, etc.) don't re-trigger the full-page loading screen.
   const initializedRef = useRef(false);
@@ -54,6 +54,13 @@ export default function DashboardLayout({
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Listen for subscription expiry events from the API and refetch
+  useEffect(() => {
+    const handleExpiry = () => refetch();
+    window.addEventListener('subscription:expired', handleExpiry);
+    return () => window.removeEventListener('subscription:expired', handleExpiry);
+  }, [refetch]);
 
   if (timedOut && isInitializing) {
     return (
@@ -93,7 +100,15 @@ export default function DashboardLayout({
     userRole !== 'SUPER_ADMIN' &&
     subscription?.status === 'BLOCKED';
 
-  if (isSubscriptionBlocked) {
+  // También bloquear si el trial expiró (verificar directamente)
+  const isTrialExpired =
+    userRole !== 'SUPER_ADMIN' &&
+    subscription?.status === 'TRIAL' &&
+    new Date(subscription.trialEndsAt) < new Date();
+
+  const shouldBlockSubscription = isSubscriptionBlocked || isTrialExpired;
+
+  if (shouldBlockSubscription) {
     const screenRole = userRole === 'ADMIN' ? 'ADMIN' : 'RESIDENT';
     return <SubscriptionExpiredScreen role={screenRole} />;
   }
@@ -110,16 +125,16 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-zinc-950">
-      <SidebarDashboard user={user} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <HeaderDashboard user={user} onMenuToggle={() => setSidebarOpen(prev => !prev)} />
-        {showTrialBanner && subscription && (
-          <TrialBanner trialEndsAt={subscription.trialEndsAt} />
-        )}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
+        <SidebarDashboard user={user} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <HeaderDashboard user={user} onMenuToggle={() => setSidebarOpen(prev => !prev)} />
+          {showTrialBanner && subscription && (
+            <TrialBanner trialEndsAt={subscription.trialEndsAt} />
+          )}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
   );
 }

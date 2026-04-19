@@ -728,6 +728,7 @@
     "processing": "Procesando...",
     "managePlan": "Gestionar Plan",
     "logoutButton": "Cerrar sesión",
+    "trialExpired": "Tu período de prueba ha expirado.",
     "trialEndsToday": "Tu período de prueba vence hoy.",
     "trialEndsInDays": "Tu período de prueba vence en {days} {unit}.",
     "trialDaysSingular": "día",
