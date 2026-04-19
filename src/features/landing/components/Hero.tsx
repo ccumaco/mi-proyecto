@@ -28,9 +28,6 @@ export default async function Hero() {
                 {t('subtitle')}
               </p>
               <div className="mt-4 flex flex-wrap gap-4">
-                <button className="bg-primary shadow-primary/30 h-14 rounded-xl px-8 text-base font-bold text-white shadow-xl transition-transform hover:scale-[1.02]">
-                  {t('requestInfoButton')}
-                </button>
                 <button className="h-14 rounded-xl border border-white/20 bg-white/10 px-8 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20">
                   {t('watchDemoButton')}
                 </button>

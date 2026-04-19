@@ -119,9 +119,6 @@ export default function Navbar() {
                   {t('login')}
                 </button>
               </Link>
-              <button className="bg-primary rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700">
-                {t('requestInfo')}
-              </button>
             </>
           )}
         </div>
