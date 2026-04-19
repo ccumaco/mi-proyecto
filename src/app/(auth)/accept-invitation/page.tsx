@@ -168,19 +168,19 @@ export default function AcceptInvitationPage() {
 
   const getFieldErrors = useMemo(
     () => ({
-      tower: touched.tower && !towerName ? 'Selecciona la torre o bloque.' : null,
-      unit: touched.unit && !unitId ? 'Selecciona el apartamento.' : null,
-      fullName: touched.fullName && !fullName.trim() ? 'Ingresa tu nombre completo.' : null,
-      phone: touched.phone && !phone.trim() ? 'Ingresa tu teléfono.' : null,
+      tower: touched.tower && !towerName ? 'Selecciona la torre o bloque.' : undefined,
+      unit: touched.unit && !unitId ? 'Selecciona el apartamento.' : undefined,
+      fullName: touched.fullName && !fullName.trim() ? 'Ingresa tu nombre completo.' : undefined,
+      phone: touched.phone && !phone.trim() ? 'Ingresa tu teléfono.' : undefined,
       password:
         touched.password && password.length > 0 && password.length < 8
           ? 'La contraseña debe tener al menos 8 caracteres.'
-          : null,
+          : undefined,
       confirmPassword:
         touched.confirmPassword && confirmPassword.length > 0 && password !== confirmPassword
           ? 'Las contraseñas no coinciden.'
-          : null,
-      dataAuthorization: touched.dataAuthorization && !dataAuthorization ? 'Debes autorizar el tratamiento de datos.' : null,
+          : undefined,
+      dataAuthorization: touched.dataAuthorization && !dataAuthorization ? 'Debes autorizar el tratamiento de datos.' : undefined,
     }),
     [towerName, unitId, fullName, phone, password, confirmPassword, dataAuthorization, touched]
   );
