@@ -55,7 +55,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     labelKey: 'residents',
     icon: faUsers,
-    href: '/admin/residentes',
+    href: '/admin/invitaciones',
     roles: [Role.ADMIN],
   },
   {

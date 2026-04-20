@@ -64,6 +64,25 @@ export const signUpWithPassword = createAsyncThunk(
   }
 );
 
+export const registerAdminWithProperty = createAsyncThunk(
+  'auth/registerAdminWithProperty',
+  async (
+    payload: {
+      user: { email: string; password: string; fullName: string; phone?: string };
+      property: { name: string; nit: string; address?: string; country?: string; city?: string };
+      towers?: Array<{ name: string; floors: number; unitsPerFloor: number }>;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const result = await apiClient.registerAdmin(payload);
+      return result;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'No se pudo completar el registro');
+    }
+  }
+);
+
 export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
@@ -180,6 +199,19 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(signUpWithPassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(registerAdminWithProperty.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(registerAdminWithProperty.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(registerAdminWithProperty.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       })

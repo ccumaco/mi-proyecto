@@ -162,7 +162,7 @@ export default function AdminPage() {
               icon={faUserPlus}
               title={t('inviteResident')}
               description={t('inviteResidentDescription')}
-              href="/admin/residentes/invitaciones"
+              href="/admin/invitaciones"
               variant="primary"
             />
 

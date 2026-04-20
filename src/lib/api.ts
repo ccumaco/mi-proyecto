@@ -161,6 +161,38 @@ class ApiClient {
     return result;
   }
 
+  async registerAdmin(payload: {
+    user: {
+      email: string;
+      password: string;
+      fullName: string;
+      phone?: string;
+    };
+    property: {
+      name: string;
+      nit: string;
+      address?: string;
+      country?: string;
+      city?: string;
+    };
+    towers?: Array<{ name: string; floors: number; unitsPerFloor: number }>;
+  }): Promise<{
+    user: User;
+    property: { id: string; name: string; nit: string; unitsCount: number };
+    tokens: AuthTokens;
+  }> {
+    const result = await this.request<{
+      user: User;
+      property: { id: string; name: string; nit: string; unitsCount: number };
+      tokens: AuthTokens;
+    }>('/auth/register-admin', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    this.setTokens(result.tokens);
+    return result;
+  }
+
   async login(credentials: {
     email: string;
     password: string;
@@ -462,10 +494,23 @@ class ApiClient {
   }
 
   // Invitations methods
-  async getInvitations(status?: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED' | 'ALL'): Promise<any[]> {
-    const qs = status && status !== 'ALL' ? `?status=${status}` : '';
-    const res = await this.request<any>(`/invitations${qs}`);
-    return res?.data ?? res ?? [];
+  async getInvitations(params?: {
+    status?: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED' | 'ALL';
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: any[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    const qs = new URLSearchParams();
+    if (params?.status && params.status !== 'ALL') qs.set('status', params.status);
+    if (params?.search) qs.set('search', params.search);
+    if (params?.page) qs.set('page', String(params.page));
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const query = qs.toString() ? `?${qs.toString()}` : '';
+    const res = await this.request<any>(`/invitations${query}`);
+    return {
+      data: res?.data ?? [],
+      meta: res?.meta ?? { total: 0, page: 1, limit: 10, totalPages: 1 },
+    };
   }
 
   async createInvitation(invitation: {
@@ -504,6 +549,14 @@ class ApiClient {
 
   async resendInvitation(id: string): Promise<any> {
     const res = await this.request<any>(`/invitations/${id}/resend`, { method: 'POST' });
+    return res?.data ?? res;
+  }
+
+  async updateInvitation(
+    id: string,
+    data: { fullName?: string; phone?: string; unitNumber?: string; block?: string }
+  ): Promise<any> {
+    const res = await this.request<any>(`/invitations/${id}`, { method: 'PUT', body: JSON.stringify(data) });
     return res?.data ?? res;
   }
 

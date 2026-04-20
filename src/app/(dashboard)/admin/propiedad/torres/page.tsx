@@ -19,6 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { apiClient } from '@/lib/api';
+import { generateUnitNumbers } from '@/lib/units';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
@@ -47,16 +48,6 @@ interface Tower {
 
 type FilterMode = 'ALL' | 'OCCUPIED' | 'FREE';
 
-function generateUnitNumbers(floors: number, unitsPerFloor: number): string[] {
-  const units: string[] = [];
-  for (let p = floors; p >= 1; p--) {
-    for (let u = 1; u <= unitsPerFloor; u++) {
-      units.push(`${p}${String(u).padStart(2, '0')}`);
-    }
-  }
-  return units;
-}
-
 export default function TorresPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +60,7 @@ export default function TorresPage() {
 
   const [showCreateTower, setShowCreateTower] = useState(false);
   const [showAddUnit, setShowAddUnit] = useState(false);
+  const [showCreateProperty, setShowCreateProperty] = useState(false);
   const [editingUnit, setEditingUnit] = useState<UnitDTO | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<UnitDTO | null>(null);
   const [toast, setToast] = useState<{ kind: 'ok' | 'err'; message: string } | null>(null);
@@ -178,12 +170,66 @@ export default function TorresPage() {
     );
   }
 
-  if (error) {
+  if (error && !error.includes('No tienes una propiedad')) {
     return (
       <div className="mx-auto max-w-2xl p-6">
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-300">
           {error}
         </div>
+      </div>
+    );
+  }
+
+  if (error && error.includes('No tienes una propiedad')) {
+    return (
+      <div className="mx-auto max-w-6xl p-4 sm:p-6">
+        <nav className="mb-4 flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-500">
+          <Link href="/admin" className="hover:text-blue-600 dark:hover:text-blue-400">
+            Admin
+          </Link>
+          <span>/</span>
+          <span className="font-medium text-gray-900 dark:text-white">Propiedad</span>
+        </nav>
+        <div className="rounded-xl border-2 border-dashed border-blue-300 bg-linear-to-br from-blue-50 to-indigo-50 p-12 text-center dark:border-blue-900/40 dark:from-blue-950/30 dark:to-indigo-950/30">
+          <div className="mb-4 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40">
+              <FontAwesomeIcon icon={faBuilding} className="text-2xl text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+          <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-white">
+            Comienza creando tu propiedad
+          </h3>
+          <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
+            Primero debes crear tu propiedad para poder agregar torres y apartamentos.
+          </p>
+          <Button onClick={() => setShowCreateProperty(true)} size="lg">
+            <FontAwesomeIcon icon={faPlus} className="mr-2" />
+            Crear propiedad
+          </Button>
+        </div>
+        {showCreateProperty && (
+          <CreatePropertyModal
+            onClose={() => setShowCreateProperty(false)}
+            onDone={async name => {
+              setShowCreateProperty(false);
+              setToast({ kind: 'ok', message: `Propiedad "${name}" creada` });
+              await new Promise(r => setTimeout(r, 500));
+              window.location.reload();
+            }}
+            onError={msg => setToast({ kind: 'err', message: msg })}
+          />
+        )}
+        {toast && (
+          <div
+            className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+              toast.kind === 'ok'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-red-600 text-white'
+            }`}
+          >
+            {toast.message}
+          </div>
+        )}
       </div>
     );
   }
@@ -271,12 +317,27 @@ export default function TorresPage() {
       )}
 
       {!currentTower ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
-          <FontAwesomeIcon icon={faCircleInfo} className="mb-2 text-2xl text-gray-400" />
-          <p className="mb-4 text-sm text-gray-600 dark:text-zinc-400">
-            No hay torres ni apartamentos registrados todavía.
+        <div className="rounded-xl border-2 border-dashed border-blue-300 bg-linear-to-br from-blue-50 to-indigo-50 p-12 text-center dark:border-blue-900/40 dark:from-blue-950/30 dark:to-indigo-950/30">
+          <div className="mb-4 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40">
+              <FontAwesomeIcon icon={faBuilding} className="text-2xl text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+          <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-white">
+            Comienza creando tu primera torre
+          </h3>
+          <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
+            Define las torres y apartamentos de tu propiedad. Puedes agregar múltiples bloques con diferentes cantidades de pisos y apartamentos por piso.
           </p>
-          <Button onClick={() => setShowCreateTower(true)}>
+          <div className="mb-8 inline-block rounded-lg border border-blue-200 bg-white p-4 text-left dark:border-blue-900/40 dark:bg-zinc-900">
+            <p className="mb-2 text-xs font-semibold text-gray-700 dark:text-zinc-300">Ejemplo:</p>
+            <ul className="space-y-1 text-xs text-gray-600 dark:text-zinc-400">
+              <li>✓ Torre A: 5 pisos × 4 apartamentos = 20 unidades</li>
+              <li>✓ Torre B: 3 pisos × 2 apartamentos = 6 unidades</li>
+              <li>✓ Bloque Principal: 2 pisos × 3 apartamentos = 6 unidades</li>
+            </ul>
+          </div>
+          <Button onClick={() => setShowCreateTower(true)} size="lg">
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             Crear primera torre
           </Button>
@@ -797,6 +858,54 @@ function EditUnitModal({
           </Button>
           <Button onClick={save} disabled={submitting}>
             {submitting ? 'Guardando...' : 'Guardar cambios'}
+          </Button>
+        </div>
+      </div>
+    </ModalShell>
+  );
+}
+
+function CreatePropertyModal({
+  onClose,
+  onDone,
+  onError,
+}: {
+  onClose: () => void;
+  onDone: (name: string) => void;
+  onError: (msg: string) => void;
+}) {
+  const [name, setName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const save = async () => {
+    if (!name.trim()) return onError('El nombre de la propiedad es requerido');
+    try {
+      setSubmitting(true);
+      await apiClient.createProperty({ name: name.trim() });
+      onDone(name.trim());
+    } catch (e: any) {
+      onError(e?.message || 'No se pudo crear la propiedad');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <ModalShell title="Crear propiedad" onClose={onClose}>
+      <div className="space-y-4">
+        <Input
+          label="Nombre de la propiedad"
+          leftIcon={faBuilding}
+          placeholder="Mi Edificio, Conjunto Residencial, etc."
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose} disabled={submitting}>
+            Cancelar
+          </Button>
+          <Button onClick={save} disabled={submitting}>
+            {submitting ? 'Creando...' : 'Crear propiedad'}
           </Button>
         </div>
       </div>

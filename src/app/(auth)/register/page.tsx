@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   faUser,
@@ -24,20 +24,25 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  signUpWithPassword,
+  registerAdminWithProperty,
   selectAuthStatus,
   selectAuthError,
-  selectUser,
 } from '@/lib/redux/slices/authSlice';
 import { AppDispatch } from '@/lib/redux/store';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { validarNIT, parseNIT } from '@/components/ui/NITInput';
 import Link from 'next/link';
-import { apiClient } from '@/lib/api';
 import { useTranslations } from 'next-intl';
+import { generateUnitNumbers } from '@/lib/units';
 
 type Step = 1 | 2 | 3 | 4;
+
+interface Extension {
+  value: string;
+  label: string;
+  flag: string;
+}
 
 interface Tower {
   id: string;
@@ -54,10 +59,10 @@ interface ValidationErrors {
   confirmPassword?: string;
   complexName?: string;
   nit?: string;
-  unitsCount?: string;
   address?: string;
   country?: string;
   city?: string;
+  towers?: string;
 }
 
 const validateEmail = (email: string): string | undefined => {
@@ -65,10 +70,10 @@ const validateEmail = (email: string): string | undefined => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Correo inválido';
 };
 
-const validatePhone = (phone: string): string | undefined => {
-  if (!phone) return 'El teléfono es requerido';
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length < 10) return 'Teléfono debe tener al menos 10 dígitos';
+const validatePhone = (phoneNumber: string): string | undefined => {
+  if (!phoneNumber) return 'El teléfono es requerido';
+  const cleaned = phoneNumber.replace(/\D/g, '');
+  if (cleaned.length < 7) return 'Teléfono debe tener al menos 7 dígitos';
 };
 
 const validatePassword = (password: string): string | undefined => {
@@ -104,6 +109,25 @@ const validateNITExists = async (nit: string): Promise<string | undefined> => {
   }
 };
 
+const EXTENSIONES: Extension[] = [
+  { value: '+57', label: 'Colombia', flag: 'co' },
+  { value: '+52', label: 'México', flag: 'mx' },
+  { value: '+34', label: 'España', flag: 'es' },
+  { value: '+54', label: 'Argentina', flag: 'ar' },
+  { value: '+56', label: 'Chile', flag: 'cl' },
+  { value: '+51', label: 'Perú', flag: 'pe' },
+  { value: '+58', label: 'Venezuela', flag: 've' },
+  { value: '+505', label: 'Nicaragua', flag: 'ni' },
+  { value: '+506', label: 'Costa Rica', flag: 'cr' },
+  { value: '+507', label: 'Panamá', flag: 'pa' },
+  { value: '+591', label: 'Bolivia', flag: 'bo' },
+  { value: '+55', label: 'Brasil', flag: 'br' },
+  { value: '+595', label: 'Paraguay', flag: 'py' },
+  { value: '+598', label: 'Uruguay', flag: 'uy' },
+  { value: '+1', label: 'USA', flag: 'us' },
+  { value: '+1', label: 'Canadá', flag: 'ca' },
+];
+
 const PAISES = [
   { value: 'colombia', label: 'Colombia' },
   { value: 'mexico', label: 'México' },
@@ -111,26 +135,36 @@ const PAISES = [
   { value: 'argentina', label: 'Argentina' },
   { value: 'chile', label: 'Chile' },
   { value: 'peru', label: 'Perú' },
+  { value: 'venezuela', label: 'Venezuela' },
+  { value: 'nicaragua', label: 'Nicaragua' },
+  { value: 'costarica', label: 'Costa Rica' },
+  { value: 'panama', label: 'Panamá' },
+  { value: 'bolivia', label: 'Bolivia' },
+  { value: 'brasil', label: 'Brasil' },
+  { value: 'paraguay', label: 'Paraguay' },
+  { value: 'uruguay', label: 'Uruguay' },
+  { value: 'usa', label: 'Estados Unidos' },
+  { value: 'canada', label: 'Canadá' },
 ];
 
 const CIUDADES: Record<string, string[]> = {
-  colombia: ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena'],
-  mexico: ['Ciudad de México', 'Guadalajara', 'Monterrey', 'Puebla', 'Tijuana'],
-  espana: ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Bilbao'],
-  argentina: ['Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza', 'La Plata'],
-  chile: ['Santiago', 'Valparaíso', 'Concepción', 'La Serena', 'Antofagasta'],
-  peru: ['Lima', 'Arequipa', 'Trujillo', 'Cusco', 'Chiclayo'],
+  colombia: ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Cúcuta', 'Bucaramanga', 'Santa Marta', 'Ibagué', 'Pereira'],
+  mexico: ['Ciudad de México', 'Guadalajara', 'Monterrey', 'Puebla', 'Tijuana', 'Cancún', 'Playa del Carmen', 'León', 'Veracruz', 'Querétaro'],
+  espana: ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Bilbao', 'Málaga', 'Alicante', 'Córdoba', 'Palma', 'Murcia'],
+  argentina: ['Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza', 'La Plata', 'San Juan', 'Salta', 'Tucumán', 'Mar del Plata', 'Bahía Blanca'],
+  chile: ['Santiago', 'Valparaíso', 'Concepción', 'La Serena', 'Antofagasta', 'Temuco', 'Osorno', 'Valdivia', 'Coyhaique', 'Punta Arenas'],
+  peru: ['Lima', 'Arequipa', 'Trujillo', 'Cusco', 'Chiclayo', 'Iquitos', 'Puno', 'Ayacucho', 'Huancayo', 'Chancay'],
+  venezuela: ['Caracas', 'Maracaibo', 'Valencia', 'Barquisimeto', 'Maracay', 'Puerto La Cruz', 'Mérida', 'San Cristóbal', 'Cumaná', 'Cabimas'],
+  nicaragua: ['Managua', 'León', 'Granada', 'Masaya', 'Jinotega', 'Estelí', 'Matagalpa', 'Chinandega', 'Bluefields', 'Big Corn Island'],
+  costarica: ['San José', 'San Isidro', 'Alajuela', 'Cartago', 'Limón', 'Puntarenas', 'San Carlos', 'Liberia', 'Desamparados', 'Heredia'],
+  panama: ['Panamá City', 'San Miguelito', 'Colón', 'La Chorrera', 'Arraiján', 'Tocumen', 'Taboga', 'Chitré', 'Penonomé', 'David'],
+  bolivia: ['La Paz', 'Santa Cruz', 'Cochabamba', 'Oruro', 'Potosí', 'Sucre', 'Tarija', 'Riberalta', 'Guayaramerín', 'Trinida'],
+  brasil: ['São Paulo', 'Río de Janeiro', 'Salvador', 'Brasília', 'Fortaleza', 'Belo Horizonte', 'Manaus', 'Curitiba', 'Recife', 'Porto Alegre'],
+  paraguay: ['Asunción', 'Ciudad del Este', 'San Juan Bautista', 'Encarnación', 'Villarrica', 'Coronel Oviedo', 'Caaguazú', 'Pedro Juan Caballero', 'Iguazú', 'Caazapá'],
+  uruguay: ['Montevideo', 'Salto', 'Paysandú', 'Rivera', 'Maldonado', 'Rocha', 'Soriano', 'Durazno', 'Florida', 'Cerro Largo'],
+  usa: ['Nueva York', 'Los Ángeles', 'Chicago', 'Houston', 'Phoenix', 'Filadelfia', 'San Antonio', 'San Diego', 'Dallas', 'San José'],
+  canada: ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa', 'Winnipeg', 'Quebec City', 'Hamilton', 'Kitchener', 'London'],
 };
-
-function generateUnitPreview(floors: number, unitsPerFloor: number): string[] {
-  const units: string[] = [];
-  for (let piso = floors; piso >= 1; piso--) {
-    for (let u = 1; u <= unitsPerFloor; u++) {
-      units.push(`${piso}${String(u).padStart(2, '0')}`);
-    }
-  }
-  return units;
-}
 
 export default function RegisterPage() {
   const t = useTranslations('register');
@@ -139,18 +173,20 @@ export default function RegisterPage() {
   // Step 1: Account creation (with default values for testing)
   const [fullName, setFullName] = useState('Test User');
   const [email, setEmail] = useState(`test${Date.now()}@example.com`);
-  const [phone, setPhone] = useState('+57 300 000 0000');
+  const [phoneExtension, setPhoneExtension] = useState('+57');
+  const [phoneNumber, setPhoneNumber] = useState('300 000 0000');
   const [password, setPassword] = useState('Test@1234');
   const [confirmPassword, setConfirmPassword] = useState('Test@1234');
   const [acceptTerms, setAcceptTerms] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const [extensionOpen, setExtensionOpen] = useState(false);
+  const extensionRef = useRef<HTMLDivElement>(null);
 
   // Step 2: Property registration (with default values)
   const [complexName, setComplexName] = useState('Condominio Sunset');
   const [nit, setNit] = useState('900218578-7');
-  const [unitsCount, setUnitsCount] = useState('24');
   const [address, setAddress] = useState('Cra 5 # 45-67, Bogotá');
   const [country, setCountry] = useState('colombia');
   const [city, setCity] = useState('Bogotá');
@@ -165,7 +201,17 @@ export default function RegisterPage() {
   const router = useRouter();
   const authStatus = useSelector(selectAuthStatus);
   const authError = useSelector(selectAuthError);
-  const user = useSelector(selectUser);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (extensionRef.current && !extensionRef.current.contains(e.target as Node)) {
+        setExtensionOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const validateStep1 = (): boolean => {
     const newErrors: ValidationErrors = {};
@@ -176,7 +222,7 @@ export default function RegisterPage() {
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
 
-    const phoneError = validatePhone(phone);
+    const phoneError = validatePhone(phoneNumber);
     if (phoneError) newErrors.phone = phoneError;
 
     const passwordError = validatePassword(password);
@@ -194,39 +240,34 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleStep1 = async (e: React.FormEvent<HTMLFormElement>) => {
+  const EXTENSION_TO_COUNTRY: Record<string, string> = {
+    '+57': 'colombia',
+    '+52': 'mexico',
+    '+34': 'espana',
+    '+54': 'argentina',
+    '+56': 'chile',
+    '+51': 'peru',
+    '+58': 'venezuela',
+    '+505': 'nicaragua',
+    '+506': 'costarica',
+    '+507': 'panama',
+    '+591': 'bolivia',
+    '+55': 'brasil',
+    '+595': 'paraguay',
+    '+598': 'uruguay',
+    '+1': 'usa',
+  };
+
+  const handleStep1 = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!validateStep1()) return;
-
-    // Limpiar error previo de email
-    setErrors(prev => ({ ...prev, email: undefined }));
-
-    const cleanPhone = phone.replace(/\D/g, '');
-
-    const result = await dispatch(
-      signUpWithPassword({
-        email,
-        password,
-        full_name: fullName,
-        phone: cleanPhone,
-        nit: nit,
-        role: 'admin',
-      })
-    );
-
-    if (signUpWithPassword.fulfilled.match(result)) {
-      setErrors({});
-      setStep(2);
-    } else if (signUpWithPassword.rejected.match(result)) {
-      // Mostrar error del servidor en el campo de email
-      const serverError = result.payload as string;
-      if (serverError?.toLowerCase().includes('correo')) {
-        setErrors(prev => ({ ...prev, email: serverError }));
-      } else {
-        setErrors(prev => ({ ...prev, email: serverError || 'Error al registrar el usuario' }));
-      }
+    setErrors({});
+    const inferredCountry = EXTENSION_TO_COUNTRY[phoneExtension];
+    if (inferredCountry) {
+      setCountry(inferredCountry);
+      setCity('');
     }
+    setStep(2);
   };
 
   const validateStep2 = (): boolean => {
@@ -243,10 +284,6 @@ export default function RegisterPage() {
         newErrors.nit =
           'NIT inválido. Verifique formato y dígito de verificación.';
       }
-    }
-
-    if (unitsCount && parseInt(unitsCount, 10) < 0) {
-      newErrors.unitsCount = 'Número de unidades no puede ser negativo';
     }
 
     const addressError = validateAddress(address);
@@ -277,77 +314,75 @@ export default function RegisterPage() {
   };
 
   const validateStep3 = (): boolean => {
-    if (towers.length === 0) {
-      setErrors({ address: 'Debes agregar al menos una torre' });
-      return false;
-    }
-
     for (const tower of towers) {
       if (tower.floors < 1) {
-        setErrors({ address: `Torre ${tower.name}: mínimo 1 piso` });
+        setErrors({ towers: `Torre ${tower.name}: mínimo 1 piso` });
         return false;
       }
       if (tower.unitsPerFloor < 1) {
-        setErrors({ address: `Torre ${tower.name}: mínimo 1 unidad por piso` });
+        setErrors({ towers: `Torre ${tower.name}: mínimo 1 unidad por piso` });
         return false;
       }
     }
-
     setErrors({});
     return true;
   };
 
-  const handleStep3 = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitRegistration = async (skipTowers: boolean) => {
+    if (!skipTowers && !validateStep3()) return;
 
-    if (!validateStep3()) return;
-
-    if (!user) {
-      setStep(4);
-      return;
-    }
-
-    try {
-      const propertyRes = await apiClient.createProperty({
+    const payload = {
+      user: {
+        email,
+        password,
+        fullName,
+        phone: `${phoneExtension} ${phoneNumber}`,
+      },
+      property: {
         name: complexName,
         nit,
         address,
         country,
         city,
-        unitsCount: parseInt(unitsCount, 10) || 0,
-        adminId: user.id,
-      });
-      const property = propertyRes?.data ?? propertyRes;
+      },
+      towers: skipTowers
+        ? []
+        : towers.map(t => ({
+            name: t.name,
+            floors: t.floors,
+            unitsPerFloor: t.unitsPerFloor,
+          })),
+    };
 
-      if (!property?.id) {
-        throw new Error('No se pudo crear la propiedad (respuesta sin id)');
-      }
-
-      const allUnits = towers.flatMap(tower => {
-        const units = generateUnitPreview(tower.floors, tower.unitsPerFloor);
-        return units.map(u => ({
-          unitNumber: u,
-          block: tower.name,
-          propertyId: property.id,
-        }));
-      });
-
-      if (allUnits.length > 0) {
-        await apiClient.createUnits(allUnits);
-      }
-
+    try {
+      setSubmitting(true);
+      await dispatch(registerAdminWithProperty(payload)).unwrap();
       setErrors({});
       setStep(4);
-    } catch (error: any) {
-      console.error('Error saving registration data:', error.message);
-      const errorMessage = error?.message || 'No se pudo completar el registro.';
-      // Mostrar error de NIT en el campo NIT, otros errores en dirección
-      if (errorMessage.toLowerCase().includes('nit')) {
-        setErrors({ nit: errorMessage });
+    } catch (err: any) {
+      const message = typeof err === 'string' ? err : err?.message || 'No se pudo completar el registro.';
+      const lower = message.toLowerCase();
+      if (lower.includes('correo') || lower.includes('email')) {
+        setErrors({ email: message });
+        setStep(1);
+      } else if (lower.includes('nit')) {
+        setErrors({ nit: message });
+        setStep(2);
       } else {
-        setErrors({ address: errorMessage });
+        setErrors({ towers: message });
       }
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleStep3 = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await submitRegistration(false);
+  };
+
+  const handleSkipTowers = async () => {
+    await submitRegistration(true);
   };
 
   const goBack = () => {
@@ -395,7 +430,7 @@ export default function RegisterPage() {
     !errors.confirmPassword &&
     fullName &&
     email &&
-    phone &&
+    phoneNumber &&
     password &&
     confirmPassword &&
     acceptTerms;
@@ -415,7 +450,7 @@ export default function RegisterPage() {
   const isStep3Complete =
     towers.length > 0 &&
     towers.every(t => t.floors >= 1 && t.unitsPerFloor >= 1) &&
-    !errors.address;
+    !errors.towers;
 
   return (
     <div className="flex min-h-screen">
@@ -500,25 +535,75 @@ export default function RegisterPage() {
                   <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                     {t('phoneLabel')}
                   </label>
-                  <div className="group relative flex items-center">
-                    <div className="group-focus-within:text-primary pointer-events-none absolute left-3.5 text-zinc-400 transition-colors">
-                      <FontAwesomeIcon icon={faPhone} className="h-4 w-4" />
+                  <div className="flex gap-2">
+                    <div ref={extensionRef} className="relative">
+                      <button
+                        type="button"
+                        disabled={authStatus === 'loading'}
+                        onClick={() => setExtensionOpen(o => !o)}
+                        className="flex h-11.5 min-w-30 items-center gap-2 rounded-xl border-2 border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                      >
+                        {(() => {
+                          const sel = EXTENSIONES.find(e => e.value === phoneExtension && e.flag === EXTENSIONES.find(x => x.value === phoneExtension)?.flag) ?? EXTENSIONES.find(e => e.value === phoneExtension) ?? EXTENSIONES[0];
+                          return (
+                            <>
+                              <img
+                                src={`https://flagcdn.com/20x15/${sel.flag}.png`}
+                                width={20}
+                                height={15}
+                                alt={sel.label}
+                                className="rounded-xs object-cover"
+                              />
+                              <span className="font-medium">{sel.value}</span>
+                              <FontAwesomeIcon icon={faChevronDown} className={`h-3 w-3 text-zinc-400 transition-transform ${extensionOpen ? 'rotate-180' : ''}`} />
+                            </>
+                          );
+                        })()}
+                      </button>
+                      {extensionOpen && (
+                        <div className="absolute top-full left-0 z-50 mt-1 max-h-60 w-64 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+                          {EXTENSIONES.map((ext, idx) => (
+                            <button
+                              key={`${ext.value}-${idx}`}
+                              type="button"
+                              onClick={() => {
+                                setPhoneExtension(ext.value);
+                                setErrors(prev => ({ ...prev, phone: undefined }));
+                                setExtensionOpen(false);
+                              }}
+                              className={`flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 ${phoneExtension === ext.value ? 'bg-primary/5 font-semibold text-primary' : 'text-zinc-800 dark:text-zinc-200'}`}
+                            >
+                              <img
+                                src={`https://flagcdn.com/20x15/${ext.flag}.png`}
+                                width={20}
+                                height={15}
+                                alt={ext.label}
+                                className="rounded-xs object-cover"
+                              />
+                              <span className="flex-1">{ext.label}</span>
+                              <span className="text-zinc-400">{ext.value}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <input
-                      type="tel"
-                      placeholder={t('phonePlaceholder')}
-                      value={phone}
-                      onChange={e => {
-                        setPhone(e.target.value);
-                        if (e.target.value) {
-                          const err = validatePhone(e.target.value);
-                          setErrors(prev => ({ ...prev, phone: err }));
-                        }
-                      }}
-                      disabled={authStatus === 'loading'}
-                      required
-                      className={getInputClass(!!errors.phone)}
-                    />
+                    <div className="group relative flex flex-1 items-center">
+                      <input
+                        type="tel"
+                        placeholder="300 000 0000"
+                        value={phoneNumber}
+                        onChange={e => {
+                          setPhoneNumber(e.target.value);
+                          if (e.target.value) {
+                            const err = validatePhone(e.target.value);
+                            setErrors(prev => ({ ...prev, phone: err }));
+                          }
+                        }}
+                        disabled={authStatus === 'loading'}
+                        required
+                        className={getInputClass(!!errors.phone)}
+                      />
+                    </div>
                   </div>
                   {errors.phone && (
                     <span className="animate-in fade-in slide-in-from-top-1 flex items-center gap-1 text-xs font-medium text-red-500">
@@ -877,48 +962,6 @@ export default function RegisterPage() {
 
                 <div className="flex w-full flex-col gap-1.5">
                   <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                    {t('unitsCountLabel')}
-                  </label>
-                  <div className="group relative flex items-center">
-                    <div className="group-focus-within:text-primary pointer-events-none absolute left-3.5 text-zinc-400 transition-colors">
-                      <FontAwesomeIcon icon={faBuilding} className="h-4 w-4" />
-                    </div>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={unitsCount}
-                      onChange={e => {
-                        setUnitsCount(e.target.value);
-                        const num = parseInt(e.target.value, 10);
-                        if (e.target.value && num < 0) {
-                          setErrors(prev => ({
-                            ...prev,
-                            unitsCount: 'No puede ser negativo',
-                          }));
-                        } else {
-                          setErrors(prev => ({
-                            ...prev,
-                            unitsCount: undefined,
-                          }));
-                        }
-                      }}
-                      className={getInputClass(!!errors.unitsCount)}
-                    />
-                  </div>
-                  {errors.unitsCount && (
-                    <span className="animate-in fade-in slide-in-from-top-1 flex items-center gap-1 text-xs font-medium text-red-500">
-                      <FontAwesomeIcon
-                        icon={faExclamationCircle}
-                        className="h-3 w-3"
-                      />
-                      {errors.unitsCount}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex w-full flex-col gap-1.5">
-                  <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                     {t('addressLabel')}
                   </label>
                   <div className="group relative flex items-center">
@@ -1075,20 +1118,20 @@ export default function RegisterPage() {
                 />
                 <span>{t('inviteResidentsLater')}</span>
               </div>
-              {errors.address && (
+              {errors.towers && (
                 <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-500 dark:bg-red-900/20">
                   <FontAwesomeIcon
                     icon={faExclamationCircle}
                     className="mt-0.5 h-4 w-4 shrink-0"
                   />
-                  {errors.address}
+                  {errors.towers}
                 </div>
               )}
 
               <form onSubmit={handleStep3} className="space-y-6">
                 {towers.map(tower => {
                   const isExpanded = expandedTower === tower.id;
-                  const preview = generateUnitPreview(
+                  const preview = generateUnitNumbers(
                     tower.floors,
                     tower.unitsPerFloor
                   );
@@ -1132,12 +1175,12 @@ export default function RegisterPage() {
                                   if (val < 1) {
                                     setErrors(prev => ({
                                       ...prev,
-                                      address: `Torre ${tower.name}: mínimo 1 piso`,
+                                      towers: `Torre ${tower.name}: mínimo 1 piso`,
                                     }));
                                   } else {
                                     setErrors(prev => ({
                                       ...prev,
-                                      address: undefined,
+                                      towers: undefined,
                                     }));
                                   }
                                 }}
@@ -1158,12 +1201,12 @@ export default function RegisterPage() {
                                   if (val < 1) {
                                     setErrors(prev => ({
                                       ...prev,
-                                      address: `Torre ${tower.name}: mínimo 1 unidad por piso`,
+                                      towers: `Torre ${tower.name}: mínimo 1 unidad por piso`,
                                     }));
                                   } else {
                                     setErrors(prev => ({
                                       ...prev,
-                                      address: undefined,
+                                      towers: undefined,
                                     }));
                                   }
                                 }}
@@ -1236,24 +1279,40 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={goBack}
+                      className="flex-1"
+                      leftIcon={faArrowLeft}
+                      disabled={submitting}
+                    >
+                      {t('backButton')}
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      rightIcon={faArrowRight}
+                      isLoading={submitting}
+                      disabled={!isStep3Complete || submitting}
+                    >
+                      {t('nextButton')}
+                    </Button>
+                  </div>
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={goBack}
-                    className="flex-1"
-                    leftIcon={faArrowLeft}
+                    variant="ghost"
+                    className="w-full"
+                    onClick={handleSkipTowers}
+                    disabled={submitting}
                   >
-                    {t('backButton')}
+                    Omitir y terminar
                   </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    rightIcon={faArrowRight}
-                    disabled={!isStep3Complete}
-                  >
-                    {t('nextButton')}
-                  </Button>
+                  <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
+                    Podrás configurar las torres más adelante desde tu panel de administración.
+                  </p>
                 </div>
               </form>
             </>
@@ -1285,7 +1344,7 @@ export default function RegisterPage() {
                 <Button
                   className="w-full py-3.5 text-base font-bold"
                   rightIcon={faArrowRight}
-                  onClick={() => router.push('/profile')}
+                  onClick={() => router.push('/admin')}
                 >
                   {t('goToDashboard')}
                 </Button>
