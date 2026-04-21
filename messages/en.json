@@ -645,7 +645,8 @@
       "myProfile": "My Profile",
       "logout": "Sign out",
       "login": "Sign in",
-      "requestInfo": "Request information"
+      "requestInfo": "Request information",
+      "watchDemoButton": "Watch Demo"
     },
     "hero": {
       "badge": "Real Estate Innovation",
@@ -690,9 +691,9 @@
       "benefit3Desc": "Efficient management increases the value of your property."
     },
     "cta": {
-      "title": "Ready to modernize your complex?",
-      "subtitle": "Join over 500 complexes that already trust PropManagement for their daily management.",
-      "requestAdvisory": "Request free advisory",
+      "title": "Ready to modernize your building?",
+      "subtitle": "Join over 450+ modern communities managing their future with PropAdmin PRO. No credit card required to start.",
+      "requestAdvisory": "Start My Free Trial",
       "talkToAdvisor": "Talk to an advisor"
     },
     "pricing": {
@@ -723,7 +724,7 @@
       "mostPopular": "Most Popular"
     },
     "footer": {
-      "brand": "PropManagement",
+      "brand": "PropAdmin PRO",
       "brandDesc": "Leaders in the digital real estate administration market in Latin America. Transforming communities since 2014.",
       "companyTitle": "Company",
       "aboutUs": "About us",
@@ -738,8 +739,8 @@
       "contactTitle": "Contact",
       "address": "123 Main St, New York, USA",
       "phone": "+1 (555) 456-7890",
-      "email": "contact@propmanagement.com",
-      "copyright": "© 2024 PropManagement Inc. All rights reserved.",
+      "email": "contact@propadmin.pro",
+      "copyright": "© 2024 PropAdmin PRO. All rights reserved.",
       "privacyLink": "Privacy",
       "cookiesLink": "Cookies",
       "securityLink": "Security"

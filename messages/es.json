@@ -647,7 +647,8 @@
       "myProfile": "Mi Perfil",
       "logout": "Cerrar sesión",
       "login": "Iniciar sesión",
-      "requestInfo": "Solicitar información"
+      "requestInfo": "Solicitar información",
+      "watchDemoButton": "Ver Demo"
     },
     "hero": {
       "badge": "Innovación Inmobiliaria",
@@ -693,8 +694,8 @@
     },
     "cta": {
       "title": "¿Listo para modernizar tu conjunto?",
-      "subtitle": "Únete a más de 500 conjuntos que ya confían en PropManagement para su gestión diaria.",
-      "requestAdvisory": "Solicitar asesoría gratuita",
+      "subtitle": "Únete a más de 500 conjuntos que ya confían en PropAdmin PRO para su gestión diaria.",
+      "requestAdvisory": "Comenzar Prueba Gratuita",
       "talkToAdvisor": "Hablar con un asesor"
     },
     "pricing": {
@@ -734,12 +735,12 @@
       "quote2": "Redujimos la morosidad en un 40% en solo tres meses gracias a la pasarela de pagos integrada.",
       "author2": "Marta Gómez",
       "role2": "Gerente - Edificio Platinum",
-      "quote3": "La app para residentes es increíble. Los comunicados llegan al instante y las reservas de zonas comunes son automáticas." ,
+      "quote3": "La app para residentes es increíble. Los comunicados llegan al instante y las reservas de zonas comunes son automáticas.",
       "author3": "Ricardo Silva",
       "role3": "Administrador - Torres del Sol"
     },
     "footer": {
-      "brand": "PropManagement",
+      "brand": "PropAdmin PRO",
       "brandDesc": "Líderes en el mercado de administración inmobiliaria digital en Latinoamérica. Transformando comunidades desde 2014.",
       "companyTitle": "Compañía",
       "aboutUs": "Sobre nosotros",
@@ -754,8 +755,8 @@
       "contactTitle": "Contacto",
       "address": "Calle 100 #15-32, Bogotá, Colombia",
       "phone": "+57 (601) 456-7890",
-      "email": "contacto@propmanagement.com",
-      "copyright": "© 2024 PropManagement Inc. Todos los derechos reservados.",
+      "email": "contacto@propadmin.pro",
+      "copyright": "© 2024 PropAdmin PRO. Todos los derechos reservados.",
       "privacyLink": "Privacidad",
       "cookiesLink": "Cookies",
       "securityLink": "Seguridad"

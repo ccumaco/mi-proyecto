@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const LOCALES = [
@@ -10,12 +9,12 @@ const LOCALES = [
 ];
 
 function getCookieLocale(): string {
+  if (typeof document === 'undefined') return 'es';
   const match = document.cookie.match(/(?:^|;\s*)locale=([^;]+)/);
   return match ? match[1] : 'es';
 }
 
 export function LanguageSwitcher() {
-  const router = useRouter();
   const [active, setActive] = useState('es');
 
   useEffect(() => {
@@ -29,15 +28,15 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div className="flex items-center rounded-lg bg-[#f0f2f4] p-0.5 dark:bg-zinc-800">
+    <div className="flex items-center rounded-xl bg-slate-100 dark:bg-white/5 p-1 border border-slate-200 dark:border-white/10">
       {LOCALES.map(({ code, label }) => (
         <button
           key={code}
           onClick={() => setLocale(code)}
-          className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+          className={`rounded-lg px-3 py-1.5 text-[10px] font-black tracking-widest transition-all duration-300 ${
             active === code
-              ? 'bg-white text-zinc-800 shadow-sm dark:bg-zinc-700 dark:text-white'
-              : 'text-[#617589] hover:text-zinc-800 dark:hover:text-zinc-300'
+              ? 'bg-white dark:bg-emerald-green text-navy dark:text-white shadow-md'
+              : 'text-slate-gray hover:text-navy dark:hover:text-white'
           }`}
         >
           {label}
